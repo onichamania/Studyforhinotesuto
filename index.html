@@ -1,0 +1,1090 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>学習アプリ</title>
+<style>
+  /* ===== リセット・基本 ===== */
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --bg: #f5f5f5;
+    --card-bg: #ffffff;
+    --text: #111111;
+    --text-muted: #555555;
+    --border: #222222;
+    --border-light: #cccccc;
+    --accent: #111111;
+    --accent-text: #ffffff;
+    --correct: #1a1a1a;
+    --wrong: #888888;
+    --radius: 10px;
+    --shadow: 0 2px 8px rgba(0,0,0,0.12);
+  }
+  body {
+    font-family: 'Hiragino Kaku Gothic ProN', 'Meiryo', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+  }
+
+  /* ===== ヘッダー ===== */
+  header {
+    background: var(--accent);
+    color: var(--accent-text);
+    padding: 14px 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+  header h1 { font-size: 1.1rem; letter-spacing: 0.05em; }
+  #adminBtn {
+    background: transparent;
+    border: 1px solid #666;
+    color: #ccc;
+    padding: 4px 12px;
+    border-radius: 4px;
+    font-size: 0.75rem;
+    cursor: pointer;
+  }
+  #adminBtn:hover { border-color: #fff; color: #fff; }
+
+  /* ===== メインレイアウト ===== */
+  main { max-width: 700px; margin: 0 auto; padding: 20px 16px 60px; }
+
+  /* ===== セクションタイトル ===== */
+  .section-label {
+    font-size: 0.7rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    margin-bottom: 8px;
+  }
+
+  /* ===== フィルターバー ===== */
+  #filterBar { margin-bottom: 20px; }
+  .filter-row { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 8px; }
+  .filter-btn {
+    border: 1.5px solid var(--border);
+    background: transparent;
+    color: var(--text);
+    padding: 5px 14px;
+    border-radius: 20px;
+    font-size: 0.82rem;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .filter-btn:hover { background: #eee; }
+  .filter-btn.active { background: var(--accent); color: var(--accent-text); border-color: var(--accent); }
+
+  /* ===== モード選択 ===== */
+  #modeBar { margin-bottom: 24px; }
+  .mode-cards { display: grid; grid-template-columns: repeat(3,1fr); gap: 10px; }
+  .mode-card {
+    border: 2px solid var(--border-light);
+    background: var(--card-bg);
+    border-radius: var(--radius);
+    padding: 14px 10px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .mode-card:hover { border-color: var(--border); }
+  .mode-card.active { border-color: var(--accent); background: var(--accent); color: var(--accent-text); }
+  .mode-card .mode-icon { font-size: 1.5rem; margin-bottom: 4px; }
+  .mode-card .mode-name { font-size: 0.78rem; font-weight: bold; }
+  .mode-card .mode-desc { font-size: 0.68rem; margin-top: 2px; opacity: 0.7; }
+
+  /* ===== カード共通 ===== */
+  .card {
+    background: var(--card-bg);
+    border: 1.5px solid var(--border-light);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    padding: 28px 24px;
+    margin-bottom: 16px;
+  }
+
+  /* ===== 暗記モード ===== */
+  #studyArea .progress-line {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+    font-size: 0.8rem;
+    color: var(--text-muted);
+  }
+  #studyArea .progress-bar-wrap {
+    height: 3px; background: #ddd; border-radius: 2px; margin-bottom: 20px;
+  }
+  #studyArea .progress-bar { height: 3px; background: var(--accent); border-radius: 2px; transition: width 0.3s; }
+  .flashcard {
+    min-height: 180px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    gap: 16px;
+  }
+  .flashcard .tag {
+    font-size: 0.7rem;
+    border: 1px solid var(--border-light);
+    padding: 2px 10px;
+    border-radius: 12px;
+    color: var(--text-muted);
+  }
+  .flashcard .question { font-size: 1.4rem; font-weight: bold; line-height: 1.5; }
+  .flashcard .answer {
+    font-size: 1.1rem;
+    color: var(--text-muted);
+    border-top: 1px solid var(--border-light);
+    padding-top: 14px;
+    width: 100%;
+  }
+  .nav-btns { display: flex; gap: 10px; justify-content: center; margin-top: 16px; }
+  .btn {
+    border: 2px solid var(--border);
+    background: transparent;
+    color: var(--text);
+    padding: 10px 28px;
+    border-radius: var(--radius);
+    font-size: 0.9rem;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .btn:hover { background: var(--accent); color: var(--accent-text); border-color: var(--accent); }
+  .btn.primary { background: var(--accent); color: var(--accent-text); }
+  .btn.primary:hover { opacity: 0.85; }
+  .btn:disabled { opacity: 0.3; cursor: default; }
+
+  /* ===== クイズ共通 ===== */
+  .quiz-question { font-size: 1.2rem; font-weight: bold; text-align: center; margin-bottom: 24px; line-height: 1.6; }
+  .quiz-result-msg { text-align: center; font-size: 1rem; margin-top: 16px; min-height: 24px; font-weight: bold; }
+  .quiz-result-msg.correct { color: #111; }
+  .quiz-result-msg.wrong { color: #888; }
+
+  /* ===== 選択クイズ ===== */
+  .choices { display: flex; flex-direction: column; gap: 10px; }
+  .choice-btn {
+    border: 1.5px solid var(--border-light);
+    background: transparent;
+    color: var(--text);
+    padding: 13px 18px;
+    border-radius: var(--radius);
+    font-size: 0.9rem;
+    text-align: left;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .choice-btn:hover:not(:disabled) { border-color: var(--border); background: #f0f0f0; }
+  .choice-btn.correct { border-color: #111; background: #111; color: #fff; }
+  .choice-btn.wrong { border-color: #bbb; background: #eee; color: #999; text-decoration: line-through; }
+  .choice-btn:disabled { cursor: default; }
+
+  /* ===== タイピングクイズ ===== */
+  #typingInput {
+    width: 100%;
+    border: 2px solid var(--border-light);
+    border-radius: var(--radius);
+    padding: 12px 16px;
+    font-size: 1rem;
+    outline: none;
+    transition: border-color 0.15s;
+    margin-bottom: 12px;
+  }
+  #typingInput:focus { border-color: var(--border); }
+  #typingInput.correct { border-color: #111; background: #f8f8f8; }
+  #typingInput.wrong { border-color: #bbb; }
+  .hint-text { font-size: 0.78rem; color: var(--text-muted); margin-bottom: 10px; }
+
+  /* ===== スコア表示 ===== */
+  #scoreArea {
+    text-align: center;
+    padding: 32px;
+  }
+  #scoreArea .score-big { font-size: 3rem; font-weight: bold; margin: 16px 0 8px; }
+  #scoreArea .score-sub { font-size: 0.9rem; color: var(--text-muted); margin-bottom: 24px; }
+
+  /* ===== 空状態 ===== */
+  .empty-state {
+    text-align: center;
+    padding: 48px 16px;
+    color: var(--text-muted);
+  }
+  .empty-state .empty-icon { font-size: 2.5rem; margin-bottom: 12px; }
+
+  /* ===== 提案フォーム ===== */
+  #suggestArea { margin-top: 32px; }
+  .suggest-form { display: flex; flex-direction: column; gap: 10px; }
+  .suggest-form input, .suggest-form select, .suggest-form textarea {
+    border: 1.5px solid var(--border-light);
+    border-radius: 6px;
+    padding: 10px 12px;
+    font-size: 0.88rem;
+    outline: none;
+    font-family: inherit;
+  }
+  .suggest-form input:focus, .suggest-form select:focus, .suggest-form textarea:focus {
+    border-color: var(--border);
+  }
+  .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+
+  /* ===== 管理者パネル ===== */
+  #adminPanel {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.6);
+    z-index: 200;
+    overflow-y: auto;
+  }
+  #adminPanel.open { display: flex; align-items: flex-start; justify-content: center; padding: 20px; }
+  .admin-box {
+    background: #fff;
+    border-radius: var(--radius);
+    width: 100%;
+    max-width: 680px;
+    padding: 24px;
+    margin-top: 20px;
+  }
+  .admin-box h2 { font-size: 1rem; margin-bottom: 16px; display: flex; justify-content: space-between; }
+  .admin-box h2 button {
+    background: none; border: none; font-size: 1.2rem; cursor: pointer; color: #666;
+  }
+  .admin-tabs { display: flex; gap: 8px; margin-bottom: 16px; border-bottom: 1px solid var(--border-light); padding-bottom: 8px; }
+  .admin-tab {
+    border: none; background: none; font-size: 0.85rem; padding: 4px 12px;
+    border-radius: 4px; cursor: pointer; color: var(--text-muted);
+  }
+  .admin-tab.active { background: var(--accent); color: #fff; }
+  .admin-content { display: none; }
+  .admin-content.active { display: block; }
+
+  /* カード追加フォーム */
+  .add-card-form { display: flex; flex-direction: column; gap: 10px; }
+  .add-card-form input, .add-card-form select, .add-card-form textarea {
+    border: 1.5px solid var(--border-light);
+    border-radius: 6px;
+    padding: 8px 12px;
+    font-size: 0.85rem;
+    font-family: inherit;
+    outline: none;
+  }
+  .add-card-form input:focus, .add-card-form select:focus { border-color: var(--border); }
+  .form-row-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; }
+
+  /* 提案レビューリスト */
+  .suggest-list { display: flex; flex-direction: column; gap: 10px; }
+  .suggest-item {
+    border: 1.5px solid var(--border-light);
+    border-radius: 8px;
+    padding: 12px;
+    font-size: 0.83rem;
+  }
+  .suggest-item .suggest-meta { color: var(--text-muted); font-size: 0.75rem; margin-bottom: 6px; }
+  .suggest-item .suggest-q { font-weight: bold; margin-bottom: 2px; }
+  .suggest-item .suggest-a { color: #444; margin-bottom: 8px; }
+  .suggest-item .suggest-actions { display: flex; gap: 8px; }
+  .suggest-actions .btn-approve {
+    border: 1.5px solid #111; background: #111; color: #fff;
+    padding: 4px 14px; border-radius: 5px; font-size: 0.78rem; cursor: pointer;
+  }
+  .suggest-actions .btn-reject {
+    border: 1.5px solid #bbb; background: none; color: #666;
+    padding: 4px 14px; border-radius: 5px; font-size: 0.78rem; cursor: pointer;
+  }
+
+  /* カード一覧 */
+  .card-list { display: flex; flex-direction: column; gap: 6px; max-height: 400px; overflow-y: auto; }
+  .card-list-item {
+    display: flex; align-items: center; justify-content: space-between;
+    border: 1px solid var(--border-light); border-radius: 6px;
+    padding: 8px 12px; font-size: 0.82rem;
+  }
+  .card-list-item .cl-q { font-weight: bold; flex: 1; }
+  .card-list-item .cl-a { flex: 1; color: #555; }
+  .card-list-item .cl-tag { font-size: 0.72rem; color: #999; flex: 1; text-align: right; }
+  .card-list-item .cl-del {
+    background: none; border: none; color: #bbb; font-size: 1rem; cursor: pointer; margin-left: 10px;
+  }
+  .card-list-item .cl-del:hover { color: #333; }
+
+  /* ログイン */
+  #loginOverlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.6);
+    z-index: 300;
+    align-items: center;
+    justify-content: center;
+  }
+  #loginOverlay.open { display: flex; }
+  .login-box {
+    background: #fff;
+    border-radius: var(--radius);
+    padding: 28px 24px;
+    width: 300px;
+    text-align: center;
+  }
+  .login-box h3 { margin-bottom: 16px; }
+  .login-box input {
+    width: 100%; border: 1.5px solid var(--border-light); border-radius: 6px;
+    padding: 10px 12px; font-size: 0.9rem; margin-bottom: 12px; outline: none;
+  }
+  .login-box input:focus { border-color: var(--border); }
+  .login-error { color: #888; font-size: 0.8rem; margin-bottom: 8px; min-height: 18px; }
+
+  /* ===== レスポンシブ ===== */
+  @media (max-width: 480px) {
+    .mode-cards { grid-template-columns: 1fr; }
+    .form-row, .form-row-3 { grid-template-columns: 1fr; }
+    .card { padding: 20px 16px; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>📚 学習アプリ</h1>
+  <button id="adminBtn">管理者</button>
+</header>
+
+<main>
+  <!-- フィルターバー -->
+  <div id="filterBar">
+    <div class="section-label">教科</div>
+    <div class="filter-row" id="subjectFilter"></div>
+    <div class="section-label" style="margin-top:10px">単元</div>
+    <div class="filter-row" id="unitFilter"></div>
+  </div>
+
+  <!-- モード選択 -->
+  <div id="modeBar">
+    <div class="section-label">モード</div>
+    <div class="mode-cards">
+      <div class="mode-card active" data-mode="study">
+        <div class="mode-icon">👁</div>
+        <div class="mode-name">暗記</div>
+        <div class="mode-desc">答えを見て覚える</div>
+      </div>
+      <div class="mode-card" data-mode="choice">
+        <div class="mode-icon">☑</div>
+        <div class="mode-name">選択クイズ</div>
+        <div class="mode-desc">4択から選ぶ</div>
+      </div>
+      <div class="mode-card" data-mode="typing">
+        <div class="mode-icon">✏</div>
+        <div class="mode-name">タイピング</div>
+        <div class="mode-desc">答えを入力する</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 学習エリア -->
+  <div id="studyArea"></div>
+
+  <!-- 提案フォーム -->
+  <div id="suggestArea">
+    <div class="section-label" style="margin-bottom:10px">カード追加を提案する</div>
+    <div class="card">
+      <div class="suggest-form">
+        <div class="form-row">
+          <select id="sg-subject">
+            <option value="">教科を選択</option>
+          </select>
+          <input id="sg-unit" type="text" placeholder="単元名（例：食生活）">
+        </div>
+        <div class="form-row">
+          <select id="sg-grade">
+            <option value="中1">中1</option>
+            <option value="中2">中2</option>
+            <option value="中3" selected>中3</option>
+          </select>
+          <input id="sg-name" type="text" placeholder="提案者名（任意）">
+        </div>
+        <input id="sg-question" type="text" placeholder="問題文 *">
+        <input id="sg-answer" type="text" placeholder="答え *">
+        <textarea id="sg-note" rows="2" placeholder="補足・メモ（任意）"></textarea>
+        <button class="btn primary" onclick="submitSuggestion()">提案を送る</button>
+        <div id="sg-msg" style="font-size:0.8rem;color:#666;min-height:18px;text-align:center"></div>
+      </div>
+    </div>
+  </div>
+</main>
+
+<!-- 管理者ログイン -->
+<div id="loginOverlay">
+  <div class="login-box">
+    <h3>管理者ログイン</h3>
+    <input type="password" id="pwInput" placeholder="パスワード" onkeydown="if(event.key==='Enter')checkLogin()">
+    <div class="login-error" id="loginError"></div>
+    <button class="btn primary" style="width:100%" onclick="checkLogin()">ログイン</button>
+    <button class="btn" style="width:100%;margin-top:8px" onclick="closeLogin()">キャンセル</button>
+  </div>
+</div>
+
+<!-- 管理者パネル -->
+<div id="adminPanel">
+  <div class="admin-box">
+    <h2>管理者パネル <button onclick="closeAdmin()">✕</button></h2>
+    <div class="admin-tabs">
+      <button class="admin-tab active" onclick="switchAdminTab('add')">カード追加</button>
+      <button class="admin-tab" onclick="switchAdminTab('suggest')">提案レビュー</button>
+      <button class="admin-tab" onclick="switchAdminTab('list')">カード一覧</button>
+    </div>
+
+    <!-- カード追加 -->
+    <div class="admin-content active" id="tab-add">
+      <div class="add-card-form">
+        <div class="form-row-3">
+          <select id="add-subject">
+            <option value="">教科 *</option>
+            <option>家庭科</option><option>技術</option><option>音楽</option>
+            <option>美術</option><option>保健体育</option>
+            <option>理科</option><option>社会</option><option>英語</option><option>国語</option>
+          </select>
+          <input id="add-unit" type="text" placeholder="単元名 *">
+          <select id="add-grade">
+            <option value="中1">中1</option>
+            <option value="中2">中2</option>
+            <option value="中3" selected>中3</option>
+          </select>
+        </div>
+        <input id="add-question" type="text" placeholder="問題文 *">
+        <input id="add-answer" type="text" placeholder="答え *">
+        <input id="add-hint" type="text" placeholder="ヒント（タイピングモード用・任意）">
+        <button class="btn primary" onclick="addCard()">カードを追加</button>
+        <div id="add-msg" style="font-size:0.8rem;color:#666;min-height:18px;text-align:center"></div>
+      </div>
+    </div>
+
+    <!-- 提案レビュー -->
+    <div class="admin-content" id="tab-suggest">
+      <div id="suggestList"></div>
+    </div>
+
+    <!-- カード一覧 -->
+    <div class="admin-content" id="tab-list">
+      <div style="display:flex;gap:8px;margin-bottom:12px">
+        <select id="list-subject-filter" onchange="renderCardList()" style="border:1px solid #ccc;border-radius:5px;padding:5px 8px;font-size:0.82rem">
+          <option value="">全教科</option>
+        </select>
+      </div>
+      <div id="cardListEl"></div>
+    </div>
+  </div>
+</div>
+
+<!-- Firebase SDK -->
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-app.js";
+import { getDatabase, ref, set, get, remove, onValue, push } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-database.js";
+
+// ============================================================
+// Firebase 設定
+// ============================================================
+const firebaseConfig = {
+  apiKey: "AIzaSyAlWbXmtC-psia2Ne2WdlmQzYryuyIWdDA",
+  authDomain: "learning-app-1dc31.firebaseapp.com",
+  databaseURL: "https://learning-app-1dc31-default-rtdb.asia-southeast1.firebasedatabase.app",
+  projectId: "learning-app-1dc31",
+  storageBucket: "learning-app-1dc31.firebasestorage.app",
+  messagingSenderId: "525693028877",
+  appId: "1:525693028877:web:f88a02158f1364e383e344"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getDatabase(app);
+
+// ============================================================
+// データ管理
+// ============================================================
+const ADMIN_PW = 'admin1234'; // ← パスワードを変更してください
+const SUBJECTS = ['家庭科','技術','音楽','美術','保健体育','理科','社会','英語','国語'];
+
+// メモリキャッシュ
+let _cards = [];
+let _suggestions = [];
+
+function loadCards() { return _cards; }
+function loadSuggestions() { return _suggestions; }
+
+async function saveCards(cards) {
+  _cards = cards;
+  const obj = {};
+  cards.forEach(c => { obj[c.id] = c; });
+  await set(ref(db, 'cards'), obj);
+}
+
+async function saveSuggestions(suggestions) {
+  _suggestions = suggestions;
+  const obj = {};
+  suggestions.forEach(s => { obj[s.id] = s; });
+  await set(ref(db, 'suggestions'), Object.keys(obj).length ? obj : null);
+}
+
+function uid() {
+  return Date.now().toString(36) + Math.random().toString(36).slice(2);
+}
+
+// ローディング表示
+function showLoading() {
+  document.getElementById('studyArea').innerHTML =
+    '<div class="empty-state"><div class="empty-icon">⏳</div><div>データを読み込み中...</div></div>';
+}
+
+// Firebase リアルタイム同期
+function initFirebase() {
+  showLoading();
+  // カードの監視
+  onValue(ref(db, 'cards'), snap => {
+    const data = snap.val();
+    _cards = data ? Object.values(data) : [];
+    buildFilters();
+    startSession();
+  });
+  // 提案の監視
+  onValue(ref(db, 'suggestions'), snap => {
+    const data = snap.val();
+    _suggestions = data ? Object.values(data) : [];
+    // 管理者パネルが開いていれば更新
+    if (document.getElementById('adminPanel').classList.contains('open')) {
+      renderSuggestList();
+    }
+  });
+}
+
+// ============================================================
+// 状態
+// ============================================================
+let state = {
+  mode: 'study',
+  subject: null,
+  unit: null,
+  grade: '中3',
+  cards: [],
+  filtered: [],
+  index: 0,
+  quizCards: [],
+  quizIndex: 0,
+  score: 0,
+  answered: false,
+};
+
+// ============================================================
+// フィルター
+// ============================================================
+function buildFilters() {
+  const cards = loadCards();
+  const subjects = [...new Set(cards.map(c => c.subject))].filter(Boolean);
+
+  const sf = document.getElementById('subjectFilter');
+  sf.innerHTML = '<button class="filter-btn active" data-val="">全教科</button>' +
+    subjects.map(s => `<button class="filter-btn" data-val="${s}">${s}</button>`).join('');
+  sf.querySelectorAll('.filter-btn').forEach(b => b.addEventListener('click', () => {
+    sf.querySelectorAll('.filter-btn').forEach(x => x.classList.remove('active'));
+    b.classList.add('active');
+    state.subject = b.dataset.val || null;
+    state.unit = null;
+    buildUnitFilter();
+    startSession();
+  }));
+
+  buildUnitFilter();
+}
+
+function buildUnitFilter() {
+  const cards = loadCards();
+  const units = [...new Set(
+    cards.filter(c => !state.subject || c.subject === state.subject)
+         .map(c => c.unit)
+  )].filter(Boolean);
+
+  const uf = document.getElementById('unitFilter');
+  uf.innerHTML = '<button class="filter-btn active" data-val="">全単元</button>' +
+    units.map(u => `<button class="filter-btn" data-val="${u}">${u}</button>`).join('');
+  uf.querySelectorAll('.filter-btn').forEach(b => b.addEventListener('click', () => {
+    uf.querySelectorAll('.filter-btn').forEach(x => x.classList.remove('active'));
+    b.classList.add('active');
+    state.unit = b.dataset.val || null;
+    startSession();
+  }));
+}
+
+function getFiltered() {
+  return loadCards().filter(c => {
+    if (state.subject && c.subject !== state.subject) return false;
+    if (state.unit && c.unit !== state.unit) return false;
+    return true;
+  });
+}
+
+// ============================================================
+// セッション開始
+// ============================================================
+function startSession() {
+  state.filtered = shuffle(getFiltered());
+  state.index = 0;
+  state.quizIndex = 0;
+  state.score = 0;
+  state.answered = false;
+  renderStudyArea();
+}
+
+function shuffle(arr) {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+// ============================================================
+// 描画
+// ============================================================
+function renderStudyArea() {
+  const el = document.getElementById('studyArea');
+  if (state.filtered.length === 0) {
+    el.innerHTML = `<div class="empty-state"><div class="empty-icon">📭</div><div>このフィルターにカードがありません</div></div>`;
+    return;
+  }
+  if (state.mode === 'study') renderStudy(el);
+  else if (state.mode === 'choice') renderChoice(el);
+  else if (state.mode === 'typing') renderTyping(el);
+}
+
+// ----- 暗記モード -----
+function renderStudy(el) {
+  const cards = state.filtered;
+  const i = state.index;
+  const c = cards[i];
+  const pct = ((i + 1) / cards.length * 100).toFixed(0);
+
+  el.innerHTML = `
+    <div id="studyArea">
+      <div class="progress-line">
+        <span>${i + 1} / ${cards.length}</span>
+        <span>${c.subject} ▸ ${c.unit}</span>
+      </div>
+      <div class="progress-bar-wrap"><div class="progress-bar" style="width:${pct}%"></div></div>
+      <div class="card">
+        <div class="flashcard">
+          <div class="tag">${c.grade} · ${c.subject} · ${c.unit}</div>
+          <div class="question">${esc(c.question)}</div>
+          <div class="answer">${esc(c.answer)}</div>
+        </div>
+      </div>
+      <div class="nav-btns">
+        <button class="btn" onclick="studyNav(-1)" ${i === 0 ? 'disabled' : ''}>← 前へ</button>
+        <button class="btn" onclick="studyNav(1)" ${i === cards.length - 1 ? 'disabled' : ''}>次へ →</button>
+      </div>
+      ${i === cards.length - 1 ? `<div style="text-align:center;margin-top:12px"><button class="btn primary" onclick="startSession()">もう一度</button></div>` : ''}
+    </div>`;
+}
+
+function studyNav(d) {
+  state.index = Math.max(0, Math.min(state.filtered.length - 1, state.index + d));
+  renderStudy(document.getElementById('studyArea'));
+}
+
+// ----- 選択クイズ -----
+function renderChoice(el) {
+  const cards = state.filtered;
+  if (state.quizIndex >= cards.length) { renderScore(el); return; }
+  const c = cards[state.quizIndex];
+  const choices = makeChoices(c, cards);
+  const pct = (state.quizIndex / cards.length * 100).toFixed(0);
+
+  el.innerHTML = `
+    <div>
+      <div class="progress-line">
+        <span>${state.quizIndex + 1} / ${cards.length}</span>
+        <span>正解 ${state.score} 問</span>
+      </div>
+      <div class="progress-bar-wrap"><div class="progress-bar" style="width:${pct}%"></div></div>
+      <div class="card">
+        <div class="quiz-question">${esc(c.question)}</div>
+        <div class="choices" id="choicesEl">
+          ${choices.map((ch, idx) =>
+            `<button class="choice-btn" onclick="answerChoice(${idx})">${esc(ch)}</button>`
+          ).join('')}
+        </div>
+        <div class="quiz-result-msg" id="quizMsg"></div>
+      </div>
+      <div class="nav-btns" id="nextBtnArea" style="display:none">
+        <button class="btn primary" onclick="nextQuiz()">次の問題 →</button>
+      </div>
+    </div>`;
+}
+
+function makeChoices(correct, allCards) {
+  const pool = allCards.filter(c => c.id !== correct.id).map(c => c.answer);
+  const wrong = shuffle(pool).slice(0, 3);
+  return shuffle([correct.answer, ...wrong]);
+}
+
+function answerChoice(idx) {
+  if (state.answered) return;
+  state.answered = true;
+  const c = state.filtered[state.quizIndex];
+  const btns = document.querySelectorAll('.choice-btn');
+  const selected = btns[idx].textContent;
+  const isCorrect = selected === c.answer;
+
+  btns.forEach(b => {
+    b.disabled = true;
+    if (b.textContent === c.answer) b.classList.add('correct');
+    else if (b === btns[idx] && !isCorrect) b.classList.add('wrong');
+  });
+
+  const msg = document.getElementById('quizMsg');
+  if (isCorrect) { msg.textContent = '✓ 正解！'; msg.className = 'quiz-result-msg correct'; state.score++; }
+  else { msg.textContent = `✗ 不正解　正解：${c.answer}`; msg.className = 'quiz-result-msg wrong'; }
+  document.getElementById('nextBtnArea').style.display = 'flex';
+}
+
+function nextQuiz() {
+  state.quizIndex++;
+  state.answered = false;
+  renderChoice(document.getElementById('studyArea'));
+}
+
+// ----- タイピングクイズ -----
+function renderTyping(el) {
+  const cards = state.filtered;
+  if (state.quizIndex >= cards.length) { renderScore(el); return; }
+  const c = cards[state.quizIndex];
+  const pct = (state.quizIndex / cards.length * 100).toFixed(0);
+
+  el.innerHTML = `
+    <div>
+      <div class="progress-line">
+        <span>${state.quizIndex + 1} / ${cards.length}</span>
+        <span>正解 ${state.score} 問</span>
+      </div>
+      <div class="progress-bar-wrap"><div class="progress-bar" style="width:${pct}%"></div></div>
+      <div class="card">
+        <div class="quiz-question">${esc(c.question)}</div>
+        ${c.hint ? `<div class="hint-text">ヒント：${esc(c.hint)}</div>` : ''}
+        <input type="text" id="typingInput" placeholder="答えを入力してEnter" autocomplete="off" onkeydown="if(event.key==='Enter')checkTyping()">
+        <div class="nav-btns">
+          <button class="btn primary" onclick="checkTyping()">答え合わせ</button>
+          <button class="btn" onclick="skipTyping()">スキップ</button>
+        </div>
+        <div class="quiz-result-msg" id="quizMsg"></div>
+      </div>
+      <div class="nav-btns" id="nextBtnArea" style="display:none">
+        <button class="btn primary" onclick="nextQuizTyping()">次の問題 →</button>
+      </div>
+    </div>`;
+  document.getElementById('typingInput').focus();
+}
+
+function checkTyping() {
+  if (state.answered) return;
+  const c = state.filtered[state.quizIndex];
+  const input = document.getElementById('typingInput');
+  const val = input.value.trim();
+  if (!val) return;
+
+  state.answered = true;
+  input.disabled = true;
+
+  // 柔軟な正誤判定（空白・句読点を除去して比較）
+  const normalize = s => s.replace(/[\s　・、。]/g, '').toLowerCase();
+  const isCorrect = normalize(val) === normalize(c.answer);
+
+  const msg = document.getElementById('quizMsg');
+  if (isCorrect) {
+    input.classList.add('correct');
+    msg.textContent = '✓ 正解！';
+    msg.className = 'quiz-result-msg correct';
+    state.score++;
+  } else {
+    input.classList.add('wrong');
+    msg.innerHTML = `✗ 不正解&nbsp;&nbsp;正解：<strong>${esc(c.answer)}</strong>`;
+    msg.className = 'quiz-result-msg wrong';
+  }
+  document.getElementById('nextBtnArea').style.display = 'flex';
+}
+
+function skipTyping() {
+  const c = state.filtered[state.quizIndex];
+  const input = document.getElementById('typingInput');
+  input.disabled = true;
+  state.answered = true;
+  const msg = document.getElementById('quizMsg');
+  msg.innerHTML = `→ スキップ&nbsp;&nbsp;正解：<strong>${esc(c.answer)}</strong>`;
+  msg.className = 'quiz-result-msg wrong';
+  document.getElementById('nextBtnArea').style.display = 'flex';
+}
+
+function nextQuizTyping() {
+  state.quizIndex++;
+  state.answered = false;
+  renderTyping(document.getElementById('studyArea'));
+}
+
+// ----- スコア表示 -----
+function renderScore(el) {
+  const total = state.filtered.length;
+  const pct = Math.round(state.score / total * 100);
+  const msg = pct >= 80 ? '素晴らしい！🎉' : pct >= 60 ? 'もう少し！💪' : 'もっと練習しよう📖';
+
+  el.innerHTML = `
+    <div class="card" id="scoreArea">
+      <div class="section-label">結果</div>
+      <div class="score-big">${state.score} / ${total}</div>
+      <div class="score-sub">正答率 ${pct}%　${msg}</div>
+      <div class="nav-btns">
+        <button class="btn primary" onclick="startSession()">もう一度</button>
+      </div>
+    </div>`;
+}
+
+// ============================================================
+// モード切替
+// ============================================================
+document.querySelectorAll('.mode-card').forEach(card => {
+  card.addEventListener('click', () => {
+    document.querySelectorAll('.mode-card').forEach(c => c.classList.remove('active'));
+    card.classList.add('active');
+    state.mode = card.dataset.mode;
+    startSession();
+  });
+});
+
+// ============================================================
+// 提案フォーム
+// ============================================================
+function buildSuggestSubjectSelect() {
+  const sel = document.getElementById('sg-subject');
+  sel.innerHTML = '<option value="">教科を選択</option>' +
+    SUBJECTS.map(s => `<option>${s}</option>`).join('');
+}
+
+async function submitSuggestion() {
+  const subject = document.getElementById('sg-subject').value;
+  const unit = document.getElementById('sg-unit').value.trim();
+  const grade = document.getElementById('sg-grade').value;
+  const question = document.getElementById('sg-question').value.trim();
+  const answer = document.getElementById('sg-answer').value.trim();
+  const note = document.getElementById('sg-note').value.trim();
+  const name = document.getElementById('sg-name').value.trim();
+  const msg = document.getElementById('sg-msg');
+
+  if (!subject || !question || !answer) {
+    msg.textContent = '教科・問題・答えは必須です';
+    return;
+  }
+
+  const suggestions = loadSuggestions();
+  suggestions.push({ id: uid(), subject, unit, grade, question, answer, note, name, createdAt: new Date().toLocaleString('ja') });
+  await saveSuggestions(suggestions);
+
+  msg.textContent = '提案を送りました！ありがとう😊';
+  document.getElementById('sg-question').value = '';
+  document.getElementById('sg-answer').value = '';
+  document.getElementById('sg-note').value = '';
+  setTimeout(() => msg.textContent = '', 3000);
+}
+
+// ============================================================
+// 管理者パネル
+// ============================================================
+let adminLoggedIn = false;
+
+document.getElementById('adminBtn').addEventListener('click', () => {
+  if (adminLoggedIn) openAdmin();
+  else document.getElementById('loginOverlay').classList.add('open');
+});
+
+function checkLogin() {
+  const pw = document.getElementById('pwInput').value;
+  if (pw === ADMIN_PW) {
+    adminLoggedIn = true;
+    document.getElementById('loginOverlay').classList.remove('open');
+    document.getElementById('pwInput').value = '';
+    document.getElementById('loginError').textContent = '';
+    openAdmin();
+  } else {
+    document.getElementById('loginError').textContent = 'パスワードが違います';
+  }
+}
+function closeLogin() {
+  document.getElementById('loginOverlay').classList.remove('open');
+  document.getElementById('pwInput').value = '';
+  document.getElementById('loginError').textContent = '';
+}
+
+function openAdmin() {
+  document.getElementById('adminPanel').classList.add('open');
+  renderSuggestList();
+  renderCardList();
+  buildListSubjectFilter();
+}
+function closeAdmin() {
+  document.getElementById('adminPanel').classList.remove('open');
+}
+
+function switchAdminTab(tab) {
+  document.querySelectorAll('.admin-tab').forEach((t, i) => {
+    const tabs = ['add','suggest','list'];
+    t.classList.toggle('active', tabs[i] === tab);
+  });
+  document.querySelectorAll('.admin-content').forEach(c => c.classList.remove('active'));
+  document.getElementById('tab-' + tab).classList.add('active');
+  if (tab === 'suggest') renderSuggestList();
+  if (tab === 'list') renderCardList();
+}
+
+// カード追加
+async function addCard() {
+  const subject = document.getElementById('add-subject').value;
+  const unit = document.getElementById('add-unit').value.trim();
+  const grade = document.getElementById('add-grade').value;
+  const question = document.getElementById('add-question').value.trim();
+  const answer = document.getElementById('add-answer').value.trim();
+  const hint = document.getElementById('add-hint').value.trim();
+  const msg = document.getElementById('add-msg');
+
+  if (!subject || !unit || !question || !answer) {
+    msg.textContent = '教科・単元・問題・答えは必須です';
+    return;
+  }
+
+  const cards = loadCards();
+  cards.push({ id: uid(), subject, unit, grade, question, answer, hint });
+  await saveCards(cards);
+
+  msg.textContent = 'カードを追加しました！';
+  document.getElementById('add-question').value = '';
+  document.getElementById('add-answer').value = '';
+  document.getElementById('add-hint').value = '';
+  buildFilters();
+  renderCardList();
+  setTimeout(() => msg.textContent = '', 2000);
+}
+
+// 提案レビュー
+function renderSuggestList() {
+  const suggestions = loadSuggestions();
+  const el = document.getElementById('suggestList');
+  if (suggestions.length === 0) {
+    el.innerHTML = '<div style="color:#999;font-size:0.85rem;text-align:center;padding:20px">提案はまだありません</div>';
+    return;
+  }
+  el.innerHTML = '<div class="suggest-list">' +
+    suggestions.map(s => `
+      <div class="suggest-item">
+        <div class="suggest-meta">${s.createdAt}　${s.name ? '提案者: ' + esc(s.name) : '匿名'}　${s.grade} / ${s.subject} / ${s.unit || '未記入'}</div>
+        <div class="suggest-q">Q：${esc(s.question)}</div>
+        <div class="suggest-a">A：${esc(s.answer)}</div>
+        ${s.note ? `<div style="font-size:0.78rem;color:#777;margin-bottom:6px">メモ：${esc(s.note)}</div>` : ''}
+        <div class="suggest-actions">
+          <button class="btn-approve" onclick="approveSuggestion('${s.id}')">✓ 承認して追加</button>
+          <button class="btn-reject" onclick="rejectSuggestion('${s.id}')">✕ 却下</button>
+        </div>
+      </div>`).join('') +
+    '</div>';
+}
+
+async function approveSuggestion(id) {
+  const suggestions = loadSuggestions();
+  const s = suggestions.find(x => x.id === id);
+  if (!s) return;
+  const cards = loadCards();
+  cards.push({ id: uid(), subject: s.subject, unit: s.unit || '未分類', grade: s.grade, question: s.question, answer: s.answer, hint: '' });
+  await saveCards(cards);
+  await saveSuggestions(suggestions.filter(x => x.id !== id));
+  buildFilters();
+  renderSuggestList();
+  renderCardList();
+}
+
+async function rejectSuggestion(id) {
+  if (!confirm('この提案を却下しますか？')) return;
+  await saveSuggestions(loadSuggestions().filter(x => x.id !== id));
+  renderSuggestList();
+}
+
+// カード一覧
+function buildListSubjectFilter() {
+  const cards = loadCards();
+  const subjects = [...new Set(cards.map(c => c.subject))];
+  const sel = document.getElementById('list-subject-filter');
+  sel.innerHTML = '<option value="">全教科</option>' +
+    subjects.map(s => `<option>${s}</option>`).join('');
+}
+
+function renderCardList() {
+  const filterVal = document.getElementById('list-subject-filter')?.value || '';
+  const cards = loadCards().filter(c => !filterVal || c.subject === filterVal);
+  const el = document.getElementById('cardListEl');
+  if (cards.length === 0) {
+    el.innerHTML = '<div style="color:#999;font-size:0.85rem;text-align:center;padding:20px">カードがありません</div>';
+    return;
+  }
+  el.innerHTML = `<div class="card-list">` +
+    cards.map(c => `
+      <div class="card-list-item">
+        <div class="cl-q">${esc(c.question)}</div>
+        <div class="cl-a">${esc(c.answer)}</div>
+        <div class="cl-tag">${c.subject} · ${c.unit} · ${c.grade}</div>
+        <button class="cl-del" onclick="deleteCard('${c.id}')" title="削除">✕</button>
+      </div>`).join('') +
+    '</div>';
+}
+
+async function deleteCard(id) {
+  if (!confirm('このカードを削除しますか？')) return;
+  await saveCards(loadCards().filter(c => c.id !== id));
+  buildFilters();
+  renderCardList();
+  startSession();
+}
+
+// ============================================================
+// ユーティリティ
+// ============================================================
+function esc(str) {
+  if (!str) return '';
+  return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+// ============================================================
+// グローバル公開（onclickから呼べるように）
+// ============================================================
+window.studyNav = studyNav;
+window.startSession = startSession;
+window.answerChoice = answerChoice;
+window.nextQuiz = nextQuiz;
+window.checkTyping = checkTyping;
+window.skipTyping = skipTyping;
+window.nextQuizTyping = nextQuizTyping;
+window.submitSuggestion = submitSuggestion;
+window.checkLogin = checkLogin;
+window.closeLogin = closeLogin;
+window.closeAdmin = closeAdmin;
+window.switchAdminTab = switchAdminTab;
+window.addCard = addCard;
+window.approveSuggestion = approveSuggestion;
+window.rejectSuggestion = rejectSuggestion;
+window.deleteCard = deleteCard;
+window.renderCardList = renderCardList;
+
+// ============================================================
+// 初期化
+// ============================================================
+buildSuggestSubjectSelect();
+initFirebase(); // Firebase接続＆リアルタイム同期開始
+</script>
+</body>
+</html>
