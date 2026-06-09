@@ -933,10 +933,11 @@ window.updateSourceFields=function(prefix){
   const container=document.getElementById(`${prefix}-source-fields`);
   if(!type){container.innerHTML='';return}
   const inp=(id,ph,t2='text')=>`<input id="${prefix}-${id}" type="${t2}" placeholder="${ph}" style="border:1.5px solid var(--light);border-radius:10px;padding:12px 14px;font-size:.95rem;outline:none;font-family:inherit;min-height:48px;width:100%;margin-top:8px">`;
+  const note='<div style="font-size:.75rem;color:#888;margin-top:6px;line-height:1.6">※ ページなどがない場合は「<strong>なし</strong>」と入力してください</div>';
   let html='';
-  if(type==='教科書'||type==='学校ワーク')html=inp('sp','ページ数 *','number')+'<div class="field-note">※ 本誌のページを記入してください</div>';
-  else if(type==='塾ワーク')html=inp('scram','塾の名前 *')+inp('sp','ページ数 *','number')+'<div class="field-note">※ 本誌のページを記入してください</div>';
-  else if(type==='市販ワーク')html=inp('sname','ワークの名前 *')+inp('sp','ページ数 *','number');
+  if(type==='教科書'||type==='学校ワーク')html=inp('sname','資料の名前 *（例：家庭科の教科書）')+inp('sp','ページ数 *（例：133）','number')+note;
+  else if(type==='塾ワーク')html=inp('scram','塾の名前 *')+inp('sname','ワークの名前 *')+inp('sp','ページ数 *（例：42）','number')+note;
+  else if(type==='市販ワーク')html=inp('sname','ワークの名前 *')+inp('sp','ページ数 *（例：42）','number')+note;
   else if(type==='授業プリント')html=inp('sname','プリントの題名 *');
   else if(type==='ノート')html=inp('sdate','何日にやった範囲か *（例：5月10日の授業）');
   else if(type==='その他')html=inp('sother','出典の詳細 *');
@@ -945,9 +946,9 @@ window.updateSourceFields=function(prefix){
 function getSourceText(prefix){
   const type=document.getElementById(`${prefix}-source-type`).value;if(!type)return null;
   const v=id=>document.getElementById(id)?.value?.trim()||'';
-  if(type==='教科書'||type==='学校ワーク'){const p=v(`${prefix}-sp`);if(!p)return null;return`${type} ${p}ページ`}
-  if(type==='塾ワーク'){const c=v(`${prefix}-scram`),p=v(`${prefix}-sp`);if(!c||!p)return null;return`塾ワーク（${c}）${p}ページ`}
-  if(type==='市販ワーク'){const n=v(`${prefix}-sname`),p=v(`${prefix}-sp`);if(!n||!p)return null;return`${n} ${p}ページ`}
+  if(type==='教科書'||type==='学校ワーク'){const n=v(`${prefix}-sname`),p=v(`${prefix}-sp`);if(!n||!p)return null;return`${type}「${n}」${p==='なし'?'':p+'ページ'}`}
+  if(type==='塾ワーク'){const c=v(`${prefix}-scram`),n=v(`${prefix}-sname`),p=v(`${prefix}-sp`);if(!c||!n||!p)return null;return`塾ワーク（${c}）「${n}」${p==='なし'?'':p+'ページ'}`}
+  if(type==='市販ワーク'){const n=v(`${prefix}-sname`),p=v(`${prefix}-sp`);if(!n||!p)return null;return`${n} ${p==='なし'?'':p+'ページ'}`}
   if(type==='授業プリント'){const n=v(`${prefix}-sname`);if(!n)return null;return`授業プリント「${n}」`}
   if(type==='ノート'){const d=v(`${prefix}-sdate`);if(!d)return null;return`ノート（${d}）`}
   if(type==='その他'){const o=v(`${prefix}-sother`);if(!o)return null;return o}
