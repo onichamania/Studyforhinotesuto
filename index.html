@@ -6,10 +6,11 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <title>日野学園 テスト対策問題サイト</title>
 <style>
+@font-face{font-family:'Makinas';src:url('fonts/Makinas-4-Square.otf') format('opentype');font-weight:normal;font-style:normal}
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-:root{--bg:#f2f2f2;--card:#fff;--text:#111;--muted:#666;--border:#111;--light:#ddd;--accent:#111;--at:#fff;--r:14px;--sh:0 2px 12px rgba(0,0,0,.10);--nh:64px}
-html,body{height:100%;font-family:'Hiragino Kaku Gothic ProN','Meiryo',sans-serif;background:var(--bg);color:var(--text);-webkit-tap-highlight-color:transparent}
-main{padding-bottom:calc(var(--nh) + 24px + env(safe-area-inset-bottom,0))}
+*,button,input,select,textarea{font-family:'Makinas','Hiragino Kaku Gothic ProN','Meiryo',sans-serif}
+:root{--bg:#0f0f0f;--card:#1a1a1a;--text:#f0f0f0;--muted:#999;--border:#d0d0d0;--light:#2e2e2e;--accent:#f0f0f0;--at:#111;--r:14px;--sh:0 2px 16px rgba(0,0,0,.6);--nh:0px}
+html,body{height:100%;font-family:'Makinas','Hiragino Kaku Gothic ProN','Meiryo',sans-serif;background:var(--bg);color:var(--text);-webkit-tap-highlight-color:transparent}
 header{background:var(--accent);color:var(--at);padding:10px 12px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100}
 header h1{font-size:.9rem;letter-spacing:.05em}
 .hdr-btns{display:flex;gap:6px;align-items:center}
@@ -22,7 +23,7 @@ header h1{font-size:.9rem;letter-spacing:.05em}
 .ticker-label{background:#fff;color:#111;font-size:.68rem;font-weight:bold;padding:2px 8px;white-space:nowrap;margin-right:10px;flex-shrink:0}
 .ticker-inner{display:inline-block;white-space:nowrap;animation:ticker 22s linear infinite;font-size:.8rem}
 @keyframes ticker{from{transform:translateX(100vw)}to{transform:translateX(-100%)}}
-main{max-width:600px;margin:0 auto;padding:14px 14px calc(var(--nh)+20px)}
+main{max-width:600px;margin:0 auto;padding:14px 14px 120px}
 .card{background:var(--card);border:1.5px solid var(--light);border-radius:var(--r);box-shadow:var(--sh);padding:20px 16px;margin-bottom:14px}
 .sec-label{font-size:.68rem;letter-spacing:.1em;color:var(--muted);margin-bottom:6px;margin-top:10px}
 .filter-row{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:4px}
@@ -178,6 +179,87 @@ input[type=file]{display:none}
 .reply-input{width:100%;border:1.5px solid var(--light);border-radius:8px;padding:10px;font-size:.85rem;font-family:inherit;resize:none;min-height:70px;outline:none}
 .reply-input:focus{border-color:var(--border)}
 .edit-modal .modal-box{max-height:92vh;overflow-y:auto}
+/* ===== dark theme ===== */
+header{background:#000}
+.mega-btn{background:#1e1e1e;border:1px solid #333}
+.streak-banner{background:var(--card)}
+.filter-btn{background:var(--card);border-color:#444;color:var(--text)}
+.sort-btn{background:var(--card);border-color:#444;color:var(--text)}
+.sort-btn.active{background:var(--accent);color:var(--at);border-color:var(--accent)}
+.choice-btn{background:var(--card);border-color:var(--light);color:var(--text)}
+.choice-btn.ok2{background:var(--accent);color:var(--at);border-color:var(--accent)}
+.choice-btn.ng2{background:#111;color:#555;border-color:#333;text-decoration:line-through}
+#typingInput{background:var(--card);color:var(--text);border-color:var(--light)}
+#typingInput:focus{border-color:var(--border)}
+#typingInput.ok{background:#1a2a1a;border-color:#4a8;color:var(--text)}
+#typingInput.ng{border-color:#555}
+.modal-box{background:#1a1a1a;color:var(--text)}
+.modal-box h2 button{color:#777}
+.form-col input,.form-col select,.form-col textarea{background:#111;color:var(--text);border-color:var(--light)}
+.form-col select option{background:#111;color:var(--text)}
+.form-col input:focus,.form-col select:focus,.form-col textarea:focus{border-color:var(--border)}
+.kw-row input,.fake-row input{background:#111;color:var(--text)}
+.kw-del{background:#111;border-color:#444;color:#888}
+.add-more-btn{background:#111;border-color:#444;color:#888}
+.img-btn{background:#111;border-color:#444;color:#777}
+.mistake-item{background:var(--card)}
+.mis-badge{background:var(--accent);color:var(--at)}
+.mis-a{color:#aaa}
+.material-item{background:var(--card)}
+.mat-content{color:#bbb}
+.mat-meta{color:#777}
+.type-badge{border-color:#444;color:#888}
+.sug-item{border-color:var(--light);background:var(--card)}
+.sug-a{color:#bbb}
+.sug-src{color:#888}
+.cl-a{color:#aaa}
+.cl-tag{color:#666}
+.card-list-item{border-color:var(--light);background:var(--card)}
+.ex-box{background:#111;color:#ccc}
+.ex-label{color:#666}
+.reply-box{background:#111;color:#ccc}
+.reply-label{color:#aaa}
+.reply-input{background:#111;color:var(--text);border-color:var(--light)}
+.reply-input:focus{border-color:var(--border)}
+#list-subject-filter{background:#111;color:var(--text);border-color:var(--light)}
+.radar-select{background:#111;color:var(--text)}
+.news-body{color:#bbb}
+.news-date{color:#666}
+.fc-a{color:#aaa}
+.ticker-label{background:#f0f0f0;color:#111}
+.prog-wrap{background:#2a2a2a}
+.type-tag.word{background:#2a2a2a;color:#aaa}
+.type-tag.long{background:#f0f0f0;color:#111}
+.qtype-lbl{border-color:#444;color:var(--text);background:#111}
+.qtype-lbl.on{border-color:#f0f0f0;background:#f0f0f0;color:#111}
+.btn-approve{background:#f0f0f0;color:#111;border-color:#f0f0f0}
+.btn-reject{border-color:#444;color:#999;background:transparent}
+.sug-status.pending{background:#222;color:#888}
+.sug-status.approved{background:#f0f0f0;color:#111}
+.sug-status.rejected{background:#222;color:#666}
+.inq-status.open{background:#222;color:#888}
+.inq-status.replied{background:#f0f0f0;color:#111}
+.info-tab{color:#888}
+.info-tab.active{background:#f0f0f0;color:#111}
+.inquiry-item{background:var(--card);border-color:var(--light)}
+.inq-msg{color:#bbb}
+.history-item{border-color:var(--light);background:var(--card)}
+.hist-score{color:#aaa}
+.hist-date{color:#666}
+.sug-edit-form{background:#111}
+.modal-tabs{border-color:var(--light)}
+.modal-tab{color:#888}
+.modal-tab.active{background:#f0f0f0;color:#111}
+.modal-content{background:transparent}
+.hint-txt{color:#888}
+.src-label{color:#666}
+.star-label{color:#e55}
+.clear-announce{color:#f0f0f0}
+.empty{color:#555}
+.score-sub{color:#888}
+.fc-tag{color:#777;border-color:#333}
+#bottomNav{display:none}
+.sec-label{color:#777}
 .sug-edit-form{background:#f8f8f8;border-radius:10px;padding:12px;margin-top:10px;display:none}
 .sug-edit-form.open{display:block}
 .extra-row{display:flex;gap:6px;align-items:center;margin-bottom:6px}
@@ -186,7 +268,7 @@ input[type=file]{display:none}
 <body>
 
 <header>
-  <h1>📚 日野学園 テスト対策問題サイト</h1>
+  <h1>テスト対策問題</h1>
   <div class="hdr-btns">
     <button class="mega-btn" onclick="openNews()" title="お知らせ">
       <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
@@ -209,21 +291,42 @@ input[type=file]{display:none}
 </div>
 
 <main>
-  <div style="background:#111;color:#fff;text-align:center;padding:7px 12px;font-size:.75rem;letter-spacing:.08em;margin-bottom:12px;border-radius:8px">⚠️ 現在試験運用中です。不具合はお問い合わせからご連絡ください。</div>
+  <div style="background:#1a1a1a;color:#aaa;text-align:center;padding:7px 12px;font-size:.75rem;letter-spacing:.08em;margin-bottom:12px;border-radius:8px;border:1px solid #333">
+    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" style="vertical-align:middle;margin-right:4px"><path d="M12 2L12 12M12 16V18M4.93 4.93l14.14 14.14M19.07 4.93L4.93 19.07" stroke="#aaa" stroke-width="2" stroke-linecap="round"/><circle cx="12" cy="12" r="10" stroke="#aaa" stroke-width="2"/></svg>
+    現在試験運用中です。不具合はお問い合わせからご連絡ください。
+  </div>
   <div id="streakBanner" class="streak-banner">
-    <div class="streak-item">🔥 連続 <span class="streak-val" id="streakDays">0</span> 日</div>
-    <div class="streak-item">⏱ 今日 <span class="streak-val" id="sessionTime">0</span> 分</div>
+    <div class="streak-item">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" style="flex-shrink:0"><path d="M12 2C12 2 7 8 7 13a5 5 0 0010 0c0-5-5-11-5-11z" fill="#f0f0f0"/></svg>
+      連続 <span class="streak-val" id="streakDays">0</span> 日
+    </div>
+    <div class="streak-item">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" style="flex-shrink:0"><circle cx="12" cy="12" r="9" stroke="#f0f0f0" stroke-width="2"/><path d="M12 7v5l3 3" stroke="#f0f0f0" stroke-width="2" stroke-linecap="round"/></svg>
+      今日 <span class="streak-val" id="sessionTime">0</span> 分
+    </div>
   </div>
   <div id="filterBar">
-    <div class="sec-label">教科</div>
-    <div class="filter-row" id="subjectFilter"></div>
-    <div class="sec-label">単元</div>
-    <div class="filter-row" id="unitFilter"></div>
-    <div class="sec-label">問題種別</div>
-    <div class="filter-row" id="qtypeFilter">
-      <button class="filter-btn active" data-qt="">全問題（混合）</button>
-      <button class="filter-btn" data-qt="word">単語問題のみ</button>
-      <button class="filter-btn" data-qt="long">長文問題のみ</button>
+    <div id="studyFilters">
+      <div class="sec-label">教科</div>
+      <div class="filter-row" id="subjectFilter"></div>
+      <div class="sec-label">単元</div>
+      <div class="filter-row" id="unitFilter"></div>
+      <div class="sec-label">問題種別</div>
+      <div class="filter-row" id="qtypeFilter">
+        <button class="filter-btn active" data-qt="">全問題（混合）</button>
+        <button class="filter-btn" data-qt="word">単語問題のみ</button>
+        <button class="filter-btn" data-qt="long">長文問題のみ</button>
+      </div>
+    </div>
+    <div class="sec-label" style="margin-top:14px">学習モード</div>
+    <div class="filter-row">
+      <button class="filter-btn mode-btn active" data-mode="study">暗記</button>
+      <button class="filter-btn mode-btn" data-mode="choice">選択</button>
+      <button class="filter-btn mode-btn" data-mode="typing">タイピング</button>
+    </div>
+    <div class="filter-row" style="margin-top:8px">
+      <button class="filter-btn mode-btn" data-mode="mistakes">間違い帳</button>
+      <button class="filter-btn mode-btn" data-mode="info">資料・提案</button>
     </div>
   </div>
   <div id="studyArea"></div>
@@ -239,9 +342,9 @@ input[type=file]{display:none}
 
   <div id="infoArea" style="display:none">
     <div class="info-tabs">
-      <button class="info-tab active" onclick="switchInfoTab('materials')">📁 資料</button>
-      <button class="info-tab" onclick="switchInfoTab('suggest')">💡 提案</button>
-      <button class="info-tab" onclick="switchInfoTab('contact')">📧 問い合わせ</button>
+      <button class="info-tab active" onclick="switchInfoTab('materials')">資料</button>
+      <button class="info-tab" onclick="switchInfoTab('suggest')">提案</button>
+      <button class="info-tab" onclick="switchInfoTab('contact')">問い合わせ</button>
     </div>
     <div id="infoMaterials"></div>
     <div id="infoSuggest" style="display:none">
@@ -253,7 +356,7 @@ input[type=file]{display:none}
           <select id="sg-grade"><option value="中1">中1</option><option value="中2">中2</option><option value="中3" selected>中3</option></select>
           <input id="sg-name" placeholder="提案者名（任意）">
           <input id="sg-question" placeholder="問題文 *">
-          <button class="img-btn" onclick="document.getElementById('sg-q-file').click()">📷 問題に画像（任意）</button>
+          <button class="img-btn" onclick="document.getElementById('sg-q-file').click()"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" style="vertical-align:middle;margin-right:5px"><path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z" stroke="#888" stroke-width="2" stroke-linejoin="round"/><circle cx="12" cy="13" r="4" stroke="#888" stroke-width="2"/></svg>問題に画像（任意）</button>
           <input type="file" id="sg-q-file" accept="image/*" onchange="previewImg(this,'sg-q-prev')">
           <img id="sg-q-prev" class="img-preview">
           <div>
@@ -271,7 +374,7 @@ input[type=file]{display:none}
             <div id="sg-extra-list"></div>
             <button type="button" class="add-more-btn" onclick="addExtra('sg')">＋ 答えを追加</button>
           </div>
-          <button class="img-btn" onclick="document.getElementById('sg-a-file').click()">📷 答えに画像（任意）</button>
+          <button class="img-btn" onclick="document.getElementById('sg-a-file').click()"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" style="vertical-align:middle;margin-right:5px"><path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z" stroke="#888" stroke-width="2" stroke-linejoin="round"/><circle cx="12" cy="13" r="4" stroke="#888" stroke-width="2"/></svg>答えに画像（任意）</button>
           <input type="file" id="sg-a-file" accept="image/*" onchange="previewImg(this,'sg-a-prev')">
           <img id="sg-a-prev" class="img-preview">
           <div id="sg-kw-section" style="display:none">
@@ -343,7 +446,7 @@ input[type=file]{display:none}
           <select id="smat-type"><option value="">種類 *</option><option>授業ノート</option><option>範囲表</option><option>過去問</option><option>授業プリント</option><option>その他</option></select>
           <select id="smat-semester"><option value="">学期 *</option><option>1学期</option><option>2学期</option><option>3学期</option></select>
           <input id="smat-year" type="number" placeholder="西暦 *（例：2026）" min="2020" max="2035">
-          <button class="img-btn" onclick="document.getElementById('smat-file').click()">📷 資料の写真（写真か内容文どちらか必須）</button>
+          <button class="img-btn" onclick="document.getElementById('smat-file').click()"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" style="vertical-align:middle;margin-right:5px"><path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z" stroke="#888" stroke-width="2" stroke-linejoin="round"/><circle cx="12" cy="13" r="4" stroke="#888" stroke-width="2"/></svg>資料の写真（写真か内容文どちらか必須）</button>
           <input type="file" id="smat-file" accept="image/*" onchange="previewImg(this,'smat-prev')">
           <img id="smat-prev" class="img-preview">
           <textarea id="smat-content" placeholder="内容・メモ（写真か内容文どちらか必須）"></textarea>
@@ -481,7 +584,7 @@ input[type=file]{display:none}
         <select id="add-unit"><option value="">先に教科を選んでください</option></select>
         <select id="add-grade"><option value="中1">中1</option><option value="中2">中2</option><option value="中3" selected>中3</option></select>
         <input id="add-question" placeholder="問題文 *">
-        <button class="img-btn" onclick="document.getElementById('add-q-file').click()">📷 問題に画像（任意）</button>
+        <button class="img-btn" onclick="document.getElementById('add-q-file').click()"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" style="vertical-align:middle;margin-right:5px"><path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z" stroke="#888" stroke-width="2" stroke-linejoin="round"/><circle cx="12" cy="13" r="4" stroke="#888" stroke-width="2"/></svg>問題に画像（任意）</button>
         <input type="file" id="add-q-file" accept="image/*" onchange="previewImg(this,'add-q-prev')">
         <img id="add-q-prev" class="img-preview">
         <div>
@@ -499,7 +602,7 @@ input[type=file]{display:none}
           <div id="add-extra-list"></div>
           <button type="button" class="add-more-btn" onclick="addExtra('add')">＋ 答えを追加</button>
         </div>
-        <button class="img-btn" onclick="document.getElementById('add-a-file').click()">📷 答えに画像（任意）</button>
+        <button class="img-btn" onclick="document.getElementById('add-a-file').click()"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" style="vertical-align:middle;margin-right:5px"><path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z" stroke="#888" stroke-width="2" stroke-linejoin="round"/><circle cx="12" cy="13" r="4" stroke="#888" stroke-width="2"/></svg>答えに画像（任意）</button>
         <input type="file" id="add-a-file" accept="image/*" onchange="previewImg(this,'add-a-prev')">
         <img id="add-a-prev" class="img-preview">
         <input id="add-hint" placeholder="ヒント（任意）">
@@ -554,7 +657,7 @@ input[type=file]{display:none}
         <select id="mat-type"><option value="">種類 *</option><option>授業ノート</option><option>範囲表</option><option>過去問</option><option>授業プリント</option><option>その他</option></select>
         <select id="mat-semester"><option value="">学期 *</option><option>1学期</option><option>2学期</option><option>3学期</option></select>
         <input id="mat-year" type="number" placeholder="西暦 *（例：2026）" min="2020" max="2035">
-        <button class="img-btn" onclick="document.getElementById('mat-file').click()">📷 資料の写真</button>
+        <button class="img-btn" onclick="document.getElementById('mat-file').click()"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" style="vertical-align:middle;margin-right:5px"><path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z" stroke="#888" stroke-width="2" stroke-linejoin="round"/><circle cx="12" cy="13" r="4" stroke="#888" stroke-width="2"/></svg>資料の写真</button>
         <input type="file" id="mat-file" accept="image/*" onchange="previewImg(this,'mat-prev')">
         <img id="mat-prev" class="img-preview">
         <textarea id="mat-content" placeholder="内容・メモ（写真か内容文どちらか必須）"></textarea>
@@ -1684,17 +1787,23 @@ window.switchInfoTab=function(tab){
   document.getElementById('infoContact').style.display=tab==='contact'?'block':'none';
   if(tab==='contact')renderMyInquiries();
 };
+function setAppMode(mode){
+  state.mode=mode;
+  const isStudy=['study','choice','typing'].includes(mode);
+  document.querySelectorAll('.mode-btn').forEach(b=>b.classList.toggle('active',b.dataset.mode===mode));
+  document.getElementById('studyFilters').style.display=isStudy?'block':'none';
+  document.getElementById('studyArea').style.display=isStudy?'block':'none';
+  document.getElementById('mistakesArea').style.display=mode==='mistakes'?'block':'none';
+  document.getElementById('infoArea').style.display=mode==='info'?'block':'none';
+  if(isStudy)startSession();
+  if(mode==='mistakes')renderMistakes();
+  if(mode==='info')renderMaterials();
+}
+document.querySelectorAll('.mode-btn').forEach(btn=>{
+  btn.addEventListener('click',()=>setAppMode(btn.dataset.mode));
+});
 document.querySelectorAll('.nav-item').forEach(btn=>{
-  btn.addEventListener('click',()=>{
-    document.querySelectorAll('.nav-item').forEach(b=>b.classList.remove('active'));btn.classList.add('active');
-    const mode=btn.dataset.mode;state.mode=mode;
-    const isStudy=['study','choice','typing'].includes(mode);
-    document.getElementById('filterBar').style.display=isStudy?'block':'none';
-    document.getElementById('studyArea').style.display=isStudy?'block':'none';
-    document.getElementById('mistakesArea').style.display=mode==='mistakes'?'block':'none';
-    document.getElementById('infoArea').style.display=mode==='info'?'block':'none';
-    if(isStudy)startSession();if(mode==='mistakes')renderMistakes();if(mode==='info')renderMaterials();
-  });
+  btn.addEventListener('click',()=>setAppMode(btn.dataset.mode));
 });
 
 // ===== モーダル =====
