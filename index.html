@@ -9,6 +9,7 @@
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 :root{--bg:#f2f2f2;--card:#fff;--text:#111;--muted:#666;--border:#111;--light:#ddd;--accent:#111;--at:#fff;--r:14px;--sh:0 2px 12px rgba(0,0,0,.10);--nh:64px}
 html,body{height:100%;font-family:'Hiragino Kaku Gothic ProN','Meiryo',sans-serif;background:var(--bg);color:var(--text);-webkit-tap-highlight-color:transparent}
+main{padding-bottom:calc(var(--nh) + 24px + env(safe-area-inset-bottom,0))}
 header{background:var(--accent);color:var(--at);padding:10px 12px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100}
 header h1{font-size:.9rem;letter-spacing:.05em}
 .hdr-btns{display:flex;gap:6px;align-items:center}
@@ -150,7 +151,7 @@ input[type=file]{display:none}
 .cl-q{font-weight:bold;margin-bottom:2px}
 .cl-a{color:#555;margin-bottom:2px}
 .cl-tag{font-size:.72rem;color:#999}
-.cl-del{float:right;background:none;border:none;color:#bbb;font-size:1.1rem;cursor:pointer;padding:2px 6px}
+.cl-del{float:right;background:none;border:none;color:#bbb;font-size:1.1rem;cursor:pointer;padding:2px 6px;margin-left:4px}
 .history-item{border:1px solid var(--light);border-radius:10px;padding:12px;margin-bottom:8px;font-size:.85rem}
 .hist-date{font-size:.72rem;color:#aaa;margin-bottom:4px}
 .hist-subject{font-weight:bold;margin-bottom:2px}
@@ -176,6 +177,10 @@ input[type=file]{display:none}
 .reply-label{font-size:.7rem;color:#111;font-weight:bold;margin-bottom:4px}
 .reply-input{width:100%;border:1.5px solid var(--light);border-radius:8px;padding:10px;font-size:.85rem;font-family:inherit;resize:none;min-height:70px;outline:none}
 .reply-input:focus{border-color:var(--border)}
+.edit-modal .modal-box{max-height:92vh;overflow-y:auto}
+.sug-edit-form{background:#f8f8f8;border-radius:10px;padding:12px;margin-top:10px;display:none}
+.sug-edit-form.open{display:block}
+.extra-row{display:flex;gap:6px;align-items:center;margin-bottom:6px}
 </style>
 </head>
 <body>
@@ -259,7 +264,13 @@ input[type=file]{display:none}
             </div>
             <input type="hidden" id="sg-qtype" value="">
           </div>
-          <input id="sg-answer" placeholder="模範解答 *">
+          <input id="sg-answer" placeholder="模範解答（メイン） *">
+          <div>
+            <div class="sec-label">追加の答え（任意）</div>
+            <div style="font-size:.72rem;color:#888;margin-bottom:6px">別の言い方など。タイピングテストで追加の正解になります。</div>
+            <div id="sg-extra-list"></div>
+            <button type="button" class="add-more-btn" onclick="addExtra('sg')">＋ 答えを追加</button>
+          </div>
           <button class="img-btn" onclick="document.getElementById('sg-a-file').click()">📷 答えに画像（任意）</button>
           <input type="file" id="sg-a-file" accept="image/*" onchange="previewImg(this,'sg-a-prev')">
           <img id="sg-a-prev" class="img-preview">
@@ -274,10 +285,12 @@ input[type=file]{display:none}
           <input id="sg-hint" placeholder="ヒント（任意）">
           <input id="sg-explanation" placeholder="解説（任意）">
           <div>
-            <div class="sec-label">偽の選択肢（選択クイズ用・任意）</div>
-            <div style="font-size:.72rem;color:#888;margin-bottom:6px">入力すると選択クイズでこれらが優先的に使われます</div>
+            <div class="sec-label">偽の選択肢 <span style="color:#e05">*必須（3つ）</span></div>
+            <div style="font-size:.72rem;color:#888;margin-bottom:6px">選択クイズで表示される間違いの選択肢（3つ必須）</div>
             <div id="sg-fake-list">
-              <div class="fake-row"><input class="sg-fake" placeholder="偽の選択肢1（任意）"><button type="button" class="kw-del" onclick="removeFake(this)">✕</button></div>
+              <div class="fake-row"><input class="sg-fake" placeholder="偽の選択肢1 *"><button type="button" class="kw-del" onclick="removeFake(this)">✕</button></div>
+              <div class="fake-row"><input class="sg-fake" placeholder="偽の選択肢2 *"><button type="button" class="kw-del" onclick="removeFake(this)">✕</button></div>
+              <div class="fake-row"><input class="sg-fake" placeholder="偽の選択肢3 *"><button type="button" class="kw-del" onclick="removeFake(this)">✕</button></div>
             </div>
             <button type="button" class="add-more-btn" onclick="addFake('sg')">＋ 偽の選択肢を追加</button>
           </div>
@@ -303,6 +316,21 @@ input[type=file]{display:none}
           <textarea id="sg-note" placeholder="補足・メモ（任意）"></textarea>
           <button class="btn primary btn-full" onclick="submitSuggestion()">提案を送る</button>
           <div id="sg-msg" style="font-size:.85rem;color:#666;min-height:18px;text-align:center"></div>
+        </div>
+      </div>
+      <div class="card" style="margin-top:14px">
+        <div class="sec-label" style="margin-bottom:10px">単元追加を提案する</div>
+        <div class="form-col">
+          <select id="usg-subject">
+            <option value="">教科を選択 *</option>
+            <option>家庭科</option><option>技術</option><option>音楽</option><option>美術</option>
+            <option>保健体育</option><option>体育実技</option><option>理科</option><option>社会</option><option>英語</option><option>国語</option>
+          </select>
+          <input id="usg-name-input" placeholder="提案する単元名 *">
+          <input id="usg-proposer" placeholder="提案者名（任意）">
+          <textarea id="usg-note" placeholder="理由・メモ（任意）" style="min-height:60px"></textarea>
+          <button class="btn primary btn-full" onclick="submitUnitSuggestion()">単元追加を提案する</button>
+          <div id="usg-msg" style="font-size:.85rem;color:#666;min-height:18px;text-align:center"></div>
         </div>
       </div>
       <div class="card" style="margin-top:14px">
@@ -438,17 +466,18 @@ input[type=file]{display:none}
     <h2>管理者パネル <button onclick="closeAdmin()">✕</button></h2>
     <div class="modal-tabs">
       <button class="modal-tab active" onclick="switchAdminTab('add')">カード追加</button>
-      <button class="modal-tab" onclick="switchAdminTab('units')">単元管理</button>
       <button class="modal-tab" onclick="switchAdminTab('suggest')">提案</button>
       <button class="modal-tab" onclick="switchAdminTab('list')">一覧</button>
       <button class="modal-tab" onclick="switchAdminTab('materials')">資料</button>
+      <button class="modal-tab" onclick="switchAdminTab('units')">単元追加</button>
       <button class="modal-tab" onclick="switchAdminTab('matsugg')">資料提案</button>
+      <button class="modal-tab" onclick="switchAdminTab('unitsugg')">単元提案</button>
       <button class="modal-tab" onclick="switchAdminTab('news')">ニュース</button>
       <button class="modal-tab" onclick="switchAdminTab('inquiries')">問い合わせ</button>
     </div>
     <div class="modal-content active" id="tab-add">
       <div class="form-col">
-        <select id="add-subject" onchange="populateUnitSelect('add')"><option value="">教科 *</option><option>家庭科</option><option>技術</option><option>音楽</option><option>美術</option><option>保健体育</option><option>理科</option><option>社会</option><option>英語</option><option>国語</option></select>
+        <select id="add-subject" onchange="populateUnitSelect('add')"><option value="">教科 *</option><option>家庭科</option><option>技術</option><option>音楽</option><option>美術</option><option>保健体育</option><option>体育実技</option><option>理科</option><option>社会</option><option>英語</option><option>国語</option></select>
         <select id="add-unit"><option value="">先に教科を選んでください</option></select>
         <select id="add-grade"><option value="中1">中1</option><option value="中2">中2</option><option value="中3" selected>中3</option></select>
         <input id="add-question" placeholder="問題文 *">
@@ -463,7 +492,13 @@ input[type=file]{display:none}
           </div>
           <input type="hidden" id="add-qtype" value="">
         </div>
-        <input id="add-answer" placeholder="答え *">
+        <input id="add-answer" placeholder="答え（メイン） *">
+        <div>
+          <div class="sec-label">追加の答え（任意）</div>
+          <div style="font-size:.72rem;color:#888;margin-bottom:6px">別の言い方など。タイピングテストで追加の正解になります。</div>
+          <div id="add-extra-list"></div>
+          <button type="button" class="add-more-btn" onclick="addExtra('add')">＋ 答えを追加</button>
+        </div>
         <button class="img-btn" onclick="document.getElementById('add-a-file').click()">📷 答えに画像（任意）</button>
         <input type="file" id="add-a-file" accept="image/*" onchange="previewImg(this,'add-a-prev')">
         <img id="add-a-prev" class="img-preview">
@@ -478,10 +513,12 @@ input[type=file]{display:none}
         </div>
         <input id="add-explanation" placeholder="解説（任意）">
         <div>
-          <div class="sec-label">偽の選択肢（選択クイズ用・任意）</div>
-          <div style="font-size:.72rem;color:#888;margin-bottom:6px">入力すると選択クイズでこれらが優先的に使われます</div>
+          <div class="sec-label">偽の選択肢 <span style="color:#e05">*必須（3つ）</span></div>
+          <div style="font-size:.72rem;color:#888;margin-bottom:6px">選択クイズで表示される間違いの選択肢（3つ必須）</div>
           <div id="add-fake-list">
-            <div class="fake-row"><input class="add-fake" placeholder="偽の選択肢1（任意）"><button type="button" class="kw-del" onclick="removeFake(this)">✕</button></div>
+            <div class="fake-row"><input class="add-fake" placeholder="偽の選択肢1 *"><button type="button" class="kw-del" onclick="removeFake(this)">✕</button></div>
+            <div class="fake-row"><input class="add-fake" placeholder="偽の選択肢2 *"><button type="button" class="kw-del" onclick="removeFake(this)">✕</button></div>
+            <div class="fake-row"><input class="add-fake" placeholder="偽の選択肢3 *"><button type="button" class="kw-del" onclick="removeFake(this)">✕</button></div>
           </div>
           <button type="button" class="add-more-btn" onclick="addFake('add')">＋ 偽の選択肢を追加</button>
         </div>
@@ -503,6 +540,7 @@ input[type=file]{display:none}
     </div>
     <div class="modal-content" id="tab-suggest"><div id="suggestList"></div></div>
     <div class="modal-content" id="tab-list">
+      <button class="add-more-btn" style="margin-bottom:12px" onclick="switchAdminTab('materials')">＋ 資料を追加・管理 →</button>
       <select id="list-subject-filter" onchange="renderCardList()"><option value="">全教科</option></select>
       <div id="cardListEl"></div>
     </div>
@@ -525,6 +563,19 @@ input[type=file]{display:none}
       </div>
       <div style="font-size:.85rem;font-weight:bold;margin-bottom:8px">登録済み資料</div>
       <div id="matListEl"></div>
+      <div style="margin-top:20px;padding-top:16px;border-top:1px solid var(--light)">
+        <div style="font-size:.85rem;font-weight:bold;margin-bottom:10px">単元を追加</div>
+        <div class="form-col">
+          <select id="mat-unit-subject-sel">
+            <option value="">教科を選択 *</option>
+            <option>家庭科</option><option>技術</option><option>音楽</option><option>美術</option>
+            <option>保健体育</option><option>体育実技</option><option>理科</option><option>社会</option><option>英語</option><option>国語</option>
+          </select>
+          <input id="mat-unit-name-input" placeholder="単元名 *">
+          <button class="btn primary btn-full" onclick="addUnitFromMat()">単元を追加</button>
+          <div id="mat-unit-msg" style="font-size:.85rem;color:#666;min-height:18px;text-align:center"></div>
+        </div>
+      </div>
     </div>
     <!-- 単元管理タブ -->
     <div class="modal-content" id="tab-units">
@@ -543,6 +594,7 @@ input[type=file]{display:none}
       <div id="unitAdminList"></div>
     </div>
     <div class="modal-content" id="tab-matsugg"><div id="matSuggList"></div></div>
+    <div class="modal-content" id="tab-unitsugg"><div id="unitSuggList"></div></div>
     <div class="modal-content" id="tab-news">
       <div class="form-col" style="margin-bottom:16px">
         <div style="font-size:.85rem;font-weight:bold">お知らせを追加</div>
@@ -558,6 +610,67 @@ input[type=file]{display:none}
   </div>
 </div>
 
+<!-- 問題編集モーダル -->
+<div id="editCardModal" class="modal-overlay edit-modal">
+  <div class="modal-box">
+    <h2>問題を編集 <button onclick="closeEditCard()">✕</button></h2>
+    <div class="modal-content active">
+      <div class="form-col">
+        <input type="hidden" id="edit-id">
+        <select id="edit-subject" onchange="populateUnitSelect('edit')"><option value="">教科 *</option><option>家庭科</option><option>技術</option><option>音楽</option><option>美術</option><option>保健体育</option><option>体育実技</option><option>理科</option><option>社会</option><option>英語</option><option>国語</option></select>
+        <select id="edit-unit"><option value="">先に教科を選んでください</option></select>
+        <select id="edit-grade"><option value="中1">中1</option><option value="中2">中2</option><option value="中3" selected>中3</option></select>
+        <input id="edit-question" placeholder="問題文 *">
+        <div>
+          <div class="star-label">問題種別 <span style="color:#e05">*必須</span></div>
+          <div class="qtype-row">
+            <label class="qtype-lbl" id="edit-qt-word-lbl"><input type="radio" name="edit-qt" value="word" onchange="setQType('edit','word')"> 単語問題</label>
+            <label class="qtype-lbl" id="edit-qt-long-lbl"><input type="radio" name="edit-qt" value="long" onchange="setQType('edit','long')"> 長文問題</label>
+          </div>
+          <input type="hidden" id="edit-qtype" value="">
+        </div>
+        <input id="edit-answer" placeholder="答え（メイン） *">
+        <div>
+          <div class="sec-label">追加の答え（任意）</div>
+          <div style="font-size:.72rem;color:#888;margin-bottom:6px">別の言い方など。タイピングテストで追加の正解になります。</div>
+          <div id="edit-extra-list"></div>
+          <button type="button" class="add-more-btn" onclick="addExtra('edit')">＋ 答えを追加</button>
+        </div>
+        <div id="edit-kw-section" style="display:none">
+          <div class="star-label">正解キーワード <span style="color:#e05">*必須（長文問題）</span></div>
+          <div id="edit-kw-list"><div class="kw-row"><input class="edit-kw" placeholder="キーワード1 *"><button type="button" class="kw-del" onclick="removeKw(this)">✕</button></div></div>
+          <button type="button" class="add-more-btn" onclick="addKw('edit')">＋ キーワードを追加</button>
+        </div>
+        <input id="edit-hint" placeholder="ヒント（任意）">
+        <input id="edit-explanation" placeholder="解説（任意）">
+        <div>
+          <div class="sec-label">偽の選択肢 <span style="color:#e05">*必須（3つ以上）</span></div>
+          <div id="edit-fake-list">
+            <div class="fake-row"><input class="edit-fake" placeholder="偽の選択肢1 *"><button type="button" class="kw-del" onclick="removeFake(this)">✕</button></div>
+            <div class="fake-row"><input class="edit-fake" placeholder="偽の選択肢2 *"><button type="button" class="kw-del" onclick="removeFake(this)">✕</button></div>
+            <div class="fake-row"><input class="edit-fake" placeholder="偽の選択肢3 *"><button type="button" class="kw-del" onclick="removeFake(this)">✕</button></div>
+          </div>
+          <button type="button" class="add-more-btn" onclick="addFake('edit')">＋ 偽の選択肢を追加</button>
+        </div>
+        <input id="edit-source" placeholder="出典（任意）">
+        <div>
+          <div class="star-label">重要度（任意）</div>
+          <div class="star-row" id="edit-star-row">
+            <button type="button" class="star-btn" onclick="setStars('edit',1)">★</button>
+            <button type="button" class="star-btn" onclick="setStars('edit',2)">★</button>
+            <button type="button" class="star-btn" onclick="setStars('edit',3)">★</button>
+            <button type="button" class="star-btn" onclick="setStars('edit',4)">★</button>
+            <button type="button" class="star-btn" onclick="setStars('edit',5)">★</button>
+          </div>
+          <input type="hidden" id="edit-importance" value="">
+        </div>
+        <button class="btn primary btn-full" onclick="saveEditCard()">保存する</button>
+        <div id="edit-msg" style="font-size:.85rem;color:#666;min-height:18px;text-align:center"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
 <script type="module">
 import{initializeApp}from"https://www.gstatic.com/firebasejs/11.8.1/firebase-app.js";
 import{getDatabase,ref,set,onValue,push,remove}from"https://www.gstatic.com/firebasejs/11.8.1/firebase-database.js";
@@ -569,8 +682,8 @@ const db=getDatabase(app);
 const auth=getAuth(app);
 
 const ADMIN_PW='admin1234';
-const SUBJECTS=['家庭科','技術','音楽','美術','保健体育','理科','社会','英語','国語'];
-let _cards=[],_suggestions=[],_materials=[],_matSuggs=[],_news=[],_inquiries=[],_units={};
+const SUBJECTS=['家庭科','技術','音楽','美術','保健体育','体育実技','理科','社会','英語','国語'];
+let _cards=[],_suggestions=[],_materials=[],_matSuggs=[],_unitSuggs=[],_news=[],_inquiries=[],_units={};
 let currentUser=null,_userClears={},_studyHistory=[];
 
 function loadCards(){return _cards}
@@ -581,6 +694,7 @@ async function saveCards(c){_cards=c;const o={};c.forEach(x=>o[x.id]=x);await se
 async function saveSuggestions(s){_suggestions=s;const o={};s.forEach(x=>o[x.id]=x);await set(ref(db,'suggestions'),Object.keys(o).length?o:null)}
 async function saveMaterials(m){_materials=m;const o={};m.forEach(x=>o[x.id]=x);await set(ref(db,'materials'),Object.keys(o).length?o:null)}
 async function saveMatSuggs(s){_matSuggs=s;const o={};s.forEach(x=>o[x.id]=x);await set(ref(db,'matSuggestions'),Object.keys(o).length?o:null)}
+async function saveUnitSuggs(s){_unitSuggs=s;const o={};s.forEach(x=>o[x.id]=x);await set(ref(db,'unitSuggestions'),Object.keys(o).length?o:null)}
 function uid(){return Date.now().toString(36)+Math.random().toString(36).slice(2)}
 function loadMistakes(){return JSON.parse(localStorage.getItem('lapp_mistakes')||'{}')}
 function saveMistakes(m){localStorage.setItem('lapp_mistakes',JSON.stringify(m))}
@@ -670,8 +784,103 @@ function resetQTypeForm(prefix){
   const kwList=document.getElementById(`${prefix}-kw-list`);
   kwList.innerHTML=`<div class="kw-row"><input class="${prefix}-kw" placeholder="キーワード1 *"><button type="button" class="kw-del" onclick="removeKw(this)">✕</button></div>`;
   const fakeList=document.getElementById(`${prefix}-fake-list`);
-  fakeList.innerHTML=`<div class="fake-row"><input class="${prefix}-fake" placeholder="偽の選択肢1（任意）"><button type="button" class="kw-del" onclick="removeFake(this)">✕</button></div>`;
+  fakeList.innerHTML=['1','2','3'].map(n=>`<div class="fake-row"><input class="${prefix}-fake" placeholder="偽の選択肢${n} *"><button type="button" class="kw-del" onclick="removeFake(this)">✕</button></div>`).join('');
+  const extraList=document.getElementById(`${prefix}-extra-list`);
+  if(extraList)extraList.innerHTML='';
 }
+
+// ===== 追加の答え =====
+window.addExtra=function(prefix){
+  const list=document.getElementById(`${prefix}-extra-list`);
+  const div=document.createElement('div');div.className='extra-row';
+  div.innerHTML=`<input class="${prefix}-extra" placeholder="追加の答え" style="flex:1;border:1.5px solid var(--light);border-radius:10px;padding:10px 12px;font-size:.9rem;outline:none;font-family:inherit;min-height:44px"><button type="button" class="kw-del" onclick="this.parentElement.remove()">✕</button>`;
+  list.appendChild(div);
+};
+function getExtraAnswers(prefix){
+  return [...document.querySelectorAll(`.${prefix}-extra`)].map(i=>i.value.trim()).filter(Boolean).join('、');
+}
+
+// ===== 資料タブから単元追加 =====
+window.addUnitFromMat=async function(){
+  const subject=document.getElementById('mat-unit-subject-sel').value;
+  const name=document.getElementById('mat-unit-name-input').value.trim();
+  const msg=document.getElementById('mat-unit-msg');
+  if(!subject||!name){msg.textContent='教科と単元名を入力してください';return}
+  const existing=getUnitsForSubject(subject);
+  if(existing.find(u=>u.name===name)){msg.textContent='その単元はすでに登録されています';return}
+  await push(ref(db,`units/${subject}`),{name,order:existing.length+1});
+  document.getElementById('mat-unit-name-input').value='';
+  msg.textContent=`「${name}」を追加しました！`;setTimeout(()=>msg.textContent='',2000);
+};
+
+// ===== 問題編集 =====
+window.openEditCard=function(id){
+  const c=_cards.find(x=>x.id===id);if(!c)return;
+  document.getElementById('edit-id').value=c.id;
+  document.getElementById('edit-subject').value=c.subject||'';
+  populateUnitSelect('edit');
+  setTimeout(()=>{document.getElementById('edit-unit').value=c.unit||'';},50);
+  document.getElementById('edit-grade').value=c.grade||'中3';
+  document.getElementById('edit-question').value=c.question||'';
+  document.getElementById('edit-answer').value=c.answer||'';
+  document.getElementById('edit-hint').value=c.hint||'';
+  document.getElementById('edit-explanation').value=c.explanation||'';
+  document.getElementById('edit-source').value=c.source||'';
+  if(c.extraAnswers){
+    const list=document.getElementById('edit-extra-list');list.innerHTML='';
+    c.extraAnswers.split(/[、,，]/).map(a=>a.trim()).filter(Boolean).forEach(a=>{
+      const div=document.createElement('div');div.className='extra-row';
+      div.innerHTML=`<input class="edit-extra" value="${esc(a)}" style="flex:1;border:1.5px solid var(--light);border-radius:10px;padding:10px 12px;font-size:.9rem;outline:none;font-family:inherit;min-height:44px"><button type="button" class="kw-del" onclick="this.parentElement.remove()">✕</button>`;
+      list.appendChild(div);
+    });
+  }
+  if(c.questionType)setQType('edit',c.questionType);
+  if(c.keywords){
+    const kwList=document.getElementById('edit-kw-list');kwList.innerHTML='';
+    c.keywords.split(/[、,，]/).map(k=>k.trim()).filter(Boolean).forEach((k,i)=>{
+      const div=document.createElement('div');div.className='kw-row';
+      div.innerHTML=`<input class="edit-kw" value="${esc(k)}" placeholder="キーワード${i+1} *"><button type="button" class="kw-del" onclick="removeKw(this)">✕</button>`;
+      kwList.appendChild(div);
+    });
+  }
+  if(c.fakeChoices){
+    const fList=document.getElementById('edit-fake-list');fList.innerHTML='';
+    c.fakeChoices.split(/[、,，]/).map(f=>f.trim()).filter(Boolean).forEach((f,i)=>{
+      const div=document.createElement('div');div.className='fake-row';
+      div.innerHTML=`<input class="edit-fake" value="${esc(f)}" placeholder="偽の選択肢${i+1} *"><button type="button" class="kw-del" onclick="removeFake(this)">✕</button>`;
+      fList.appendChild(div);
+    });
+  }
+  const imp=parseInt(c.importance)||0;
+  document.getElementById('edit-importance').value=imp||'';
+  document.querySelectorAll('#edit-star-row .star-btn').forEach((s,i)=>s.classList.toggle('on',i<imp));
+  document.getElementById('editCardModal').classList.add('open');
+  document.getElementById('edit-msg').textContent='';
+};
+window.closeEditCard=function(){document.getElementById('editCardModal').classList.remove('open')};
+window.saveEditCard=async function(){
+  const id=document.getElementById('edit-id').value;
+  const subject=document.getElementById('edit-subject').value;
+  const unit=document.getElementById('edit-unit').value;
+  const grade=document.getElementById('edit-grade').value;
+  const question=document.getElementById('edit-question').value.trim();
+  const answer=document.getElementById('edit-answer').value.trim();
+  const questionType=document.getElementById('edit-qtype').value;
+  const msg=document.getElementById('edit-msg');
+  if(!subject||!unit||!question||!answer){msg.textContent='教科・単元・問題・答えは必須です';return}
+  if(!questionType){msg.textContent='問題種別を選択してください';return}
+  const keywords=getKeywords('edit');
+  if(questionType==='long'&&!keywords){msg.textContent='長文問題はキーワードを入力してください';return}
+  const fakeChoices=getFakeChoices('edit');
+  if(fakeChoices.length<3){msg.textContent='偽の選択肢を3つ入力してください';return}
+  const extraAnswers=getExtraAnswers('edit');
+  const importance=document.getElementById('edit-importance').value||'';
+  const idx=_cards.findIndex(x=>x.id===id);if(idx<0)return;
+  _cards[idx]={..._cards[idx],subject,unit,grade,questionType,question,answer,extraAnswers,keywords,fakeChoices:fakeChoices.join('、'),hint:document.getElementById('edit-hint').value.trim(),explanation:document.getElementById('edit-explanation').value.trim(),source:document.getElementById('edit-source').value.trim(),importance};
+  await saveCards(_cards);
+  msg.textContent='保存しました！';buildFilters();renderCardList();
+  setTimeout(()=>{msg.textContent='';closeEditCard();},1200);
+};
 
 // ===== 星評価 =====
 window.setStars=function(prefix,val){
@@ -1063,7 +1272,10 @@ window.checkTyping=function(){
   const norm=s=>s.replace(/[\s　]/g,'').toLowerCase();
   let ok=false;
   if(c.keywords&&c.keywords.trim()){const kws=c.keywords.split(/[、,，]/).map(k=>k.trim()).filter(Boolean);ok=kws.every(kw=>norm(typed).includes(norm(kw)))}
-  else{ok=norm(typed)===norm(c.answer)}
+  else{
+    const allAnswers=[c.answer,...(c.extraAnswers?c.extraAnswers.split(/[、,，]/).map(a=>a.trim()).filter(Boolean):[])];
+    ok=allAnswers.some(a=>norm(typed)===norm(a));
+  }
   const ex=c.explanation?`<div class="ex-box" style="margin-top:10px"><span class="ex-label">解説</span>${esc(c.explanation)}</div>`:'';
   const msg=document.getElementById('quizMsg');
   if(ok){input.classList.add('ok');msg.innerHTML=`✓ 正解！${ex}`;msg.className='quiz-msg ok';state.score++}
@@ -1184,6 +1396,8 @@ window.submitSuggestion=async function(){
   if(!questionType){msg.textContent='問題種別を選択してください';return}
   const keywords=getKeywords('sg');
   if(questionType==='long'&&!keywords){msg.textContent='長文問題はキーワードを1つ以上入力してください';return}
+  const fakeArr=getFakeChoices('sg');
+  if(fakeArr.length<3){msg.textContent='偽の選択肢を3つ入力してください（必須）';return}
   const importance=document.getElementById('sg-importance').value;
   if(!importance){msg.textContent='重要度を選択してください（必須）';return}
   const source=getSourceText('sg');
@@ -1191,9 +1405,10 @@ window.submitSuggestion=async function(){
   msg.textContent='画像を処理中...';
   const questionImage=await getImg('sg-q-file');const answerImage=await getImg('sg-a-file');
   const list=loadSuggestions();
-  const fakeChoices=getFakeChoices('sg').join('、');
+  const fakeChoices=fakeArr.join('、');
+  const extraAnswers=getExtraAnswers('sg');
   const entry={id:uid(),subject,unit,grade,questionType,question,questionImage,answer,answerImage,
-    keywords,fakeChoices,
+    extraAnswers,keywords,fakeChoices,
     explanation:document.getElementById('sg-explanation').value.trim(),
     source,note:document.getElementById('sg-note').value.trim(),
     name:document.getElementById('sg-name').value.trim(),
@@ -1209,6 +1424,38 @@ window.submitSuggestion=async function(){
   document.getElementById('sg-q-file').value='';document.getElementById('sg-a-file').value='';
   setTimeout(()=>msg.textContent='',3000);
 };
+window.submitUnitSuggestion=async function(){
+  const subject=document.getElementById('usg-subject').value;
+  const name=document.getElementById('usg-name-input').value.trim();
+  const msg=document.getElementById('usg-msg');
+  if(!subject||!name){msg.textContent='教科と単元名を入力してください';return}
+  const entry={id:uid(),subject,name,note:document.getElementById('usg-note').value.trim(),proposer:document.getElementById('usg-proposer').value.trim(),status:'pending',createdAt:new Date().toLocaleString('ja')};
+  if(currentUser){entry.userId=currentUser.uid;entry.userEmail=currentUser.email}
+  await saveUnitSuggs([..._unitSuggs,entry]);
+  msg.textContent='単元追加を提案しました！ありがとう😊';
+  ['usg-subject','usg-name-input','usg-proposer','usg-note'].forEach(id=>{const el=document.getElementById(id);el.value='';});
+  setTimeout(()=>msg.textContent='',3000);
+};
+function renderUnitSuggList(){
+  const el=document.getElementById('unitSuggList');
+  if(!_unitSuggs.length){el.innerHTML='<div style="color:#999;text-align:center;padding:20px;font-size:.85rem">単元提案はまだありません</div>';return}
+  el.innerHTML='<div class="suggest-list">'+_unitSuggs.map(s=>`<div class="sug-item">
+    <div class="sug-meta">${s.createdAt}　${s.proposer?'提案者: '+esc(s.proposer):'匿名'}</div>
+    <div class="sug-q">教科：${esc(s.subject)}</div>
+    <div class="sug-a">単元名：${esc(s.name)}</div>
+    ${s.note?`<div class="sug-src">📝 ${esc(s.note)}</div>`:''}
+    <div class="sug-actions" style="margin-top:8px"><button class="btn-approve" onclick="approveUnitSugg('${s.id}')">✓ 承認・追加</button><button class="btn-reject" onclick="rejectUnitSugg('${s.id}')">✕ 却下</button></div>
+  </div>`).join('')+'</div>';
+}
+window.approveUnitSugg=async function(id){
+  const s=_unitSuggs.find(x=>x.id===id);if(!s)return;
+  const existing=getUnitsForSubject(s.subject);
+  if(existing.find(u=>u.name===s.name)){alert('その単元はすでに登録されています');return}
+  await push(ref(db,`units/${s.subject}`),{name:s.name,order:existing.length+1});
+  await saveUnitSuggs(_unitSuggs.filter(x=>x.id!==id));
+  renderUnitSuggList();renderUnitAdminList();
+};
+window.rejectUnitSugg=async function(id){if(!confirm('この提案を却下しますか？'))return;await saveUnitSuggs(_unitSuggs.filter(x=>x.id!==id));renderUnitSuggList()};
 window.submitMaterialSuggestion=async function(){
   const title=document.getElementById('smat-title').value.trim();
   const subject=document.getElementById('smat-subject').value;
@@ -1244,13 +1491,22 @@ window.checkLogin=function(){
   else document.getElementById('loginError').textContent='パスワードが違います';
 };
 window.closeAdminLogin=function(){document.getElementById('adminLoginModal').classList.remove('open');document.getElementById('pwInput').value='';document.getElementById('loginError').textContent=''};
-function openAdmin(){document.getElementById('adminPanel').classList.add('open');renderSuggestList();renderCardList();buildListSubjectFilter();renderAdminMatList();renderMatSuggList();renderNewsAdminList();renderInquiryAdminList();renderUnitAdminList()}
+function openAdmin(){document.getElementById('adminPanel').classList.add('open');renderSuggestList();renderCardList();buildListSubjectFilter();renderAdminMatList();renderMatSuggList();renderUnitSuggList();renderNewsAdminList();renderInquiryAdminList();renderUnitAdminList()}
 window.closeAdmin=function(){document.getElementById('adminPanel').classList.remove('open')};
 window.switchAdminTab=function(tab){
-  const tabs=['add','units','suggest','list','materials','matsugg','news','inquiries'];
-  document.querySelectorAll('#adminPanel .modal-tab').forEach((t,i)=>t.classList.toggle('active',tabs[i]===tab));
-  document.querySelectorAll('#adminPanel .modal-content').forEach((c,i)=>c.classList.toggle('active',tabs[i]===tab));
-  if(tab==='suggest')renderSuggestList();if(tab==='list')renderCardList();if(tab==='materials')renderAdminMatList();if(tab==='matsugg')renderMatSuggList();if(tab==='news')renderNewsAdminList();if(tab==='inquiries')renderInquiryAdminList();if(tab==='units')renderUnitAdminList();
+  document.querySelectorAll('#adminPanel .modal-tab').forEach(t=>{
+    const m=(t.getAttribute('onclick')||'').match(/switchAdminTab\('([^']+)'\)/);
+    t.classList.toggle('active',!!m&&m[1]===tab);
+  });
+  document.querySelectorAll('#adminPanel .modal-content').forEach(c=>c.classList.toggle('active',c.id===`tab-${tab}`));
+  if(tab==='suggest')renderSuggestList();
+  if(tab==='list'){renderCardList();buildListSubjectFilter();}
+  if(tab==='materials')renderAdminMatList();
+  if(tab==='matsugg')renderMatSuggList();
+  if(tab==='unitsugg')renderUnitSuggList();
+  if(tab==='news')renderNewsAdminList();
+  if(tab==='inquiries')renderInquiryAdminList();
+  if(tab==='units')renderUnitAdminList();
 };
 
 // ===== 単元管理 =====
@@ -1301,12 +1557,15 @@ window.addCard=async function(){
   if(!questionType){msg.textContent='問題種別を選択してください';return}
   const keywords=getKeywords('add');
   if(questionType==='long'&&!keywords){msg.textContent='長文問題はキーワードを1つ以上入力してください';return}
+  const fakeArr=getFakeChoices('add');
+  if(fakeArr.length<3){msg.textContent='偽の選択肢を3つ入力してください（必須）';return}
   msg.textContent='画像を処理中...';
   const questionImage=await getImg('add-q-file');const answerImage=await getImg('add-a-file');
   const cards=loadCards();
   const importance=document.getElementById('add-importance').value||'';
-  const fakeChoices=getFakeChoices('add').join('、');
-  cards.push({id:uid(),subject,unit,grade,questionType,question,questionImage,answer,answerImage,hint:document.getElementById('add-hint').value.trim(),keywords,explanation:document.getElementById('add-explanation').value.trim(),source:document.getElementById('add-source').value.trim(),importance,fakeChoices});
+  const fakeChoices=fakeArr.join('、');
+  const extraAnswers=getExtraAnswers('add');
+  cards.push({id:uid(),subject,unit,grade,questionType,question,questionImage,answer,answerImage,extraAnswers,hint:document.getElementById('add-hint').value.trim(),keywords,explanation:document.getElementById('add-explanation').value.trim(),source:document.getElementById('add-source').value.trim(),importance,fakeChoices});
   await saveCards(cards);msg.textContent='カードを追加しました！';
   ['add-question','add-answer','add-hint','add-explanation','add-source','add-unit','add-importance'].forEach(id=>document.getElementById(id).value='');
   document.querySelectorAll('#add-star-row .star-btn').forEach(s=>s.classList.remove('on'));
@@ -1318,14 +1577,60 @@ window.addCard=async function(){
 function renderSuggestList(){
   const list=loadSuggestions();const el=document.getElementById('suggestList');
   if(!list.length){el.innerHTML='<div style="color:#999;text-align:center;padding:20px;font-size:.85rem">提案はまだありません</div>';return}
-  el.innerHTML='<div class="suggest-list">'+list.map(s=>`<div class="sug-item"><div class="sug-meta">${s.createdAt}　${s.name?'提案者: '+esc(s.name):'匿名'}　${s.grade} / ${s.subject} / ${s.unit||'未記入'}</div><div class="sug-q">Q：${esc(s.question)}</div>${s.questionImage?`<img src="${s.questionImage}" class="card-img">`:''}
-    <div class="sug-a">A：${esc(s.answer)}</div>${s.answerImage?`<img src="${s.answerImage}" class="card-img">`:''}${s.source?`<div class="sug-src">📖 ${esc(s.source)}</div>`:''}
-    <div class="sug-actions" style="margin-top:8px"><button class="btn-approve" onclick="approveSuggestion('${s.id}')">✓ 承認</button><button class="btn-reject" onclick="rejectSuggestion('${s.id}')">✕ 却下</button></div></div>`).join('')+'</div>';
+  el.innerHTML='<div class="suggest-list">'+list.map(s=>`<div class="sug-item" id="sug-${s.id}">
+    <div class="sug-meta">${s.createdAt}　${s.name?'提案者: '+esc(s.name):'匿名'}　${s.grade} / ${s.subject} / ${s.unit||'未記入'}</div>
+    <div class="sug-q">Q：${esc(s.question)}</div>${s.questionImage?`<img src="${s.questionImage}" class="card-img">`:''}
+    <div class="sug-a">A：${esc(s.answer)}</div>${s.answerImage?`<img src="${s.answerImage}" class="card-img">`:''}
+    ${s.keywords?`<div class="sug-src">🔑 ${esc(s.keywords)}</div>`:''}
+    ${s.fakeChoices?`<div class="sug-src">❌ 偽: ${esc(s.fakeChoices)}</div>`:''}
+    ${s.source?`<div class="sug-src">📖 ${esc(s.source)}</div>`:''}
+    <div class="sug-actions" style="margin-top:8px">
+      <button class="btn-approve" onclick="approveSuggestion('${s.id}')">✓ 承認</button>
+      <button class="btn-approve" style="background:#555" onclick="openSugEdit('${s.id}')">✏️ 編集して承認</button>
+      <button class="btn-reject" onclick="rejectSuggestion('${s.id}')">✕ 却下</button>
+    </div>
+    <div class="sug-edit-form" id="sugedit-${s.id}">
+      <div class="form-col">
+        <div style="font-size:.8rem;font-weight:bold;margin-bottom:8px">内容を編集してから承認</div>
+        <input id="se-question-${s.id}" placeholder="問題文 *" value="${esc(s.question)}">
+        <input id="se-answer-${s.id}" placeholder="答え *" value="${esc(s.answer)}">
+        <input id="se-keywords-${s.id}" placeholder="キーワード（カンマ区切り）" value="${esc(s.keywords||'')}">
+        <input id="se-fakechoices-${s.id}" placeholder="偽の選択肢（カンマ区切り）" value="${esc(s.fakeChoices||'')}">
+        <input id="se-hint-${s.id}" placeholder="ヒント" value="${esc(s.hint||'')}">
+        <input id="se-explanation-${s.id}" placeholder="解説" value="${esc(s.explanation||'')}">
+        <button class="btn primary btn-full" onclick="approveEditedSuggestion('${s.id}')">✓ この内容で承認</button>
+      </div>
+    </div>
+  </div>`).join('')+'</div>';
 }
+window.openSugEdit=function(id){
+  const form=document.getElementById(`sugedit-${id}`);
+  form.classList.toggle('open');
+};
+window.approveEditedSuggestion=async function(id){
+  const list=loadSuggestions(),s=list.find(x=>x.id===id);if(!s)return;
+  const cards=loadCards();
+  cards.push({
+    id:uid(),subject:s.subject,unit:s.unit||'未分類',grade:s.grade,
+    questionType:s.questionType||'word',
+    question:document.getElementById(`se-question-${id}`).value.trim()||s.question,
+    questionImage:s.questionImage||'',
+    answer:document.getElementById(`se-answer-${id}`).value.trim()||s.answer,
+    answerImage:s.answerImage||'',
+    keywords:document.getElementById(`se-keywords-${id}`).value.trim(),
+    fakeChoices:document.getElementById(`se-fakechoices-${id}`).value.trim(),
+    hint:document.getElementById(`se-hint-${id}`).value.trim(),
+    explanation:document.getElementById(`se-explanation-${id}`).value.trim(),
+    extraAnswers:s.extraAnswers||'',
+    source:s.source||'',importance:s.importance||''
+  });
+  await saveCards(cards);await saveSuggestions(list.filter(x=>x.id!==id));
+  buildFilters();renderSuggestList();renderCardList();
+};
 window.approveSuggestion=async function(id){
   const list=loadSuggestions(),s=list.find(x=>x.id===id);if(!s)return;
   const cards=loadCards();
-  cards.push({id:uid(),subject:s.subject,unit:s.unit||'未分類',grade:s.grade,questionType:s.questionType||'word',question:s.question,questionImage:s.questionImage||'',answer:s.answer,answerImage:s.answerImage||'',hint:'',keywords:s.keywords||'',fakeChoices:s.fakeChoices||'',explanation:s.explanation||'',source:s.source||'',importance:s.importance||''});
+  cards.push({id:uid(),subject:s.subject,unit:s.unit||'未分類',grade:s.grade,questionType:s.questionType||'word',question:s.question,questionImage:s.questionImage||'',answer:s.answer,answerImage:s.answerImage||'',extraAnswers:s.extraAnswers||'',hint:s.hint||'',keywords:s.keywords||'',fakeChoices:s.fakeChoices||'',explanation:s.explanation||'',source:s.source||'',importance:s.importance||''});
   await saveCards(cards);await saveSuggestions(list.filter(x=>x.id!==id));buildFilters();renderSuggestList();renderCardList();
 };
 window.rejectSuggestion=async function(id){if(!confirm('この提案を却下しますか？'))return;await saveSuggestions(loadSuggestions().filter(x=>x.id!==id));renderSuggestList()};
@@ -1334,7 +1639,7 @@ window.renderCardList=function(){
   const fv=document.getElementById('list-subject-filter')?.value||'';
   const cards=_cards.filter(c=>!fv||c.subject===fv);const el=document.getElementById('cardListEl');
   if(!cards.length){el.innerHTML='<div style="color:#999;text-align:center;padding:20px;font-size:.85rem">カードがありません</div>';return}
-  el.innerHTML='<div class="card-list">'+cards.map(c=>`<div class="card-list-item"><button class="cl-del" onclick="deleteCard('${c.id}')">✕</button><div class="cl-q">${esc(c.question)}</div><div class="cl-a">${esc(c.answer)}</div><div class="cl-tag">${esc(c.subject)} · ${esc(c.unit)} · ${esc(c.grade)}</div></div>`).join('')+'</div>';
+  el.innerHTML='<div class="card-list">'+cards.map(c=>`<div class="card-list-item"><button class="cl-del" onclick="deleteCard('${c.id}')">✕</button><button class="cl-del" style="right:36px;background:#f5f5f5;color:#333;border-color:#ccc" onclick="openEditCard('${c.id}')">✏️</button><div class="cl-q">${esc(c.question)}</div><div class="cl-a">${esc(c.answer)}</div><div class="cl-tag">${esc(c.subject)} · ${esc(c.unit)} · ${esc(c.grade)}</div></div>`).join('')+'</div>';
 };
 window.deleteCard=async function(id){if(!confirm('このカードを削除しますか？'))return;await saveCards(_cards.filter(c=>c.id!==id));buildFilters();window.renderCardList();startSession()};
 window.addMaterial=async function(){
@@ -1419,6 +1724,7 @@ onValue(ref(db,'cards'),snap=>{_cards=snap.val()?Object.values(snap.val()):[];bu
 onValue(ref(db,'suggestions'),snap=>{_suggestions=snap.val()?Object.values(snap.val()):[];if(document.getElementById('adminPanel').classList.contains('open'))renderSuggestList()});
 onValue(ref(db,'materials'),snap=>{_materials=snap.val()?Object.values(snap.val()):[];if(state.mode==='info')renderMaterials()});
 onValue(ref(db,'matSuggestions'),snap=>{_matSuggs=snap.val()?Object.values(snap.val()):[];if(document.getElementById('adminPanel').classList.contains('open'))renderMatSuggList()});
+onValue(ref(db,'unitSuggestions'),snap=>{_unitSuggs=snap.val()?Object.values(snap.val()):[];if(document.getElementById('adminPanel').classList.contains('open'))renderUnitSuggList()});
 onValue(ref(db,'news'),snap=>{
   _news=snap.val()?Object.entries(snap.val()).map(([k,v])=>({...v,_key:k})):[];
   renderNewsTicker();
