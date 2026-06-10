@@ -971,14 +971,14 @@ window.closeEditCard=function(){document.getElementById('editCardModal').classLi
 window.saveEditCard=async function(){
   const id=document.getElementById('edit-id').value;
   const subject=document.getElementById('edit-subject').value;
-  const unit=document.getElementById('edit-unit').value;
+  const orig=_cards.find(x=>x.id===id);
+  const unit=document.getElementById('edit-unit').value||orig?.unit||'';
   const grade=document.getElementById('edit-grade').value;
   const question=document.getElementById('edit-question').value.trim();
   const answer=document.getElementById('edit-answer').value.trim();
-  const questionType=document.getElementById('edit-qtype').value;
+  const questionType=document.getElementById('edit-qtype').value||'word';
   const msg=document.getElementById('edit-msg');
-  if(!subject||!unit||!question||!answer){msg.textContent='教科・単元・問題・答えは必須です';return}
-  if(!questionType){msg.textContent='問題種別を選択してください';return}
+  if(!subject||!question||!answer){msg.textContent='教科・問題・答えは必須です';return}
   const keywords=getKeywords('edit');
   if(questionType==='long'&&!keywords){msg.textContent='長文問題はキーワードを入力してください';return}
   const fakeChoices=getFakeChoices('edit');
