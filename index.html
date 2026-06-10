@@ -768,7 +768,7 @@ header{background:#000}
           <input type="hidden" id="edit-importance" value="">
         </div>
         <button class="btn primary btn-full" onclick="saveEditCard()">保存する</button>
-        <div id="edit-msg" style="font-size:.85rem;color:#666;min-height:18px;text-align:center"></div>
+        <div id="edit-msg" style="font-size:.85rem;color:#f88;min-height:18px;text-align:center;font-weight:bold"></div>
       </div>
     </div>
   </div>
@@ -922,7 +922,14 @@ window.openEditCard=function(id){
   document.getElementById('edit-id').value=c.id;
   document.getElementById('edit-subject').value=c.subject||'';
   populateUnitSelect('edit');
-  setTimeout(()=>{document.getElementById('edit-unit').value=c.unit||'';},50);
+  // 既存単元がリストにない場合も選択できるよう手動でoption追加
+  setTimeout(()=>{
+    const sel=document.getElementById('edit-unit');
+    if(c.unit&&![...sel.options].some(o=>o.value===c.unit)){
+      const opt=document.createElement('option');opt.value=c.unit;opt.textContent=c.unit;sel.appendChild(opt);
+    }
+    sel.value=c.unit||'';
+  },100);
   document.getElementById('edit-grade').value=c.grade||'中3';
   document.getElementById('edit-question').value=c.question||'';
   document.getElementById('edit-answer').value=c.answer||'';
@@ -937,7 +944,7 @@ window.openEditCard=function(id){
       list.appendChild(div);
     });
   }
-  if(c.questionType)setQType('edit',c.questionType);
+  setQType('edit',c.questionType||'word');
   if(c.keywords){
     const kwList=document.getElementById('edit-kw-list');kwList.innerHTML='';
     c.keywords.split(/[、,，]/).map(k=>k.trim()).filter(Boolean).forEach((k,i)=>{
@@ -975,7 +982,6 @@ window.saveEditCard=async function(){
   const keywords=getKeywords('edit');
   if(questionType==='long'&&!keywords){msg.textContent='長文問題はキーワードを入力してください';return}
   const fakeChoices=getFakeChoices('edit');
-  if(fakeChoices.length<3){msg.textContent='偽の選択肢を3つ入力してください';return}
   const extraAnswers=getExtraAnswers('edit');
   const importance=document.getElementById('edit-importance').value||'';
   const idx=_cards.findIndex(x=>x.id===id);if(idx<0)return;
