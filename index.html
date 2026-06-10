@@ -28,6 +28,14 @@ main{max-width:600px;margin:0 auto;padding:14px 14px calc(var(--nh)+20px)}
 .filter-btn{border:1.5px solid #bbb;background:#fff;color:var(--text);padding:5px 12px;border-radius:20px;font-size:.8rem;cursor:pointer;min-height:34px;position:relative}
 .filter-btn.active{background:var(--accent);color:var(--at);border-color:var(--accent)}
 .clear-badge{position:absolute;top:-4px;right:-4px;background:#f5a623;color:#fff;border-radius:50%;width:16px;height:16px;font-size:.6rem;display:flex;align-items:center;justify-content:center}
+.star-row{display:flex;gap:2px;margin-top:4px}
+.star-btn{font-size:1.6rem;cursor:pointer;color:#ddd;background:none;border:none;padding:2px;line-height:1;transition:color .1s}
+.star-btn.on{color:#f5a623}
+.star-label{font-size:.78rem;color:#e05;margin-bottom:4px;font-weight:bold}
+.streak-banner{background:#fff;border:1.5px solid var(--light);border-radius:10px;padding:10px 14px;margin-bottom:12px;display:none;gap:16px;align-items:center;flex-wrap:wrap}
+.streak-item{display:flex;align-items:center;gap:6px;font-size:.88rem;font-weight:bold}
+.streak-val{font-size:1.2rem;font-weight:bold}
+.imp-stars{font-size:.95rem;letter-spacing:1px;margin-top:4px}
 #bottomNav{position:fixed;bottom:0;left:0;right:0;height:var(--nh);background:#fff;border-top:1px solid var(--light);display:flex;z-index:100;padding-bottom:env(safe-area-inset-bottom,0)}
 .nav-item{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;cursor:pointer;border:none;background:transparent;color:#aaa;font-family:inherit;padding:6px 2px}
 .nav-item.active{color:var(--text)}
@@ -182,6 +190,10 @@ input[type=file]{display:none}
 
 <main>
   <div style="background:#111;color:#fff;text-align:center;padding:7px 12px;font-size:.75rem;letter-spacing:.08em;margin-bottom:12px;border-radius:8px">⚠️ 現在試験運用中です。不具合はお問い合わせからご連絡ください。</div>
+  <div id="streakBanner" class="streak-banner">
+    <div class="streak-item">🔥 連続 <span class="streak-val" id="streakDays">0</span> 日</div>
+    <div class="streak-item">⏱ 今日 <span class="streak-val" id="sessionTime">0</span> 分</div>
+  </div>
   <div id="filterBar">
     <div class="sec-label">教科</div>
     <div class="filter-row" id="subjectFilter"></div>
@@ -224,6 +236,18 @@ input[type=file]{display:none}
           <img id="sg-a-prev" class="img-preview">
           <input id="sg-keywords" placeholder="正解キーワード（タイピング用・読点区切り）">
           <input id="sg-explanation" placeholder="解説（任意）">
+          <div>
+            <div class="star-label">重要度 <span style="color:#e05">*必須</span>（タップして選択）</div>
+            <div class="star-row" id="sg-star-row">
+              <button type="button" class="star-btn" onclick="setStars('sg',1)">★</button>
+              <button type="button" class="star-btn" onclick="setStars('sg',2)">★</button>
+              <button type="button" class="star-btn" onclick="setStars('sg',3)">★</button>
+              <button type="button" class="star-btn" onclick="setStars('sg',4)">★</button>
+              <button type="button" class="star-btn" onclick="setStars('sg',5)">★</button>
+            </div>
+            <input type="hidden" id="sg-importance" value="">
+            <div style="font-size:.72rem;color:#aaa;margin-top:4px">★☆☆☆☆ 低　〜　★★★★★ 高</div>
+          </div>
           <div class="sec-label" style="margin-top:4px">出典 <span style="color:#e05">*必須</span></div>
           <select id="sg-source-type" onchange="updateSourceFields('sg')">
             <option value="">出典の種類を選択 *</option>
@@ -393,6 +417,17 @@ input[type=file]{display:none}
         <input id="add-keywords" placeholder="正解キーワード（読点区切り・任意）">
         <input id="add-explanation" placeholder="解説（任意）">
         <input id="add-source" placeholder="出典（例：教科書133ページ・任意）">
+        <div>
+          <div class="star-label">重要度（任意）</div>
+          <div class="star-row" id="add-star-row">
+            <button type="button" class="star-btn" onclick="setStars('add',1)">★</button>
+            <button type="button" class="star-btn" onclick="setStars('add',2)">★</button>
+            <button type="button" class="star-btn" onclick="setStars('add',3)">★</button>
+            <button type="button" class="star-btn" onclick="setStars('add',4)">★</button>
+            <button type="button" class="star-btn" onclick="setStars('add',5)">★</button>
+          </div>
+          <input type="hidden" id="add-importance" value="">
+        </div>
         <button class="btn primary btn-full" onclick="addCard()">カードを追加</button>
         <div id="add-msg" style="font-size:.85rem;color:#666;min-height:18px;text-align:center"></div>
       </div>
@@ -476,6 +511,7 @@ onAuthStateChanged(auth,user=>{
     onValue(ref(db,`users/${user.uid}/studyHistory`),snap=>{_studyHistory=snap.val()?Object.values(snap.val()):[]});
     const ie=document.getElementById('inq-email');if(ie&&!ie.value)ie.value=user.email||'';
     const in2=document.getElementById('inq-name');if(in2&&!in2.value)in2.value=user.displayName||'';
+    startSessionTimer();updateStreak();
   } else {
     btn.textContent='👤 ログイン';btn.classList.remove('logged');_userClears={};_studyHistory=[];buildUnitFilter();
   }
@@ -504,6 +540,40 @@ function authErrMsg(code){
   if(code==='auth/user-not-found'||code==='auth/wrong-password'||code==='auth/invalid-credential')return 'メールまたはパスワードが違います';
   return 'エラー: '+code;
 }
+// ===== 星評価 =====
+window.setStars=function(prefix,val){
+  document.getElementById(`${prefix}-importance`).value=val;
+  document.querySelectorAll(`#${prefix}-star-row .star-btn`).forEach((s,i)=>s.classList.toggle('on',i<val));
+};
+
+// ===== 連続日数・セッション時間 =====
+let _sessionStart=Date.now();
+let _sessionTimerInterval=null;
+function startSessionTimer(){
+  _sessionStart=Date.now();
+  clearInterval(_sessionTimerInterval);
+  _sessionTimerInterval=setInterval(()=>{
+    const mins=Math.floor((Date.now()-_sessionStart)/60000);
+    const el=document.getElementById('sessionTime');
+    if(el)el.textContent=mins;
+  },30000);
+}
+async function updateStreak(){
+  if(!currentUser)return;
+  const today=new Date().toISOString().slice(0,10);
+  const streakRef=ref(db,`users/${currentUser.uid}/streakInfo`);
+  onValue(streakRef,snap=>{
+    const d=snap.val()||{streak:0,lastDate:''};
+    const yesterday=new Date(Date.now()-86400000).toISOString().slice(0,10);
+    let newStreak=d.streak||0;
+    if(d.lastDate===today){/* already counted */}
+    else if(d.lastDate===yesterday){newStreak++;set(streakRef,{streak:newStreak,lastDate:today})}
+    else if(d.lastDate!==today){newStreak=1;set(streakRef,{streak:newStreak,lastDate:today})}
+    const el=document.getElementById('streakDays');if(el)el.textContent=newStreak;
+    document.getElementById('streakBanner').style.display='flex';
+  },{onlyOnce:true});
+}
+
 async function recordStudyHistory(subject,unit,mode,score,total){
   if(!currentUser)return;
   await push(ref(db,`users/${currentUser.uid}/studyHistory`),{subject:subject||'全教科',unit:unit||'全単元',mode,score,total,timestamp:Date.now()});
@@ -779,6 +849,7 @@ function renderStudy(el){
     <div class="prog-wrap"><div class="prog-bar" style="width:${pct}%"></div></div>
     <div class="card"><div class="flashcard">
       <div class="fc-tag">${esc(c.grade)} · ${esc(c.subject)} · ${esc(c.unit)}</div>
+      ${c.importance?`<div class="imp-stars">${'★'.repeat(Number(c.importance))}${'☆'.repeat(5-Number(c.importance))}</div>`:''}
       <div class="fc-q">${esc(c.question)}</div>
       ${c.questionImage?`<img src="${c.questionImage}" class="card-img">`:''}
       <div class="fc-a">${esc(c.answer)}</div>
@@ -964,6 +1035,8 @@ window.submitSuggestion=async function(){
   const answer=document.getElementById('sg-answer').value.trim();
   const msg=document.getElementById('sg-msg');
   if(!subject||!unit||!question||!answer){msg.textContent='教科・単元・問題・答えは必須です';return}
+  const importance=document.getElementById('sg-importance').value;
+  if(!importance){msg.textContent='重要度を選択してください（必須）';return}
   const source=getSourceText('sg');
   if(!source){msg.textContent='出典の種類と詳細を入力してください（必須）';return}
   msg.textContent='画像を処理中...';
@@ -974,11 +1047,12 @@ window.submitSuggestion=async function(){
     explanation:document.getElementById('sg-explanation').value.trim(),
     source,note:document.getElementById('sg-note').value.trim(),
     name:document.getElementById('sg-name').value.trim(),
-    status:'pending',createdAt:new Date().toLocaleString('ja')};
+    importance,status:'pending',createdAt:new Date().toLocaleString('ja')};
   if(currentUser){entry.userId=currentUser.uid;entry.userEmail=currentUser.email}
   list.push(entry);await saveSuggestions(list);
   msg.textContent='提案を送りました！ありがとう😊';
-  ['sg-question','sg-answer','sg-keywords','sg-explanation','sg-note','sg-name','sg-unit'].forEach(id=>document.getElementById(id).value='');
+  ['sg-question','sg-answer','sg-keywords','sg-explanation','sg-note','sg-name','sg-unit','sg-importance'].forEach(id=>document.getElementById(id).value='');
+  document.querySelectorAll('#sg-star-row .star-btn').forEach(s=>s.classList.remove('on'));
   document.getElementById('sg-source-type').value='';document.getElementById('sg-source-fields').innerHTML='';
   ['sg-q-prev','sg-a-prev'].forEach(id=>{const el=document.getElementById(id);el.src='';el.style.display='none'});
   document.getElementById('sg-q-file').value='';document.getElementById('sg-a-file').value='';
@@ -1034,9 +1108,11 @@ window.addCard=async function(){
   msg.textContent='画像を処理中...';
   const questionImage=await getImg('add-q-file');const answerImage=await getImg('add-a-file');
   const cards=loadCards();
-  cards.push({id:uid(),subject,unit,grade,question,questionImage,answer,answerImage,hint:document.getElementById('add-hint').value.trim(),keywords:document.getElementById('add-keywords').value.trim(),explanation:document.getElementById('add-explanation').value.trim(),source:document.getElementById('add-source').value.trim()});
+  const importance=document.getElementById('add-importance').value||'';
+  cards.push({id:uid(),subject,unit,grade,question,questionImage,answer,answerImage,hint:document.getElementById('add-hint').value.trim(),keywords:document.getElementById('add-keywords').value.trim(),explanation:document.getElementById('add-explanation').value.trim(),source:document.getElementById('add-source').value.trim(),importance});
   await saveCards(cards);msg.textContent='カードを追加しました！';
-  ['add-question','add-answer','add-hint','add-keywords','add-explanation','add-source','add-unit'].forEach(id=>document.getElementById(id).value='');
+  ['add-question','add-answer','add-hint','add-keywords','add-explanation','add-source','add-unit','add-importance'].forEach(id=>document.getElementById(id).value='');
+  document.querySelectorAll('#add-star-row .star-btn').forEach(s=>s.classList.remove('on'));
   ['add-q-prev','add-a-prev'].forEach(id=>{const el=document.getElementById(id);el.src='';el.style.display='none'});
   document.getElementById('add-q-file').value='';document.getElementById('add-a-file').value='';
   buildFilters();renderCardList();setTimeout(()=>msg.textContent='',2000);
@@ -1051,7 +1127,7 @@ function renderSuggestList(){
 window.approveSuggestion=async function(id){
   const list=loadSuggestions(),s=list.find(x=>x.id===id);if(!s)return;
   const cards=loadCards();
-  cards.push({id:uid(),subject:s.subject,unit:s.unit||'未分類',grade:s.grade,question:s.question,questionImage:s.questionImage||'',answer:s.answer,answerImage:s.answerImage||'',hint:'',keywords:s.keywords||'',explanation:s.explanation||'',source:s.source||''});
+  cards.push({id:uid(),subject:s.subject,unit:s.unit||'未分類',grade:s.grade,question:s.question,questionImage:s.questionImage||'',answer:s.answer,answerImage:s.answerImage||'',hint:'',keywords:s.keywords||'',explanation:s.explanation||'',source:s.source||'',importance:s.importance||''});
   await saveCards(cards);await saveSuggestions(list.filter(x=>x.id!==id));buildFilters();renderSuggestList();renderCardList();
 };
 window.rejectSuggestion=async function(id){if(!confirm('この提案を却下しますか？'))return;await saveSuggestions(loadSuggestions().filter(x=>x.id!==id));renderSuggestList()};
