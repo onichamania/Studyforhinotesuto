@@ -738,6 +738,9 @@ header{background:#000}
         <select id="edit-unit"><option value="">先に教科を選んでください</option></select>
         <select id="edit-grade"><option value="中1">中1</option><option value="中2">中2</option><option value="中3" selected>中3</option></select>
         <input id="edit-question" placeholder="問題文 *">
+        <button type="button" class="img-btn" onclick="document.getElementById('edit-q-file').click()"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" style="vertical-align:middle;margin-right:5px"><path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z" stroke="#888" stroke-width="2" stroke-linejoin="round"/><circle cx="12" cy="13" r="4" stroke="#888" stroke-width="2"/></svg>問題に画像（任意）</button>
+        <input type="file" id="edit-q-file" accept="image/*" onchange="previewImg(this,'edit-q-prev')">
+        <img id="edit-q-prev" class="img-preview">
         <div>
           <div class="star-label">問題種別 <span style="color:#e05">*必須</span></div>
           <div class="qtype-row">
@@ -747,6 +750,9 @@ header{background:#000}
           <input type="hidden" id="edit-qtype" value="">
         </div>
         <input id="edit-answer" placeholder="答え（メイン） *">
+        <button type="button" class="img-btn" onclick="document.getElementById('edit-a-file').click()"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" style="vertical-align:middle;margin-right:5px"><path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z" stroke="#888" stroke-width="2" stroke-linejoin="round"/><circle cx="12" cy="13" r="4" stroke="#888" stroke-width="2"/></svg>答えに画像（任意）</button>
+        <input type="file" id="edit-a-file" accept="image/*" onchange="previewImg(this,'edit-a-prev')">
+        <img id="edit-a-prev" class="img-preview">
         <div>
           <div class="sec-label">追加の答え（任意）</div>
           <div style="font-size:.72rem;color:#888;margin-bottom:6px">別の言い方など。タイピングテストで追加の正解になります。</div>
@@ -988,6 +994,13 @@ window.openEditCard=function(id){
   const imp=parseInt(c.importance)||0;
   document.getElementById('edit-importance').value=imp||'';
   document.querySelectorAll('#edit-star-row .star-btn').forEach((s,i)=>s.classList.toggle('on',i<imp));
+  // 既存画像をプレビュー表示
+  const qPrev=document.getElementById('edit-q-prev');
+  if(c.questionImage){qPrev.src=c.questionImage;qPrev.style.display='block';}else{qPrev.src='';qPrev.style.display='none';}
+  const aPrev=document.getElementById('edit-a-prev');
+  if(c.answerImage){aPrev.src=c.answerImage;aPrev.style.display='block';}else{aPrev.src='';aPrev.style.display='none';}
+  document.getElementById('edit-q-file').value='';
+  document.getElementById('edit-a-file').value='';
   document.getElementById('editCardModal').classList.add('open');
   document.getElementById('edit-msg').textContent='';
 };
@@ -1014,8 +1027,13 @@ window.saveEditCard=async function(){
     const idx=_cards.findIndex(x=>x.id===id);
     if(idx<0){msg.textContent='カードが見つかりません(id:'+id+')';console.warn('saveEditCard: id not found in _cards',id,_cards.length);return}
     if(!currentUser){msg.textContent='右上のボタンからログインしてください';return}
-    msg.style.color='#aaa';msg.textContent='保存中...';
-    _cards[idx]={..._cards[idx],subject,unit,grade,questionType,question,answer,extraAnswers,keywords,fakeChoices:fakeChoices.join('、'),hint:document.getElementById('edit-hint').value.trim(),explanation:document.getElementById('edit-explanation').value.trim(),source:document.getElementById('edit-source').value.trim(),importance};
+    msg.style.color='#aaa';msg.textContent='画像を処理中...';
+    const newQImg=await getImg('edit-q-file');
+    const newAImg=await getImg('edit-a-file');
+    const questionImage=newQImg||_cards[idx].questionImage||'';
+    const answerImage=newAImg||_cards[idx].answerImage||'';
+    msg.textContent='保存中...';
+    _cards[idx]={..._cards[idx],subject,unit,grade,questionType,question,questionImage,answer,answerImage,extraAnswers,keywords,fakeChoices:fakeChoices.join('、'),hint:document.getElementById('edit-hint').value.trim(),explanation:document.getElementById('edit-explanation').value.trim(),source:document.getElementById('edit-source').value.trim(),importance};
     await saveCards(_cards);
     msg.style.color='#4f8';msg.textContent='保存しました！';buildFilters();renderCardList();
     setTimeout(()=>{msg.textContent='';closeEditCard();},1200);
