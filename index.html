@@ -6,7 +6,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <title>日野学園 テスト対策問題サイト</title>
 <style>
-@font-face{font-family:'Makinas';src:url('fonts/Makinas-4-Square.otf') format('opentype');font-weight:normal;font-style:normal}
+@font-face{font-family:'Makinas';src:url('fonts/Makinas-4-Square.woff2') format('woff2'),url('fonts/Makinas-4-Square.otf') format('opentype');font-weight:normal;font-style:normal;font-display:swap}
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 *,button,input,select,textarea{font-family:'Makinas','Hiragino Kaku Gothic ProN','Meiryo',sans-serif}
 :root{--bg:#0f0f0f;--card:#1a1a1a;--text:#f0f0f0;--muted:#999;--border:#d0d0d0;--light:#2e2e2e;--accent:#f0f0f0;--at:#111;--r:14px;--sh:0 2px 16px rgba(0,0,0,.6);--nh:0px}
@@ -134,6 +134,9 @@ input[type=file]{display:none}
 .modal-content{display:none}
 .modal-content.active{display:block}
 .form-err{color:#e05;font-size:.82rem;min-height:20px;text-align:center}
+.btn-google{background:#fff;color:#333;border:1.5px solid #ddd;display:flex;align-items:center;justify-content:center;font-size:.95rem;font-weight:bold;padding:12px}
+.btn-google:hover{background:#f5f5f5}
+.auth-divider{display:flex;align-items:center;gap:8px;color:var(--muted);font-size:.8rem}.auth-divider::before,.auth-divider::after{content:'';flex:1;height:1px;background:var(--light)}
 .suggest-list{display:flex;flex-direction:column;gap:10px}
 .sug-item{border:1.5px solid var(--light);border-radius:10px;padding:14px;font-size:.85rem}
 .sug-meta{color:var(--muted);font-size:.75rem;margin-bottom:6px}
@@ -504,6 +507,8 @@ header{background:#000}
     </div>
     <div class="modal-content active" id="auth-login">
       <div class="form-col">
+        <button class="btn btn-full btn-google" onclick="doGoogleLogin()"><svg width="18" height="18" viewBox="0 0 48 48" style="vertical-align:middle;margin-right:8px"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.18 1.48-4.97 2.31-8.16 2.31-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg>Googleでログイン</button>
+        <div class="auth-divider"><span>または</span></div>
         <input id="login-email" type="email" placeholder="メールアドレス">
         <input id="login-pw" type="password" placeholder="パスワード" onkeydown="if(event.key==='Enter')doLogin()">
         <div class="form-err" id="login-err"></div>
@@ -512,6 +517,8 @@ header{background:#000}
     </div>
     <div class="modal-content" id="auth-register">
       <div class="form-col">
+        <button class="btn btn-full btn-google" onclick="doGoogleLogin()"><svg width="18" height="18" viewBox="0 0 48 48" style="vertical-align:middle;margin-right:8px"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.18 1.48-4.97 2.31-8.16 2.31-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg>Googleで登録・ログイン</button>
+        <div class="auth-divider"><span>または</span></div>
         <input id="reg-name" type="text" placeholder="名前（ニックネームOK）*">
         <input id="reg-email" type="email" placeholder="メールアドレス *">
         <input id="reg-pw" type="password" placeholder="パスワード（6文字以上）*">
@@ -777,7 +784,7 @@ header{background:#000}
 <script type="module">
 import{initializeApp}from"https://www.gstatic.com/firebasejs/11.8.1/firebase-app.js";
 import{getDatabase,ref,set,onValue,push,remove}from"https://www.gstatic.com/firebasejs/11.8.1/firebase-database.js";
-import{getAuth,createUserWithEmailAndPassword,signInWithEmailAndPassword,onAuthStateChanged,signOut,updateProfile}from"https://www.gstatic.com/firebasejs/11.8.1/firebase-auth.js";
+import{getAuth,createUserWithEmailAndPassword,signInWithEmailAndPassword,onAuthStateChanged,signOut,updateProfile,GoogleAuthProvider,signInWithPopup}from"https://www.gstatic.com/firebasejs/11.8.1/firebase-auth.js";
 
 const firebaseConfig={apiKey:"AIzaSyAlWbXmtC-psia2Ne2WdlmQzYryuyIWdDA",authDomain:"learning-app-1dc31.firebaseapp.com",databaseURL:"https://learning-app-1dc31-default-rtdb.asia-southeast1.firebasedatabase.app",projectId:"learning-app-1dc31",storageBucket:"learning-app-1dc31.firebasestorage.app",messagingSenderId:"525693028877",appId:"1:525693028877:web:f88a02158f1364e383e344"};
 const app=initializeApp(firebaseConfig);
@@ -833,6 +840,16 @@ async function doRegister(){
   if(!name||!email||!pw){err.textContent='すべて入力してください';return}
   if(pw.length<6){err.textContent='パスワードは6文字以上';return}
   try{const c=await createUserWithEmailAndPassword(auth,email,pw);await updateProfile(c.user,{displayName:name});closeAuth()}catch(e){err.textContent=authErrMsg(e.code)}
+}
+async function doGoogleLogin(){
+  const err=document.getElementById('login-err')||document.getElementById('reg-err');
+  try{
+    const provider=new GoogleAuthProvider();
+    await signInWithPopup(auth,provider);
+    closeAuth();
+  }catch(e){
+    if(err&&e.code!=='auth/popup-closed-by-user')err.textContent=authErrMsg(e.code);
+  }
 }
 async function doLogout(){await signOut(auth);closeProfile()}
 function authErrMsg(code){
@@ -969,26 +986,36 @@ window.openEditCard=function(id){
 };
 window.closeEditCard=function(){document.getElementById('editCardModal').classList.remove('open')};
 window.saveEditCard=async function(){
-  const id=document.getElementById('edit-id').value;
-  const subject=document.getElementById('edit-subject').value;
-  const orig=_cards.find(x=>x.id===id);
-  const unit=document.getElementById('edit-unit').value||orig?.unit||'';
-  const grade=document.getElementById('edit-grade').value;
-  const question=document.getElementById('edit-question').value.trim();
-  const answer=document.getElementById('edit-answer').value.trim();
-  const questionType=document.getElementById('edit-qtype').value||'word';
   const msg=document.getElementById('edit-msg');
-  if(!subject||!question||!answer){msg.textContent='教科・問題・答えは必須です';return}
-  const keywords=getKeywords('edit');
-  if(questionType==='long'&&!keywords){msg.textContent='長文問題はキーワードを入力してください';return}
-  const fakeChoices=getFakeChoices('edit');
-  const extraAnswers=getExtraAnswers('edit');
-  const importance=document.getElementById('edit-importance').value||'';
-  const idx=_cards.findIndex(x=>x.id===id);if(idx<0)return;
-  _cards[idx]={..._cards[idx],subject,unit,grade,questionType,question,answer,extraAnswers,keywords,fakeChoices:fakeChoices.join('、'),hint:document.getElementById('edit-hint').value.trim(),explanation:document.getElementById('edit-explanation').value.trim(),source:document.getElementById('edit-source').value.trim(),importance};
-  await saveCards(_cards);
-  msg.textContent='保存しました！';buildFilters();renderCardList();
-  setTimeout(()=>{msg.textContent='';closeEditCard();},1200);
+  msg.style.color='#f88';
+  try{
+    const id=document.getElementById('edit-id').value;
+    if(!id){msg.textContent='IDが空です';return}
+    const subject=document.getElementById('edit-subject').value;
+    const orig=_cards.find(x=>x.id===id);
+    const unit=document.getElementById('edit-unit').value||orig?.unit||'';
+    const grade=document.getElementById('edit-grade').value;
+    const question=document.getElementById('edit-question').value.trim();
+    const answer=document.getElementById('edit-answer').value.trim();
+    const questionType=document.getElementById('edit-qtype').value||'word';
+    if(!subject||!question||!answer){msg.textContent='教科・問題・答えは必須です';return}
+    const keywords=getKeywords('edit');
+    if(questionType==='long'&&!keywords){msg.textContent='長文問題はキーワードを入力してください';return}
+    const fakeChoices=getFakeChoices('edit');
+    const extraAnswers=getExtraAnswers('edit');
+    const importance=document.getElementById('edit-importance').value||'';
+    const idx=_cards.findIndex(x=>x.id===id);
+    if(idx<0){msg.textContent='カードが見つかりません(id:'+id+')';console.warn('saveEditCard: id not found in _cards',id,_cards.length);return}
+    if(!currentUser){msg.textContent='右上のボタンからログインしてください';return}
+    msg.style.color='#aaa';msg.textContent='保存中...';
+    _cards[idx]={..._cards[idx],subject,unit,grade,questionType,question,answer,extraAnswers,keywords,fakeChoices:fakeChoices.join('、'),hint:document.getElementById('edit-hint').value.trim(),explanation:document.getElementById('edit-explanation').value.trim(),source:document.getElementById('edit-source').value.trim(),importance};
+    await saveCards(_cards);
+    msg.style.color='#4f8';msg.textContent='保存しました！';buildFilters();renderCardList();
+    setTimeout(()=>{msg.textContent='';closeEditCard();},1200);
+  }catch(e){
+    msg.style.color='#f88';msg.textContent='エラー: '+e.message;
+    console.error('saveEditCard error:',e);
+  }
 };
 
 // ===== 星評価 =====
@@ -1820,7 +1847,7 @@ window.switchAuthTab=function(tab){
   document.querySelectorAll('#authModal .modal-tab').forEach((t,i)=>t.classList.toggle('active',['login','register'][i]===tab));
   document.querySelectorAll('#authModal .modal-content').forEach((c,i)=>c.classList.toggle('active',['login','register'][i]===tab));
 };
-window.doLogin=doLogin;window.doRegister=doRegister;window.doLogout=doLogout;
+window.doLogin=doLogin;window.doRegister=doRegister;window.doLogout=doLogout;window.doGoogleLogin=doGoogleLogin;
 
 function esc(str){if(!str)return'';return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;')}
 
