@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+　<!DOCTYPE html>
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
@@ -700,7 +700,7 @@ header{background:#000}
     <div id="profile-email" style="font-size:.78rem;color:#999;margin-bottom:12px"></div>
     <div class="info-tabs">
       <button class="info-tab active" onclick="switchProfileTab('history')">📊 勉強履歴</button>
-      <button class="info-tab" onclick="switchProfileTab('radar')">📡 レーダーチャート</button>
+      <button class="info-tab" onclick="switchProfileTab('radar')">📊 正答率グラフ</button>
       <button class="info-tab" onclick="switchProfileTab('mysugg')">💡 提案履歴</button>
       <button class="info-tab" onclick="switchProfileTab('myinq')">📧 問い合わせ</button>
     </div>
@@ -710,8 +710,7 @@ header{background:#000}
         <select class="radar-select" id="radarSubjectSel" onchange="renderRadar()">
           <option value="">教科を選択してください</option>
         </select>
-        <canvas id="radarCanvas" width="300" height="300"></canvas>
-        <div class="radar-legend" id="radarLegend"></div>
+        <div id="barChartEl" style="width:100%"></div>
         <div id="radarNote" style="font-size:.75rem;color:#aaa;text-align:center;margin-top:8px"></div>
       </div>
     </div>
@@ -1287,16 +1286,14 @@ function renderProfileMyinq(){
   }).join('');
 }
 
-// ===== レーダーチャート =====
+// ===== 正答率グラフ =====
 window.renderRadar=function(){
   const subject=document.getElementById('radarSubjectSel').value;
-  const canvas=document.getElementById('radarCanvas');
+  const el=document.getElementById('barChartEl');
   const note=document.getElementById('radarNote');
-  const legend=document.getElementById('radarLegend');
-  const ctx=canvas.getContext('2d');
-  if(!subject){ctx.clearRect(0,0,canvas.width,canvas.height);note.textContent='教科を選択してください';legend.innerHTML='';return}
+  if(!subject){el.innerHTML='';note.textContent='教科を選択してください';return}
   const units=[...new Set(_cards.filter(c=>c.subject===subject).map(c=>c.unit))].filter(Boolean);
-  if(units.length<3){ctx.clearRect(0,0,canvas.width,canvas.height);note.textContent=`単元が3つ以上必要です（現在${units.length}単元）`;legend.innerHTML='';return}
+  if(!units.length){el.innerHTML='';note.textContent='この教科の単元がありません';return}
   note.textContent='';
   const unitScores={};
   units.forEach(u=>unitScores[u]={score:0,total:0,count:0});
@@ -1309,43 +1306,29 @@ window.renderRadar=function(){
       const uc=_cards.filter(c=>c.subject===subject&&c.unit===u);
       const wc=uc.reduce((s,c)=>s+(mistakes[c.id]||[]).length,0);
       unitScores[u].pct=uc.length>0?Math.max(0,Math.round((1-Math.min(wc/(uc.length*2),1))*60)):0;
+      unitScores[u].noHistory=true;
     } else {
       unitScores[u].pct=unitScores[u].total>0?Math.round(unitScores[u].score/unitScores[u].total*100):0;
     }
   });
-  const labels=units.slice(0,8);
-  const values=labels.map(u=>unitScores[u].pct);
-  drawRadarChart(canvas,labels,values);
-  legend.innerHTML=labels.map((l,i)=>`<span style="font-size:.75rem;color:#444">${esc(l)}:<strong>${values[i]}%</strong></span>`).join('　');
+  el.innerHTML=units.map(u=>{
+    const d=unitScores[u];
+    const pct=d.pct;
+    const barColor=pct>=80?'#fff':pct>=60?'#aaa':'#555';
+    const label=d.noHistory?`<span style="color:#555;font-size:.7rem">未受験</span>`:`<span style="font-weight:bold;color:#fff">${pct}%</span>`;
+    return `<div style="margin-bottom:12px">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">
+        <span style="font-size:.78rem;color:#ccc;letter-spacing:.04em">${esc(u)}</span>
+        ${label}
+      </div>
+      <div style="height:8px;background:#1a1a1a;border-radius:2px;overflow:hidden;border:1px solid #2a2a2a">
+        <div style="height:100%;width:${pct}%;background:${barColor};border-radius:2px;transition:width .4s"></div>
+      </div>
+      ${d.count>0?`<div style="font-size:.65rem;color:#444;margin-top:2px">${d.score}/${d.total}問正解（${d.count}回受験）</div>`:''}
+    </div>`;
+  }).join('');
   if(!currentUser)note.textContent='※ ログインすると勉強履歴から正確なデータが表示されます';
 };
-function drawRadarChart(canvas,labels,values){
-  const ctx=canvas.getContext('2d');
-  const W=canvas.width,H=canvas.height;ctx.clearRect(0,0,W,H);
-  const cx=W/2,cy=H/2,r=Math.min(cx,cy)-52;
-  const n=labels.length;
-  const angle=i=>(Math.PI*2*i/n)-Math.PI/2;
-  const pt=(i,ratio)=>({x:cx+r*ratio*Math.cos(angle(i)),y:cy+r*ratio*Math.sin(angle(i))});
-  [.2,.4,.6,.8,1].forEach(g=>{
-    ctx.beginPath();
-    for(let i=0;i<n;i++){const p=pt(i,g);i===0?ctx.moveTo(p.x,p.y):ctx.lineTo(p.x,p.y)}
-    ctx.closePath();ctx.strokeStyle=g===1?'#bbb':'#ebebeb';ctx.lineWidth=g===1?1.5:1;ctx.stroke();
-  });
-  for(let i=0;i<n;i++){
-    ctx.beginPath();ctx.moveTo(cx,cy);const p=pt(i,1);ctx.lineTo(p.x,p.y);ctx.strokeStyle='#ddd';ctx.lineWidth=1;ctx.stroke();
-  }
-  ctx.font='bold 11px sans-serif';ctx.fillStyle='#333';ctx.textAlign='center';ctx.textBaseline='middle';
-  for(let i=0;i<n;i++){
-    const p=pt(i,1.3);
-    ctx.fillText(labels[i].length>5?labels[i].slice(0,4)+'…':labels[i],p.x,p.y);
-  }
-  ctx.beginPath();
-  for(let i=0;i<n;i++){const v=Math.min(values[i],100)/100;const p=pt(i,v);i===0?ctx.moveTo(p.x,p.y):ctx.lineTo(p.x,p.y)}
-  ctx.closePath();ctx.fillStyle='rgba(0,0,0,0.13)';ctx.fill();ctx.strokeStyle='#111';ctx.lineWidth=2.5;ctx.stroke();
-  for(let i=0;i<n;i++){const v=Math.min(values[i],100)/100;const p=pt(i,v);ctx.beginPath();ctx.arc(p.x,p.y,4,0,Math.PI*2);ctx.fillStyle='#111';ctx.fill()}
-  ctx.font='10px sans-serif';ctx.fillStyle='#999';ctx.textAlign='left';
-  [20,40,60,80,100].forEach((g,gi)=>{const p=pt(0,g/100);ctx.fillText(g+'%',cx+4,p.y+1)});
-}
 window.switchProfileTab=function(tab){
   const tabs=['history','radar','mysugg','myinq'];
   document.querySelectorAll('#profileModal .info-tab').forEach((t,i)=>t.classList.toggle('active',tabs[i]===tab));
@@ -1479,6 +1462,14 @@ function buildFilters(){
 function buildUnitFilter(){
   const units=[...new Set(_cards.filter(c=>!state.subject||c.subject===state.subject).map(c=>c.unit))].filter(Boolean);
   const uf=document.getElementById('unitFilter');
+  const unitSection=uf.previousElementSibling; // sec-label "単元"
+  if(!state.subject){
+    uf.style.display='none';
+    if(unitSection&&unitSection.classList.contains('sec-label'))unitSection.style.display='none';
+    return;
+  }
+  uf.style.display='flex';
+  if(unitSection&&unitSection.classList.contains('sec-label'))unitSection.style.display='';
   uf.innerHTML='<button class="filter-btn active" data-val="">全単元</button>'+units.map(u=>{
     const gc=_cards.filter(c=>(!state.subject||c.subject===state.subject)&&c.unit===u);
     const grade=gc[0]?.grade||'中3';const subject=gc[0]?.subject||state.subject||'';
@@ -1532,10 +1523,11 @@ function renderChoice(el){
   const impNum=parseInt(c.importance)||0;
   const impHtml=impNum?`<div style="font-size:.85rem;letter-spacing:2px;margin-bottom:6px;text-align:center;color:#f5a623">${'★'.repeat(impNum)}<span style="color:#333">${'★'.repeat(5-impNum)}</span></div>`:'';
   const srcHtml=c.source?`<div class="src-label">📖 ${esc(c.source)}</div>`:'';
+  const unitHtml=c.unit?`<div style="font-size:.68rem;color:#555;letter-spacing:.1em;margin-bottom:8px;text-align:center">${esc(c.subject)} · ${esc(c.unit)}</div>`:'';
   el.innerHTML=`<div class="prog-line"><span>${state.quizIndex+1} / ${cards.length}</span><span>✓ ${state.score}</span></div>
     <div class="prog-wrap"><div class="prog-bar" style="width:${pct}%"></div></div>
     <div class="card">
-      ${impHtml}
+      ${impHtml}${unitHtml}
       <div class="quiz-q">${esc(c.question)}</div>
       ${c.questionImage?`<img src="${c.questionImage}" class="card-img" style="display:block;margin:0 auto 12px">`:''}
       <div class="choices" id="choicesEl">${choices.map((ch,idx)=>`<button class="choice-btn" onclick="answerChoice(${idx})">${esc(ch)}</button>`).join('')}</div>
@@ -1572,9 +1564,14 @@ function renderTyping(el){
   const cards=state.filtered;if(state.quizIndex>=cards.length){renderScore(el);return}
   const c=cards[state.quizIndex];
   const pct=(state.quizIndex/cards.length*100).toFixed(0);
+  const impNum=parseInt(c.importance)||0;
+  const impHtml=impNum?`<div style="font-size:.85rem;letter-spacing:2px;margin-bottom:4px;color:#f5a623">${'★'.repeat(impNum)}<span style="color:#333">${'★'.repeat(5-impNum)}</span></div>`:'';
+  const unitHtml=c.unit?`<div style="font-size:.68rem;color:#555;letter-spacing:.1em;margin-bottom:8px">${esc(c.subject)} · ${esc(c.unit)}</div>`:'';
+  const srcHtmlT=c.source?`<div class="src-label" style="margin-top:10px">📖 ${esc(c.source)}</div>`:'';
   el.innerHTML=`<div class="prog-line"><span>${state.quizIndex+1} / ${cards.length}</span><span>✓ ${state.score}</span></div>
     <div class="prog-wrap"><div class="prog-bar" style="width:${pct}%"></div></div>
     <div class="card">
+      ${impHtml}${unitHtml}
       <div class="quiz-q">${esc(c.question)}</div>
       ${c.questionImage?`<img src="${c.questionImage}" class="card-img" style="display:block;margin:0 auto 12px">`:''}
       ${c.hint?`<div class="hint-txt">ヒント：${esc(c.hint)}</div>`:''}
@@ -1582,6 +1579,7 @@ function renderTyping(el){
       <input type="text" id="typingInput" placeholder="答えを入力…" autocomplete="off" onkeydown="if(event.key==='Enter')checkTyping()">
       <div class="nav-btns"><button class="btn primary" onclick="checkTyping()">答え合わせ</button><button class="btn" onclick="skipTyping()">スキップ</button></div>
       <div class="quiz-msg" id="quizMsg"></div>
+      ${srcHtmlT}
     </div>
     <div class="nav-btns" id="nextBtnArea" style="display:none"><button class="btn primary" onclick="nextQuizTyping()">次の問題 →</button></div>`;
   setTimeout(()=>document.getElementById('typingInput')?.focus(),100);
