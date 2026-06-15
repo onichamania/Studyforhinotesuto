@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no">
 <meta name="apple-mobile-web-app-capable" content="yes">
-<title>日野学園 テスト対策問題サイト</title>
+<title>テスト対策問題サイト</title>
 <style>
 @font-face{font-family:'Makinas';src:url('Makinas-4-Square.woff') format('woff'),url('Makinas-4-Square.otf') format('opentype');font-weight:normal;font-style:normal;font-display:swap}
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
@@ -273,6 +273,35 @@ header{background:#000}
 .sug-edit-form{background:#f8f8f8;border-radius:10px;padding:12px;margin-top:10px;display:none}
 .sug-edit-form.open{display:block}
 .extra-row{display:flex;gap:6px;align-items:center;margin-bottom:6px}
+
+/* ===== アドバイスページ ===== */
+#adviceArea{display:none}
+.advice-section{margin-bottom:18px}
+.advice-header{display:flex;align-items:center;gap:10px;margin-bottom:12px;padding-bottom:10px;border-bottom:1px solid #222}
+.advice-header-icon{font-size:1.4rem;flex-shrink:0}
+.advice-header-title{font-size:.88rem;font-weight:bold;letter-spacing:.1em;color:#fff}
+.advice-header-sub{font-size:.7rem;color:#555;margin-top:2px;letter-spacing:.06em}
+.advice-item{background:#0d0d0d;border:1px solid #222;border-left:2px solid #fff;border-radius:2px;padding:14px 14px 14px 16px;margin-bottom:10px;position:relative}
+.advice-item-num{position:absolute;top:12px;right:12px;font-size:.6rem;color:#444;letter-spacing:.1em;font-weight:bold}
+.advice-item-title{font-size:.82rem;font-weight:bold;color:#eee;margin-bottom:6px;letter-spacing:.06em}
+.advice-item-body{font-size:.78rem;color:#999;line-height:1.8;letter-spacing:.04em}
+.advice-item-body b{color:#ddd;font-weight:bold}
+.advice-accent{border-left-color:#f5a623}
+.advice-accent .advice-item-title{color:#f5a623}
+.advice-warn{border-left-color:#e05555}
+.advice-warn .advice-item-title{color:#e06}
+.advice-code{display:inline-block;background:#1a1a1a;border:1px solid #333;border-radius:2px;padding:1px 6px;font-family:monospace;font-size:.82rem;color:#ddd;letter-spacing:.04em;margin:0 2px}
+.advice-example{background:#111;border:1px solid #2a2a2a;border-radius:2px;padding:10px 12px;margin-top:8px;font-size:.8rem;color:#888;line-height:1.8}
+.advice-example-label{font-size:.64rem;color:#555;letter-spacing:.12em;margin-bottom:5px;text-transform:uppercase}
+.advice-example span.ok{color:#aaa}
+.advice-example span.ng{color:#555;text-decoration:line-through}
+.advice-past-q-note{background:#0a0a0a;border:1px solid #2a2a2a;border-left:2px solid #555;border-radius:2px;padding:12px 14px;margin-top:8px;font-size:.78rem;color:#777;line-height:1.8}
+.advice-past-q-note b{color:#bbb}
+.advice-step-row{display:flex;gap:10px;margin-top:6px;flex-wrap:wrap}
+.advice-step{flex:1;min-width:80px;background:#111;border:1px solid #2a2a2a;border-radius:2px;padding:10px 8px;text-align:center}
+.advice-step-num{font-size:.6rem;color:#555;letter-spacing:.1em;margin-bottom:4px}
+.advice-step-label{font-size:.78rem;color:#ccc;font-weight:bold}
+.advice-step-arrow{color:#444;font-size:.9rem;display:flex;align-items:center;padding-top:8px}
 </style>
 </head>
 <body>
@@ -337,6 +366,7 @@ header{background:#000}
     <div class="filter-row" style="margin-top:8px">
       <button class="filter-btn mode-btn" data-mode="mistakes">間違い帳</button>
       <button class="filter-btn mode-btn" data-mode="info">資料・提案</button>
+      <button class="filter-btn mode-btn" data-mode="advice">💡 アドバイス</button>
     </div>
   </div>
   <div id="studyArea"></div>
@@ -486,6 +516,132 @@ header{background:#000}
       <div id="myInquiries" style="margin-top:16px"></div>
     </div>
   </div>
+
+  <!-- アドバイスページ -->
+  <div id="adviceArea" style="display:none">
+    <!-- 英語入力ルール -->
+    <div class="advice-section">
+      <div class="advice-header">
+        <div class="advice-header-icon">🔤</div>
+        <div>
+          <div class="advice-header-title">英語入力のルール</div>
+          <div class="advice-header-sub">ENGLISH INPUT RULES</div>
+        </div>
+      </div>
+      <div class="advice-item advice-warn">
+        <div class="advice-item-num">01</div>
+        <div class="advice-item-title">⚠️ 句読点はつけない</div>
+        <div class="advice-item-body">
+          英語の問題では <b>読点（、）・句点（。）・ピリオド（.）・カンマ（,）は不要</b>です。<br>
+          入力しても正解にならない場合があります。
+          <div class="advice-example">
+            <div class="advice-example-label">例</div>
+            <span class="ok">✓ &nbsp;I like cats</span><br>
+            <span class="ng">✗ &nbsp;I like cats.</span>
+          </div>
+        </div>
+      </div>
+      <div class="advice-item">
+        <div class="advice-item-num">02</div>
+        <div class="advice-item-title">単語・文の区切りは全角スペース</div>
+        <div class="advice-item-body">
+          単語と単語の間、文と文の間は <b>全角スペース（　）</b> で区切ってください。<br>
+          半角スペースだと正解と判定されないことがあります。
+          <div class="advice-example">
+            <div class="advice-example-label">例</div>
+            <span class="ok">✓ &nbsp;I　like　cats</span><br>
+            <span class="ng">✗ &nbsp;I like cats</span>
+          </div>
+        </div>
+      </div>
+      <div class="advice-item">
+        <div class="advice-item-num">03</div>
+        <div class="advice-item-title">英語1文字と文の間は半角スペース</div>
+        <div class="advice-item-body">
+          <b>A・B・C など1文字の英語記号</b> と前後の文の間は <b>半角スペース（ ）</b> を使ってください。
+          <div class="advice-example">
+            <div class="advice-example-label">例</div>
+            <span class="ok">✓ &nbsp;例 A 半角スペースで区切る</span><br>
+            <span class="ng">✗ &nbsp;例A　全角スペースで区切らない</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 学習順序 -->
+    <div class="advice-section">
+      <div class="advice-header">
+        <div class="advice-header-icon">📋</div>
+        <div>
+          <div class="advice-header-title">おすすめの勉強順序</div>
+          <div class="advice-header-sub">RECOMMENDED ORDER</div>
+        </div>
+      </div>
+      <div class="advice-item advice-accent">
+        <div class="advice-item-title">選択問題からはじめよう</div>
+        <div class="advice-item-body">
+          いきなりタイピングは難しいです。<b>まず選択モード</b> で答えの選び方を覚えてから、タイピングに挑戦するのがおすすめです。
+        </div>
+        <div class="advice-step-row">
+          <div class="advice-step">
+            <div class="advice-step-num">STEP 1</div>
+            <div class="advice-step-label">☑ 選択</div>
+          </div>
+          <div class="advice-step-arrow">→</div>
+          <div class="advice-step">
+            <div class="advice-step-num">STEP 2</div>
+            <div class="advice-step-label">👁 暗記</div>
+          </div>
+          <div class="advice-step-arrow">→</div>
+          <div class="advice-step">
+            <div class="advice-step-num">STEP 3</div>
+            <div class="advice-step-label">✏ タイピング</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 問題の不備について -->
+    <div class="advice-section">
+      <div class="advice-header">
+        <div class="advice-header-icon">📝</div>
+        <div>
+          <div class="advice-header-title">問題の表記について</div>
+          <div class="advice-header-sub">ABOUT QUESTION FORMAT</div>
+        </div>
+      </div>
+      <div class="advice-item">
+        <div class="advice-item-title">解答欄が変な表記になっている場合</div>
+        <div class="advice-item-body">
+          解答欄が抜けていたり、表記がおかしい問題は<b>無視してOK</b>です。<br>
+          このサイトの問題は <b>ほぼタイピング専用</b> として作られています。選択・暗記モードでは一部正常に表示されないものがあります。
+        </div>
+      </div>
+    </div>
+
+    <!-- 過去問について -->
+    <div class="advice-section">
+      <div class="advice-header">
+        <div class="advice-header-icon">📂</div>
+        <div>
+          <div class="advice-header-title">過去問について</div>
+          <div class="advice-header-sub">ABOUT PAST EXAMS</div>
+        </div>
+      </div>
+      <div class="advice-item">
+        <div class="advice-item-title">過去問は「再現版」です</div>
+        <div class="advice-item-body">
+          実際の過去問の<b>写真を入手したわけではありません</b>。<br>
+          以前のテストを受けた人から「どんな問題が出たか」を調査・再現したものです。<b>完全一致とは限りません</b>のでご注意ください。
+        </div>
+        <div class="advice-past-q-note">
+          <b>📩 再現写真が必要な方へ</b><br>
+          個別に再現写真の送付が可能です。<br>
+          「資料・提案」→「お問い合わせ」から<b>氏名</b>と<b>過去問再現写真の送付希望</b>を記載してご連絡ください。
+        </div>
+      </div>
+    </div>
+  </div>
 </main>
 
 <nav id="bottomNav">
@@ -494,6 +650,7 @@ header{background:#000}
   <button class="nav-item" data-mode="typing"><span class="ni">✏</span><span class="nl">タイピング</span></button>
   <button class="nav-item" data-mode="mistakes"><span class="ni">❌</span><span class="nl">間違い帳</span></button>
   <button class="nav-item" data-mode="info"><span class="ni">📁</span><span class="nl">資料・提案</span></button>
+  <button class="nav-item" data-mode="advice"><span class="ni">💡</span><span class="nl">アドバイス</span></button>
 </nav>
 
 <!-- ニュースモーダル -->
@@ -1372,13 +1529,18 @@ function renderChoice(el){
   const cards=state.filtered;if(state.quizIndex>=cards.length){renderScore(el);return}
   const c=cards[state.quizIndex],choices=makeChoices(c,cards);
   const pct=(state.quizIndex/cards.length*100).toFixed(0);
+  const impNum=parseInt(c.importance)||0;
+  const impHtml=impNum?`<div style="font-size:.85rem;letter-spacing:2px;margin-bottom:6px;text-align:center;color:#f5a623">${'★'.repeat(impNum)}<span style="color:#333">${'★'.repeat(5-impNum)}</span></div>`:'';
+  const srcHtml=c.source?`<div class="src-label">📖 ${esc(c.source)}</div>`:'';
   el.innerHTML=`<div class="prog-line"><span>${state.quizIndex+1} / ${cards.length}</span><span>✓ ${state.score}</span></div>
     <div class="prog-wrap"><div class="prog-bar" style="width:${pct}%"></div></div>
     <div class="card">
+      ${impHtml}
       <div class="quiz-q">${esc(c.question)}</div>
       ${c.questionImage?`<img src="${c.questionImage}" class="card-img" style="display:block;margin:0 auto 12px">`:''}
       <div class="choices" id="choicesEl">${choices.map((ch,idx)=>`<button class="choice-btn" onclick="answerChoice(${idx})">${esc(ch)}</button>`).join('')}</div>
       <div class="quiz-msg" id="quizMsg"></div>
+      ${srcHtml}
     </div>
     <div class="nav-btns" id="nextBtnArea" style="display:none"><button class="btn primary" onclick="nextQuiz()">次の問題 →</button></div>`;
 }
@@ -1853,6 +2015,7 @@ function setAppMode(mode){
   document.getElementById('studyArea').style.display=isStudy?'block':'none';
   document.getElementById('mistakesArea').style.display=mode==='mistakes'?'block':'none';
   document.getElementById('infoArea').style.display=mode==='info'?'block':'none';
+  document.getElementById('adviceArea').style.display=mode==='advice'?'block':'none';
   if(isStudy)startSession();
   if(mode==='mistakes')renderMistakes();
   if(mode==='info')renderMaterials();
