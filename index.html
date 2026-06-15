@@ -1,4 +1,4 @@
-　<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
@@ -302,6 +302,13 @@ header{background:#000}
 .advice-step-num{font-size:.6rem;color:#555;letter-spacing:.1em;margin-bottom:4px}
 .advice-step-label{font-size:.78rem;color:#ccc;font-weight:bold}
 .advice-step-arrow{color:#444;font-size:.9rem;display:flex;align-items:center;padding-top:8px}
+/* ===== 管理ツール ===== */
+.admin-tool-btn{border:1px solid #444;background:#111;color:#ccc;padding:8px 12px;border-radius:2px;font-size:.78rem;cursor:pointer;font-family:inherit;width:100%;margin-bottom:6px;text-align:left;letter-spacing:.04em}
+.admin-tool-btn:hover{border-color:#fff;color:#fff}
+.warn-card{background:#111;border:1px solid #2a2a2a;border-left:2px solid #e05;border-radius:2px;padding:10px 12px;margin-bottom:6px;font-size:.78rem}
+.warn-card .wc-q{color:#ccc;margin-bottom:3px;font-weight:bold}
+.warn-card .wc-miss{color:#e05;font-size:.72rem}
+.warn-card .wc-meta{color:#555;font-size:.7rem;margin-top:2px}
 </style>
 </head>
 <body>
@@ -814,6 +821,9 @@ header{background:#000}
     <div class="modal-content" id="tab-suggest"><div id="suggestList"></div></div>
     <div class="modal-content" id="tab-list">
       <button class="add-more-btn" style="margin-bottom:12px" onclick="switchAdminTab('materials')">＋ 資料を追加・管理 →</button>
+      <button class="admin-tool-btn" onclick="removeDuplicateCards()">🗑 重複問題を削除（同じ問題文を1つに）</button>
+      <button class="admin-tool-btn" onclick="assignCardNumbers()">🔢 教科ごとに区別番号を振り直す</button>
+      <div id="missingFieldsEl" style="margin-bottom:10px"></div>
       <select id="list-subject-filter" onchange="renderCardList()"><option value="">全教科</option></select>
       <div id="cardListEl"></div>
     </div>
@@ -1523,7 +1533,8 @@ function renderChoice(el){
   const impNum=parseInt(c.importance)||0;
   const impHtml=impNum?`<div style="font-size:.85rem;letter-spacing:2px;margin-bottom:6px;text-align:center;color:#f5a623">${'★'.repeat(impNum)}<span style="color:#333">${'★'.repeat(5-impNum)}</span></div>`:'';
   const srcHtml=c.source?`<div class="src-label">📖 ${esc(c.source)}</div>`:'';
-  const unitHtml=c.unit?`<div style="font-size:.68rem;color:#555;letter-spacing:.1em;margin-bottom:8px;text-align:center">${esc(c.subject)} · ${esc(c.unit)}</div>`:'';
+  const cardNoHtml=c.cardNo?`<span style="font-size:.65rem;color:#444;letter-spacing:.08em"> · No.${c.cardNo}</span>`:'';
+  const unitHtml=c.unit?`<div style="font-size:.68rem;color:#555;letter-spacing:.1em;margin-bottom:8px;text-align:center">${esc(c.subject)} · ${esc(c.unit)}${cardNoHtml}</div>`:'';
   el.innerHTML=`<div class="prog-line"><span>${state.quizIndex+1} / ${cards.length}</span><span>✓ ${state.score}</span></div>
     <div class="prog-wrap"><div class="prog-bar" style="width:${pct}%"></div></div>
     <div class="card">
@@ -1566,7 +1577,7 @@ function renderTyping(el){
   const pct=(state.quizIndex/cards.length*100).toFixed(0);
   const impNum=parseInt(c.importance)||0;
   const impHtml=impNum?`<div style="font-size:.85rem;letter-spacing:2px;margin-bottom:4px;color:#f5a623">${'★'.repeat(impNum)}<span style="color:#333">${'★'.repeat(5-impNum)}</span></div>`:'';
-  const unitHtml=c.unit?`<div style="font-size:.68rem;color:#555;letter-spacing:.1em;margin-bottom:8px">${esc(c.subject)} · ${esc(c.unit)}</div>`:'';
+  const unitHtml=c.unit?`<div style="font-size:.68rem;color:#555;letter-spacing:.1em;margin-bottom:8px">${esc(c.subject)} · ${esc(c.unit)}${c.cardNo?` · No.${c.cardNo}`:''}</div>`:'';
   const srcHtmlT=c.source?`<div class="src-label" style="margin-top:10px">📖 ${esc(c.source)}</div>`:'';
   el.innerHTML=`<div class="prog-line"><span>${state.quizIndex+1} / ${cards.length}</span><span>✓ ${state.score}</span></div>
     <div class="prog-wrap"><div class="prog-bar" style="width:${pct}%"></div></div>
@@ -1821,7 +1832,7 @@ window.switchAdminTab=function(tab){
   });
   document.querySelectorAll('#adminPanel .modal-content').forEach(c=>c.classList.toggle('active',c.id===`tab-${tab}`));
   if(tab==='suggest')renderSuggestList();
-  if(tab==='list'){renderCardList();buildListSubjectFilter();}
+  if(tab==='list'){renderCardList();buildListSubjectFilter();renderMissingFieldsWarning();}
   if(tab==='materials')renderAdminMatList();
   if(tab==='matsugg')renderMatSuggList();
   if(tab==='unitsugg')renderUnitSuggList();
@@ -1960,7 +1971,33 @@ window.renderCardList=function(){
   const fv=document.getElementById('list-subject-filter')?.value||'';
   const cards=_cards.filter(c=>!fv||c.subject===fv);const el=document.getElementById('cardListEl');
   if(!cards.length){el.innerHTML='<div style="color:#999;text-align:center;padding:20px;font-size:.85rem">カードがありません</div>';return}
-  el.innerHTML='<div class="card-list">'+cards.map(c=>`<div class="card-list-item"><button class="cl-del" onclick="deleteCard('${c.id}')">✕</button><button class="cl-del" style="right:36px;background:#f5f5f5;color:#333;border-color:#ccc" onclick="openEditCard('${c.id}')">✏️</button><div class="cl-q">${esc(c.question)}</div><div class="cl-a">${esc(c.answer)}</div><div class="cl-tag">${esc(c.subject)} · ${esc(c.unit)} · ${esc(c.grade)}</div></div>`).join('')+'</div>';
+  el.innerHTML='<div class="card-list">'+cards.map(c=>`<div class="card-list-item"><button class="cl-del" onclick="deleteCard('${c.id}')">✕</button><button class="cl-del" style="right:36px;background:#f5f5f5;color:#333;border-color:#ccc" onclick="openEditCard('${c.id}')">✏️</button>${c.cardNo?`<span style="font-size:.65rem;color:#555;float:right;margin-right:70px;margin-top:2px">No.${c.cardNo}</span>`:''}<div class="cl-q">${esc(c.question)}</div><div class="cl-a">${esc(c.answer)}</div><div class="cl-tag">${esc(c.subject)} · ${esc(c.unit)} · ${esc(c.grade)}${!c.importance?' ⚠️重要度なし':''}${!c.source?' ⚠️出典なし':''}</div></div>`).join('')+'</div>';
+  renderMissingFieldsWarning();
+};
+function renderMissingFieldsWarning(){
+  const el=document.getElementById('missingFieldsEl');if(!el)return;
+  const missing=_cards.filter(c=>!c.importance||!c.source);
+  if(!missing.length){el.innerHTML='<div style="font-size:.75rem;color:#4a8;padding:6px 0">✓ 全問題に重要度・出典が揃っています</div>';return}
+  el.innerHTML=`<div style="font-size:.75rem;color:#e05;margin-bottom:6px;font-weight:bold">⚠️ 重要度または出典が未設定の問題：${missing.length}件</div>`+
+    missing.map(c=>`<div class="warn-card"><div class="wc-q">${esc(c.question.slice(0,40))}${c.question.length>40?'…':''}</div><div class="wc-miss">${!c.importance?'重要度なし　':''}${!c.source?'出典なし':''}</div><div class="wc-meta">${esc(c.subject)} · ${esc(c.unit)}${c.cardNo?` · No.${c.cardNo}`:''}</div></div>`).join('');
+}
+window.removeDuplicateCards=async function(){
+  const seen=new Set();const deduped=[];let removed=0;
+  _cards.forEach(c=>{const key=(c.question||'').trim();if(seen.has(key)){removed++}else{seen.add(key);deduped.push(c)}});
+  if(removed===0){alert('重複問題はありませんでした');return}
+  if(!confirm(`重複問題が${removed}件見つかりました。削除しますか？`))return;
+  await saveCards(deduped);buildFilters();renderCardList();startSession();
+  alert(`${removed}件の重複問題を削除しました`);
+};
+window.assignCardNumbers=async function(){
+  const subjectCounters={};
+  const updated=_cards.map(c=>{
+    const s=c.subject||'不明';
+    if(!subjectCounters[s])subjectCounters[s]=1;
+    return{...c,cardNo:subjectCounters[s]++};
+  });
+  await saveCards(updated);buildFilters();renderCardList();
+  alert('区別番号を振り直しました');
 };
 window.deleteCard=async function(id){if(!confirm('このカードを削除しますか？'))return;await saveCards(_cards.filter(c=>c.id!==id));buildFilters();window.renderCardList();startSession()};
 window.addMaterial=async function(){
