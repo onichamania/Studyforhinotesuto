@@ -363,6 +363,19 @@ header{background:#000}
         <button class="filter-btn" data-qt="word">単語問題のみ</button>
         <button class="filter-btn" data-qt="long">長文問題のみ</button>
       </div>
+      <div class="sec-label">重要度</div>
+      <div class="filter-row" id="importanceFilter">
+        <button class="filter-btn active" data-imp="">全て</button>
+        <button class="filter-btn" data-imp="3">★★★以上</button>
+        <button class="filter-btn" data-imp="4">★★★★以上</button>
+        <button class="filter-btn" data-imp="5">★★★★★のみ</button>
+      </div>
+      <div class="sec-label">画像</div>
+      <div class="filter-row" id="imageFilter">
+        <button class="filter-btn active" data-img="">全て</button>
+        <button class="filter-btn" data-img="1">画像あり</button>
+        <button class="filter-btn" data-img="0">画像なし</button>
+      </div>
     </div>
     <div class="sec-label" style="margin-top:14px">学習モード</div>
     <div class="filter-row">
@@ -824,7 +837,21 @@ header{background:#000}
       <button class="admin-tool-btn" onclick="removeDuplicateCards()">🗑 重複問題を削除（同じ問題文を1つに）</button>
       <button class="admin-tool-btn" onclick="assignCardNumbers()">🔢 教科ごとに区別番号を振り直す</button>
       <div id="missingFieldsEl" style="margin-bottom:10px"></div>
-      <select id="list-subject-filter" onchange="renderCardList()"><option value="">全教科</option></select>
+      <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px">
+        <select id="list-subject-filter" onchange="renderCardList()" style="flex:1;min-width:80px"><option value="">全教科</option></select>
+        <select id="list-imp-filter" onchange="renderCardList()" style="flex:1;min-width:80px">
+          <option value="">重要度：全て</option>
+          <option value="3">★★★以上</option>
+          <option value="4">★★★★以上</option>
+          <option value="5">★★★★★のみ</option>
+          <option value="none">重要度なし</option>
+        </select>
+        <select id="list-img-filter" onchange="renderCardList()" style="flex:1;min-width:80px">
+          <option value="">画像：全て</option>
+          <option value="1">画像あり</option>
+          <option value="0">画像なし</option>
+        </select>
+      </div>
       <div id="cardListEl"></div>
     </div>
     <div class="modal-content" id="tab-materials">
@@ -1457,7 +1484,7 @@ window.previewImg=function(input,prevId){const file=input.files[0];if(!file)retu
 async function getImg(id){const input=document.getElementById(id);if(!input.files[0])return'';return await resizeImage(input.files[0])}
 
 // ===== 状態 =====
-let state={mode:'study',subject:null,unit:null,grade:null,qtype:null,filtered:[],index:0,quizIndex:0,score:0,answered:false,mistakeSort:'count'};
+let state={mode:'study',subject:null,unit:null,grade:null,qtype:null,minImportance:null,hasImage:null,filtered:[],index:0,quizIndex:0,score:0,answered:false,mistakeSort:'count'};
 
 function buildFilters(){
   const subjects=[...new Set(_cards.map(c=>c.subject))].filter(Boolean);
@@ -1491,7 +1518,15 @@ function buildUnitFilter(){
     state.unit=b.dataset.val||null;state.grade=b.dataset.grade||null;startSession();
   }));
 }
-function getFiltered(){return _cards.filter(c=>{if(state.subject&&c.subject!==state.subject)return false;if(state.unit&&c.unit!==state.unit)return false;if(state.qtype&&c.questionType!==state.qtype)return false;return true})}
+function getFiltered(){return _cards.filter(c=>{
+  if(state.subject&&c.subject!==state.subject)return false;
+  if(state.unit&&c.unit!==state.unit)return false;
+  if(state.qtype&&c.questionType!==state.qtype)return false;
+  if(state.minImportance){const imp=parseInt(c.importance)||0;if(imp<state.minImportance)return false;}
+  if(state.hasImage===true&&!c.questionImage&&!c.answerImage)return false;
+  if(state.hasImage===false&&(c.questionImage||c.answerImage))return false;
+  return true;
+})}
 function startSession(){state.filtered=shuffle(getFiltered());state.index=0;state.quizIndex=0;state.score=0;state.answered=false;renderStudyArea()}
 function shuffle(arr){const a=[...arr];for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
 
@@ -1969,8 +2004,18 @@ window.rejectSuggestion=async function(id){if(!confirm('この提案を却下し
 function buildListSubjectFilter(){const subjects=[...new Set(_cards.map(c=>c.subject))];const sel=document.getElementById('list-subject-filter');sel.innerHTML='<option value="">全教科</option>'+subjects.map(s=>`<option>${s}</option>`).join('')}
 window.renderCardList=function(){
   const fv=document.getElementById('list-subject-filter')?.value||'';
-  const cards=_cards.filter(c=>!fv||c.subject===fv);const el=document.getElementById('cardListEl');
-  if(!cards.length){el.innerHTML='<div style="color:#999;text-align:center;padding:20px;font-size:.85rem">カードがありません</div>';return}
+  const impF=document.getElementById('list-imp-filter')?.value||'';
+  const imgF=document.getElementById('list-img-filter')?.value||'';
+  const cards=_cards.filter(c=>{
+    if(fv&&c.subject!==fv)return false;
+    if(impF==='none'&&c.importance)return false;
+    if(impF&&impF!=='none'&&(parseInt(c.importance)||0)<parseInt(impF))return false;
+    if(imgF==='1'&&!c.questionImage&&!c.answerImage)return false;
+    if(imgF==='0'&&(c.questionImage||c.answerImage))return false;
+    return true;
+  });
+  const el=document.getElementById('cardListEl');
+  if(!cards.length){el.innerHTML='<div style="color:#999;text-align:center;padding:20px;font-size:.85rem">該当するカードがありません</div>';return}
   el.innerHTML='<div class="card-list">'+cards.map(c=>`<div class="card-list-item"><button class="cl-del" onclick="deleteCard('${c.id}')">✕</button><button class="cl-del" style="right:36px;background:#f5f5f5;color:#333;border-color:#ccc" onclick="openEditCard('${c.id}')">✏️</button>${c.cardNo?`<span style="font-size:.65rem;color:#555;float:right;margin-right:70px;margin-top:2px">No.${c.cardNo}</span>`:''}<div class="cl-q">${esc(c.question)}</div><div class="cl-a">${esc(c.answer)}</div><div class="cl-tag">${esc(c.subject)} · ${esc(c.unit)} · ${esc(c.grade)}${!c.importance?' ⚠️重要度なし':''}${!c.source?' ⚠️出典なし':''}</div></div>`).join('')+'</div>';
   renderMissingFieldsWarning();
 };
@@ -2084,6 +2129,14 @@ onValue(ref(db,'units'),snap=>{_units=snap.val()||{};});
 document.getElementById('qtypeFilter').querySelectorAll('.filter-btn').forEach(b=>b.addEventListener('click',()=>{
   document.getElementById('qtypeFilter').querySelectorAll('.filter-btn').forEach(x=>x.classList.remove('active'));b.classList.add('active');
   state.qtype=b.dataset.qt||null;startSession();
+}));
+document.getElementById('importanceFilter').querySelectorAll('.filter-btn').forEach(b=>b.addEventListener('click',()=>{
+  document.getElementById('importanceFilter').querySelectorAll('.filter-btn').forEach(x=>x.classList.remove('active'));b.classList.add('active');
+  state.minImportance=b.dataset.imp?parseInt(b.dataset.imp):null;startSession();
+}));
+document.getElementById('imageFilter').querySelectorAll('.filter-btn').forEach(b=>b.addEventListener('click',()=>{
+  document.getElementById('imageFilter').querySelectorAll('.filter-btn').forEach(x=>x.classList.remove('active'));b.classList.add('active');
+  const v=b.dataset.img;state.hasImage=v===''?null:v==='1';startSession();
 }));
 onValue(ref(db,'cards'),snap=>{_cards=snap.val()?Object.values(snap.val()):[];buildFilters();startSession()});
 onValue(ref(db,'suggestions'),snap=>{_suggestions=snap.val()?Object.values(snap.val()):[];if(document.getElementById('adminPanel').classList.contains('open'))renderSuggestList()});
