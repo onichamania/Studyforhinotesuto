@@ -2279,7 +2279,19 @@ onValue(ref(db,'inquiries'),snap=>{
     {question:"寒すぎると体温が低下し、（　）の働きが低下する",answer:"体の諸器官",fakeChoices:"脳神経、消化器官、免疫細胞",unit:"体の適応能力"},
     {question:"体温が（　）℃になると中枢神経がまひし、意識障害・昏睡状態になる",answer:"30",fakeChoices:"25、20、35",unit:"体の適応能力"},
     {question:"体温が（　）℃になると低温による死の危険がある",answer:"25",fakeChoices:"30、20、28",unit:"体の適応能力"},
-
+  ];
+  try{
+    for(const c of IMPORT_CARDS){
+      const card={id:uid(),subject:"保健体育",unit:c.unit,grade:"中3",questionType:"word",question:c.question,questionImage:"",answer:c.answer,answerImage:"",extraAnswers:"",hint:"",keywords:"",explanation:"",source:"保健スライド",importance:"",fakeChoices:c.fakeChoices};
+      await set(ref(db,`cards/${card.id}`),card);
+      await new Promise(r=>setTimeout(r,200));
+    }
+    localStorage.setItem(FLAG,'1');
+    console.log('自動インポート完了：'+IMPORT_CARDS.length+'問追加しました');
+  }catch(e){
+    console.error('自動インポートエラー:',e);
+  }
+})();
 </script>
 </body>
 </html>
