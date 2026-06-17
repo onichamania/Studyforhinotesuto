@@ -2170,6 +2170,128 @@ onValue(ref(db,'inquiries'),snap=>{
   if(state.mode==='info')renderMyInquiries();
   if(document.getElementById('adminPanel').classList.contains('open'))renderInquiryAdminList();
 });
+
+// ===== 一回限り自動インポート =====
+(async function autoImport(){
+  const FLAG='autoImport_hoken_all_done';
+  if(localStorage.getItem(FLAG))return;
+  const IMPORT_CARDS=[
+    // ===== 保健スライド（暑さ寒さ・明るさ・空気） =====
+    {question:"暑さ・寒さの感じ方に関係する3つの要素のうち、（　）・湿度・気流が挙げられる",answer:"気温",fakeChoices:"輻射熱、気圧、体温",unit:"暑さ・寒さとその調節"},
+    {question:"暑さ・寒さの感じ方に関係する3つの要素のうち、気温・（　）・気流が挙げられる",answer:"湿度",fakeChoices:"気圧、温度、水分",unit:"暑さ・寒さとその調節"},
+    {question:"暑さ・寒さの感じ方に関係する3つの要素のうち、気温・湿度・（　）が挙げられる",answer:"気流",fakeChoices:"輻射熱、気圧、風速",unit:"暑さ・寒さとその調節"},
+    {question:"暑くもなく寒くもなく、活動するのに1番適している温度の範囲のことを何というか",answer:"至適温度",fakeChoices:"快適温度、標準温度、最適気温",unit:"暑さ・寒さとその調節"},
+    {question:"至適温度は環境・状態によって異なるが、影響する要素の①番目は何か",answer:"季節",fakeChoices:"時間帯、天気、場所",unit:"暑さ・寒さとその調節"},
+    {question:"至適温度は環境・状態によって異なるが、影響する要素の②番目は何か",answer:"衣服の状態",fakeChoices:"体温、活動量、湿度",unit:"暑さ・寒さとその調節"},
+    {question:"至適温度は環境・状態によって異なるが、影響する要素の③番目は何か",answer:"活動の種類",fakeChoices:"季節、年齢、性別",unit:"暑さ・寒さとその調節"},
+    {question:"冷暖房設備が発達した現代社会では、外気温の変化に対応するための（　）が低下してきた",answer:"適応能力",fakeChoices:"免疫力、体力、調節機能",unit:"暑さ・寒さとその調節"},
+    {question:"適応能力の低下により起きてきた現象のひとつで、（　）の人が増加している",answer:"生活習慣病",fakeChoices:"感染症、アレルギー、骨粗しょう症",unit:"暑さ・寒さとその調節"},
+    {question:"適応能力の低下により起きてきた現象のひとつで、（　）の増加が挙げられる",answer:"低体温",fakeChoices:"高血圧、肥満、過呼吸",unit:"暑さ・寒さとその調節"},
+    {question:"適応能力の低下により起きてきた現象のひとつで、（　）の低下が挙げられる",answer:"平均寿命",fakeChoices:"出生率、体力年齢、骨密度",unit:"暑さ・寒さとその調節"},
+    {question:"湿度が40%未満のとき、人体に与える影響として（　）を感じる",answer:"乾燥",fakeChoices:"不快、寒さ、倦怠感",unit:"暑さ・寒さとその調節"},
+    {question:"湿度が40〜70%のとき、人体に与える影響として（　）と感じる",answer:"快適",fakeChoices:"やや不快、蒸し暑さ、乾燥",unit:"暑さ・寒さとその調節"},
+    {question:"湿度が70%以上のとき、（　）が弱まり不快を感じる",answer:"汗の発汗",fakeChoices:"体温調節、血液循環、呼吸",unit:"暑さ・寒さとその調節"},
+    {question:"快適な室内環境として、夏場の温度は（　）℃が目安とされている",answer:"25〜28",fakeChoices:"20〜23、28〜32、22〜25",unit:"暑さ・寒さとその調節"},
+    {question:"快適な室内環境として、夏場の湿度は（　）%が目安とされている",answer:"55〜65",fakeChoices:"40〜50、70〜80、30〜45",unit:"暑さ・寒さとその調節"},
+    {question:"快適な室内環境として、冬場の温度は（　）℃が目安とされている",answer:"18〜20",fakeChoices:"15〜17、22〜25、10〜15",unit:"暑さ・寒さとその調節"},
+    {question:"快適な室内環境として、冬場の湿度は（　）%が目安とされている",answer:"45〜60",fakeChoices:"30〜40、65〜75、20〜35",unit:"暑さ・寒さとその調節"},
+    {question:"明るさが不十分な状態で学習・作業をすると、目が疲れ最終的に（　）につながる",answer:"視力低下",fakeChoices:"頭痛、集中力低下、睡眠障害",unit:"明るさとその調節"},
+    {question:"明るさを表す単位を何というか",answer:"ルクス",fakeChoices:"ワット、デシベル、カンデラ",unit:"明るさとその調節"},
+    {question:"二酸化炭素濃度は（　）を測る指標として使われる",answer:"室内の空気の汚れ",fakeChoices:"湿度の変化、気温の変化、酸素濃度",unit:"空気の汚れとその調節"},
+    {question:"通常、空気中の二酸化炭素濃度はおよそ（　）%である",answer:"0.04",fakeChoices:"0.1、0.5、1.0",unit:"空気の汚れとその調節"},
+    {question:"二酸化炭素濃度が（　）%以上になると空気が汚れていると判断される",answer:"0.1",fakeChoices:"0.04、0.5、1.0",unit:"空気の汚れとその調節"},
+    {question:"二酸化炭素濃度が（　）%になると意識不明・死亡に至る危険がある",answer:"7〜10",fakeChoices:"1〜2、3〜5、15〜20",unit:"空気の汚れとその調節"},
+    {question:"一酸化炭素は（　）が強く、石油・ガスストーブ・練炭などが発生源となる",answer:"毒性",fakeChoices:"刺激性、臭気、引火性",unit:"空気の汚れとその調節"},
+    {question:"一酸化炭素が体内に入ると、赤血球中の（　）と結合し酸素欠乏を引き起こす",answer:"ヘモグロビン",fakeChoices:"白血球、血小板、赤血球",unit:"空気の汚れとその調節"},
+    {question:"一酸化炭素がヘモグロビンと結合することで引き起こされる症状は何か",answer:"酸素欠乏",fakeChoices:"過呼吸、血圧上昇、意識過剰",unit:"空気の汚れとその調節"},
+    // ===== 体の適応能力編 =====
+    {question:"私たちの体は、温度の状況に応じて（　）を一定に保とうとする能力がある",answer:"体温",fakeChoices:"血圧、心拍数、体重",unit:"体の適応能力"},
+    {question:"日本人の体温（平熱）の平均はおよそ何℃と言われているか",answer:"36.89℃（約37℃）",fakeChoices:"35.5℃（約36℃）、37.5℃（約38℃）、36.0℃（約36℃）",unit:"体の適応能力"},
+    {question:"平熱が（　）℃以下の人は「低体温」と言われる",answer:"35",fakeChoices:"36、34、37",unit:"体の適応能力"},
+    {question:"平熱が35℃以下の状態を何というか",answer:"低体温",fakeChoices:"冷え性、低血圧、体温不全",unit:"体の適応能力"},
+    {question:"体温が低いと（　）・頭痛が起きやすくなる",answer:"肩こり",fakeChoices:"腰痛、めまい、吐き気",unit:"体の適応能力"},
+    {question:"体温が低いと肩こり・頭痛の他に（　）やすくなる",answer:"疲れ",fakeChoices:"太り、眠り、汗をかき",unit:"体の適応能力"},
+    {question:"体温が低いと風邪などの病気を（　）やすくなり、それが治りにくくなる",answer:"発症し",fakeChoices:"予防し、悪化し、感染し",unit:"体の適応能力"},
+    {question:"人間は1日の中でほとんど体温に変化がない「（　）」と呼ばれる",answer:"恒温動物",fakeChoices:"変温動物、定温生物、温血動物",unit:"体の適応能力"},
+    {question:"人間の1日の体温変化はほぼ（　）℃以内におさまるようになっている",answer:"±1",fakeChoices:"±0.5、±2、±3",unit:"体の適応能力"},
+    {question:"体温変化がほぼ±1℃以内におさまる性質のことを何というか",answer:"恒常性",fakeChoices:"適応能力、体温調節、恒温性",unit:"体の適応能力"},
+    {question:"人間の体温調節の中枢は、脳のどこでコントロールされているか",answer:"間脳の視床下部",fakeChoices:"大脳の前頭葉、脳幹の延髄、小脳の後部",unit:"体の適応能力"},
+    {question:"暑いとき、体は筋肉の緊張を（　）て、熱の発生を抑える",answer:"緩め",fakeChoices:"高め、強め、固め",unit:"体の適応能力"},
+    {question:"暑いとき、汗を出すなどして熱の放射を（　）",answer:"高める",fakeChoices:"抑える、止める、下げる",unit:"体の適応能力"},
+    {question:"暑いとき、筋肉の緊張を緩めることで熱の（　）を抑える",answer:"発生",fakeChoices:"放射、吸収、循環",unit:"体の適応能力"},
+    {question:"寒いとき、体を震えさせて（　）を緊張させ、熱の発生を高める",answer:"筋肉",fakeChoices:"血管、神経、皮膚",unit:"体の適応能力"},
+    {question:"寒いとき、体が震えて筋肉が緊張する現象を俗に何というか",answer:"鳥肌",fakeChoices:"震え、ふるえ、冷え",unit:"体の適応能力"},
+    {question:"寒いとき、皮膚近くの（　）を縮めて、熱の放射を抑える",answer:"毛細血管",fakeChoices:"神経、筋肉、皮下脂肪",unit:"体の適応能力"},
+    {question:"寒いとき、毛細血管を縮めることで熱の（　）を抑える",answer:"放射",fakeChoices:"発生、吸収、循環",unit:"体の適応能力"},
+    {question:"体温をコントロールするために体内の様々な器官が働くことを何というか",answer:"適応能力",fakeChoices:"恒常性、体温調節機能、自律神経",unit:"体の適応能力"},
+    {question:"適応能力の限界として、（　）・低すぎるなど普段と違った環境が長く続くとコントロールが出来なくなる",answer:"気温が高すぎる",fakeChoices:"湿度が高すぎる、気圧が低すぎる、気流が強すぎる",unit:"体の適応能力"},
+    {question:"暑すぎる場合に脳に影響し発症するのは何か",answer:"熱中症",fakeChoices:"脱水症、低血糖、過呼吸",unit:"体の適応能力"},
+    {question:"熱中症のうち最も重症で、意識障害・手足のしびれが起きる段階を何というか",answer:"熱射病",fakeChoices:"熱疲労、熱けいれん、熱失神",unit:"体の適応能力"},
+    {question:"熱中症のうち、だるさ・吐き気・頭痛が起きる段階を何というか",answer:"熱疲労",fakeChoices:"熱射病、熱けいれん、熱失神",unit:"体の適応能力"},
+    {question:"熱中症のうち、筋肉のけいれん・大量の汗が起きる段階を何というか",answer:"熱けいれん",fakeChoices:"熱射病、熱疲労、熱失神",unit:"体の適応能力"},
+    {question:"熱中症のうち、めまい・失神が起きる最も軽い段階を何というか",answer:"熱失神",fakeChoices:"熱射病、熱疲労、熱けいれん",unit:"体の適応能力"},
+    {question:"熱射病の代表的な症状を2つ答えよ",answer:"意識障害・手足のしびれ",fakeChoices:"だるさ・吐き気、筋肉のけいれん・大量の汗、めまい・失神",unit:"体の適応能力"},
+    {question:"熱疲労の代表的な症状を答えよ",answer:"だるさ・吐き気・頭痛",fakeChoices:"意識障害・手足のしびれ、筋肉のけいれん・大量の汗、めまい・失神",unit:"体の適応能力"},
+    {question:"熱けいれんの代表的な症状を答えよ",answer:"筋肉のけいれん・大量の汗",fakeChoices:"意識障害・手足のしびれ、だるさ・吐き気・頭痛、めまい・失神",unit:"体の適応能力"},
+    {question:"熱失神の代表的な症状を答えよ",answer:"めまい・失神",fakeChoices:"意識障害・手足のしびれ、だるさ・吐き気、筋肉のけいれん・大量の汗",unit:"体の適応能力"},
+    {question:"熱中症予防を表す暑さ指数を何というか",answer:"WBGT",fakeChoices:"PMV、THI、UV指数",unit:"体の適応能力"},
+    {question:"WBGTが人体に与える影響として取り入れる3要素のうち①は何か",answer:"湿度",fakeChoices:"気温、輻射熱、気流",unit:"体の適応能力"},
+    {question:"WBGTが人体に与える影響として取り入れる3要素のうち②は何か（身の回りの物から出ている熱）",answer:"輻射熱",fakeChoices:"湿度、気温、気流",unit:"体の適応能力"},
+    {question:"WBGTが人体に与える影響として取り入れる3要素のうち③は何か",answer:"気温",fakeChoices:"湿度、輻射熱、気圧",unit:"体の適応能力"},
+    {question:"輻射熱（ふくしゃねつ）とはどのようなものか",answer:"身の回りの物から出ている熱",fakeChoices:"体から放出される熱、太陽から直接届く熱、空気中に含まれる熱",unit:"体の適応能力"},
+    {question:"寒すぎると体温が低下し、（　）の働きが低下する",answer:"体の諸器官",fakeChoices:"脳神経、消化器官、免疫細胞",unit:"体の適応能力"},
+    {question:"体温が（　）℃になると中枢神経がまひし、意識障害・昏睡状態になる",answer:"30",fakeChoices:"25、20、35",unit:"体の適応能力"},
+    {question:"体温が（　）℃になると低温による死の危険がある",answer:"25",fakeChoices:"30、20、28",unit:"体の適応能力"},
+  ];
+    {question:"日本人の体温（平熱）の平均はおよそ何℃と言われているか",answer:"36.89℃（約37℃）",fakeChoices:"35.5℃（約36℃）、37.5℃（約38℃）、36.0℃（約36℃）",unit:"体の適応能力"},
+    {question:"平熱が（　）℃以下の人は「低体温」と言われる",answer:"35",fakeChoices:"36、34、37",unit:"体の適応能力"},
+    {question:"平熱が35℃以下の状態を何というか",answer:"低体温",fakeChoices:"冷え性、低血圧、体温不全",unit:"体の適応能力"},
+    {question:"体温が低いと（　）・頭痛が起きやすくなる",answer:"肩こり",fakeChoices:"腰痛、めまい、吐き気",unit:"体の適応能力"},
+    {question:"体温が低いと肩こり・頭痛の他に（　）やすくなる",answer:"疲れ",fakeChoices:"太り、眠り、汗をかき",unit:"体の適応能力"},
+    {question:"体温が低いと風邪などの病気を（　）やすくなり、それが治りにくくなる",answer:"発症し",fakeChoices:"予防し、悪化し、感染し",unit:"体の適応能力"},
+    {question:"人間は1日の中でほとんど体温に変化がない「（　）」と呼ばれる",answer:"恒温動物",fakeChoices:"変温動物、定温生物、温血動物",unit:"体の適応能力"},
+    {question:"人間の1日の体温変化はほぼ（　）℃以内におさまるようになっている",answer:"±1",fakeChoices:"±0.5、±2、±3",unit:"体の適応能力"},
+    {question:"体温変化がほぼ±1℃以内におさまる性質のことを何というか",answer:"恒常性",fakeChoices:"適応能力、体温調節、恒温性",unit:"体の適応能力"},
+    {question:"人間の体温調節の中枢は、脳のどこでコントロールされているか",answer:"間脳の視床下部",fakeChoices:"大脳の前頭葉、脳幹の延髄、小脳の後部",unit:"体の適応能力"},
+    {question:"暑いとき、体は筋肉の緊張を（　）て、熱の発生を抑える",answer:"緩め",fakeChoices:"高め、強め、固め",unit:"体の適応能力"},
+    {question:"暑いとき、汗を出すなどして熱の放射を（　）",answer:"高める",fakeChoices:"抑える、止める、下げる",unit:"体の適応能力"},
+    {question:"暑いとき、筋肉の緊張を緩めることで熱の（　）を抑える",answer:"発生",fakeChoices:"放射、吸収、循環",unit:"体の適応能力"},
+    {question:"寒いとき、体を震えさせて（　）を緊張させ、熱の発生を高める",answer:"筋肉",fakeChoices:"血管、神経、皮膚",unit:"体の適応能力"},
+    {question:"寒いとき、体が震えて筋肉が緊張する現象を俗に何というか",answer:"鳥肌",fakeChoices:"震え、ふるえ、冷え",unit:"体の適応能力"},
+    {question:"寒いとき、皮膚近くの（　）を縮めて、熱の放射を抑える",answer:"毛細血管",fakeChoices:"神経、筋肉、皮下脂肪",unit:"体の適応能力"},
+    {question:"寒いとき、毛細血管を縮めることで熱の（　）を抑える",answer:"放射",fakeChoices:"発生、吸収、循環",unit:"体の適応能力"},
+    {question:"体温をコントロールするために体内の様々な器官が働くことを何というか",answer:"適応能力",fakeChoices:"恒常性、体温調節機能、自律神経",unit:"体の適応能力"},
+    {question:"適応能力の限界として、（　）・低すぎるなど普段と違った環境が長く続くとコントロールが出来なくなる",answer:"気温が高すぎる",fakeChoices:"湿度が高すぎる、気圧が低すぎる、気流が強すぎる",unit:"体の適応能力"},
+    {question:"暑すぎる場合に脳に影響し発症するのは何か",answer:"熱中症",fakeChoices:"脱水症、低血糖、過呼吸",unit:"体の適応能力"},
+    {question:"熱中症のうち最も重症で、意識障害・手足のしびれが起きる段階を何というか",answer:"熱射病",fakeChoices:"熱疲労、熱けいれん、熱失神",unit:"体の適応能力"},
+    {question:"熱中症のうち、だるさ・吐き気・頭痛が起きる段階を何というか",answer:"熱疲労",fakeChoices:"熱射病、熱けいれん、熱失神",unit:"体の適応能力"},
+    {question:"熱中症のうち、筋肉のけいれん・大量の汗が起きる段階を何というか",answer:"熱けいれん",fakeChoices:"熱射病、熱疲労、熱失神",unit:"体の適応能力"},
+    {question:"熱中症のうち、めまい・失神が起きる最も軽い段階を何というか",answer:"熱失神",fakeChoices:"熱射病、熱疲労、熱けいれん",unit:"体の適応能力"},
+    {question:"熱射病の代表的な症状を2つ答えよ",answer:"意識障害・手足のしびれ",fakeChoices:"だるさ・吐き気、筋肉のけいれん・大量の汗、めまい・失神",unit:"体の適応能力"},
+    {question:"熱疲労の代表的な症状を答えよ",answer:"だるさ・吐き気・頭痛",fakeChoices:"意識障害・手足のしびれ、筋肉のけいれん・大量の汗、めまい・失神",unit:"体の適応能力"},
+    {question:"熱けいれんの代表的な症状を答えよ",answer:"筋肉のけいれん・大量の汗",fakeChoices:"意識障害・手足のしびれ、だるさ・吐き気・頭痛、めまい・失神",unit:"体の適応能力"},
+    {question:"熱失神の代表的な症状を答えよ",answer:"めまい・失神",fakeChoices:"意識障害・手足のしびれ、だるさ・吐き気、筋肉のけいれん・大量の汗",unit:"体の適応能力"},
+    {question:"熱中症予防を表す暑さ指数を何というか",answer:"WBGT",fakeChoices:"PMV、THI、UV指数",unit:"体の適応能力"},
+    {question:"WBGTが人体に与える影響として取り入れる3要素のうち①は何か",answer:"湿度",fakeChoices:"気温、輻射熱、気流",unit:"体の適応能力"},
+    {question:"WBGTが人体に与える影響として取り入れる3要素のうち②は何か（身の回りの物から出ている熱）",answer:"輻射熱",fakeChoices:"湿度、気温、気流",unit:"体の適応能力"},
+    {question:"WBGTが人体に与える影響として取り入れる3要素のうち③は何か",answer:"気温",fakeChoices:"湿度、輻射熱、気圧",unit:"体の適応能力"},
+    {question:"輻射熱（ふくしゃねつ）とはどのようなものか",answer:"身の回りの物から出ている熱",fakeChoices:"体から放出される熱、太陽から直接届く熱、空気中に含まれる熱",unit:"体の適応能力"},
+    {question:"寒すぎると体温が低下し、（　）の働きが低下する",answer:"体の諸器官",fakeChoices:"脳神経、消化器官、免疫細胞",unit:"体の適応能力"},
+    {question:"体温が（　）℃になると中枢神経がまひし、意識障害・昏睡状態になる",answer:"30",fakeChoices:"25、20、35",unit:"体の適応能力"},
+    {question:"体温が（　）℃になると低温による死の危険がある",answer:"25",fakeChoices:"30、20、28",unit:"体の適応能力"},
+  ];
+  try{
+    for(const c of IMPORT_CARDS){
+      const card={id:uid(),subject:"保健体育",unit:c.unit,grade:"中3",questionType:"word",question:c.question,questionImage:"",answer:c.answer,answerImage:"",extraAnswers:"",hint:"",keywords:"",explanation:"",source:"保健スライド",importance:"",fakeChoices:c.fakeChoices};
+      await set(ref(db,`cards/${card.id}`),card);
+      await new Promise(r=>setTimeout(r,200));
+    }
+    localStorage.setItem(FLAG,'1');
+    console.log('自動インポート完了：'+IMPORT_CARDS.length+'問追加しました');
+  }catch(e){
+    console.error('自動インポートエラー:',e);
+  }
+})();
 </script>
 </body>
 </html>
