@@ -1007,6 +1007,13 @@ function loadSuggestions(){return _suggestions}
 function loadMaterials(){return _materials}
 function loadMatSuggs(){return _matSuggs}
 async function saveCards(c){_cards=c;const o={};c.forEach(x=>o[x.id]=x);await set(ref(db,'cards'),Object.keys(o).length?o:null)}
+// 高速：1件だけ追加
+async function addCardToDb(card){_cards.push(card);await set(ref(db,`cards/${card.id}`),card)}
+// 高速：1件だけ更新
+async function updateCardInDb(card){const idx=_cards.findIndex(c=>c.id===card.id);if(idx>=0)_cards[idx]=card;await set(ref(db,`cards/${card.id}`),card)}
+// 高速：1件だけ削除
+async function deleteCardFromDb(id){_cards=_cards.filter(c=>c.id!==id);await remove(ref(db,`cards/${id}`))}
+
 async function saveSuggestions(s){_suggestions=s;const o={};s.forEach(x=>o[x.id]=x);await set(ref(db,'suggestions'),Object.keys(o).length?o:null)}
 async function saveMaterials(m){_materials=m;const o={};m.forEach(x=>o[x.id]=x);await set(ref(db,'materials'),Object.keys(o).length?o:null)}
 async function saveMatSuggs(s){_matSuggs=s;const o={};s.forEach(x=>o[x.id]=x);await set(ref(db,'matSuggestions'),Object.keys(o).length?o:null)}
@@ -1227,7 +1234,7 @@ window.saveEditCard=async function(){
     const answerImage=newAImg||_cards[idx].answerImage||'';
     msg.textContent='保存中...';
     _cards[idx]={..._cards[idx],subject,unit,grade,questionType,question,questionImage,answer,answerImage,extraAnswers,keywords,fakeChoices:fakeChoices.join('、'),hint:document.getElementById('edit-hint').value.trim(),explanation:document.getElementById('edit-explanation').value.trim(),source:document.getElementById('edit-source').value.trim(),importance};
-    await saveCards(_cards);
+    await updateCardInDb(_cards[idx]);
     msg.style.color='#4f8';msg.textContent='保存しました！';buildFilters();renderCardList();
     setTimeout(()=>{msg.textContent='';closeEditCard();},1200);
   }catch(e){
@@ -1920,26 +1927,35 @@ window.addCard=async function(){
   const subject=document.getElementById('add-subject').value;const unit=document.getElementById('add-unit').value;const grade=document.getElementById('add-grade').value;const question=document.getElementById('add-question').value.trim();const answer=document.getElementById('add-answer').value.trim();
   const questionType=document.getElementById('add-qtype').value;
   const msg=document.getElementById('add-msg');
-  if(!subject||!unit||!question||!answer){msg.textContent='教科・単元・問題・答えは必須です';return}
-  if(!questionType){msg.textContent='問題種別を選択してください';return}
+  if(!subject||!unit||!question||!answer){msg.style.color='#e05';msg.textContent='教科・単元・問題・答えは必須です';return}
+  if(!questionType){msg.style.color='#e05';msg.textContent='問題種別を選択してください';return}
   const keywords=getKeywords('add');
-  if(questionType==='long'&&!keywords){msg.textContent='長文問題はキーワードを1つ以上入力してください';return}
+  if(questionType==='long'&&!keywords){msg.style.color='#e05';msg.textContent='長文問題はキーワードを1つ以上入力してください';return}
   const fakeArr=getFakeChoices('add');
-  if(fakeArr.length<3){msg.textContent='偽の選択肢を3つ入力してください（必須）';return}
-  msg.textContent='画像を処理中...';
-  const questionImage=await getImg('add-q-file');const answerImage=await getImg('add-a-file');
-  const cards=loadCards();
-  const importance=document.getElementById('add-importance').value||'';
-  const fakeChoices=fakeArr.join('、');
-  const extraAnswers=getExtraAnswers('add');
-  cards.push({id:uid(),subject,unit,grade,questionType,question,questionImage,answer,answerImage,extraAnswers,hint:document.getElementById('add-hint').value.trim(),keywords,explanation:document.getElementById('add-explanation').value.trim(),source:document.getElementById('add-source').value.trim(),importance,fakeChoices});
-  await saveCards(cards);msg.textContent='カードを追加しました！';
-  ['add-question','add-answer','add-hint','add-explanation','add-source','add-unit','add-importance'].forEach(id=>document.getElementById(id).value='');
-  document.querySelectorAll('#add-star-row .star-btn').forEach(s=>s.classList.remove('on'));
-  resetQTypeForm('add');
-  ['add-q-prev','add-a-prev'].forEach(id=>{const el=document.getElementById(id);el.src='';el.style.display='none'});
-  document.getElementById('add-q-file').value='';document.getElementById('add-a-file').value='';
-  buildFilters();renderCardList();setTimeout(()=>msg.textContent='',2000);
+  if(fakeArr.length<3){msg.style.color='#e05';msg.textContent='偽の選択肢を3つ入力してください（必須）';return}
+  msg.style.color='#aaa';msg.textContent='保存中...';
+  document.querySelector('[onclick="addCard()"]').disabled=true;
+  try{
+    const questionImage=await getImg('add-q-file');const answerImage=await getImg('add-a-file');
+    const importance=document.getElementById('add-importance').value||'';
+    const fakeChoices=fakeArr.join('、');
+    const extraAnswers=getExtraAnswers('add');
+    const newCard={id:uid(),subject,unit,grade,questionType,question,questionImage,answer,answerImage,extraAnswers,hint:document.getElementById('add-hint').value.trim(),keywords,explanation:document.getElementById('add-explanation').value.trim(),source:document.getElementById('add-source').value.trim(),importance,fakeChoices};
+    await addCardToDb(newCard);
+    msg.style.color='#4f8';msg.textContent='✓ カードを追加しました！';
+    ['add-question','add-answer','add-hint','add-explanation','add-source','add-unit','add-importance'].forEach(id=>document.getElementById(id).value='');
+    document.querySelectorAll('#add-star-row .star-btn').forEach(s=>s.classList.remove('on'));
+    resetQTypeForm('add');
+    ['add-q-prev','add-a-prev'].forEach(id=>{const el=document.getElementById(id);el.src='';el.style.display='none'});
+    document.getElementById('add-q-file').value='';document.getElementById('add-a-file').value='';
+    buildFilters();renderCardList();
+    setTimeout(()=>{msg.textContent='';msg.style.color=''},3000);
+  }catch(e){
+    msg.style.color='#e05';msg.textContent='エラーが発生しました。もう一度試してください。';
+    console.error(e);
+  }finally{
+    document.querySelector('[onclick="addCard()"]').disabled=false;
+  }
 };
 function renderSuggestList(){
   const list=loadSuggestions();const el=document.getElementById('suggestList');
@@ -2044,7 +2060,7 @@ window.assignCardNumbers=async function(){
   await saveCards(updated);buildFilters();renderCardList();
   alert('区別番号を振り直しました');
 };
-window.deleteCard=async function(id){if(!confirm('このカードを削除しますか？'))return;await saveCards(_cards.filter(c=>c.id!==id));buildFilters();window.renderCardList();startSession()};
+window.deleteCard=async function(id){if(!confirm('このカードを削除しますか？'))return;await deleteCardFromDb(id);buildFilters();window.renderCardList();startSession()};
 window.addMaterial=async function(){
   const title=document.getElementById('mat-title').value.trim();const subject=document.getElementById('mat-subject').value;const unit=document.getElementById('mat-unit').value.trim();const grade=document.getElementById('mat-grade').value;const type=document.getElementById('mat-type').value;const semester=document.getElementById('mat-semester').value;const year=document.getElementById('mat-year').value.trim();const content=document.getElementById('mat-content').value.trim();
   const msg=document.getElementById('mat-msg');
