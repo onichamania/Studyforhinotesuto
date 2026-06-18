@@ -137,6 +137,18 @@ input[type=file]{display:none}
 .modal-tab.active{background:#fff;color:#000}
 .modal-content{display:none}
 .modal-content.active{display:block}
+/* ===== 管理者パネル サイドバーレイアウト ===== */
+#adminPanel .modal-box{max-width:920px;max-height:90vh;display:flex;flex-direction:column}
+#adminPanel .admin-body{display:flex;gap:14px;flex:1;min-height:0;overflow:hidden}
+#adminPanel .modal-tabs{flex-direction:column;flex-wrap:nowrap;border-bottom:none;border-right:1px solid #222;padding-bottom:0;padding-right:12px;margin-bottom:0;width:130px;flex-shrink:0;gap:2px;overflow-y:auto}
+#adminPanel .modal-tab{text-align:left;padding:10px 10px;font-size:.78rem;width:100%;min-height:40px}
+#adminPanel .admin-content-area{flex:1;overflow-y:auto;min-width:0;padding-right:4px}
+@media(max-width:680px){
+  #adminPanel .admin-body{flex-direction:column;overflow:visible}
+  #adminPanel .modal-tabs{flex-direction:row;flex-wrap:wrap;border-right:none;border-bottom:1px solid #222;padding-right:0;padding-bottom:10px;margin-bottom:14px;width:100%;gap:4px}
+  #adminPanel .modal-tab{width:auto;text-align:center;padding:6px 10px;min-height:34px}
+  #adminPanel .admin-content-area{overflow-y:visible}
+}
 .form-err{color:#e05;font-size:.82rem;min-height:20px;text-align:center}
 .btn-google{background:#111;color:#ddd;border:1px solid #444;border-radius:2px;display:flex;align-items:center;justify-content:center;font-size:.95rem;font-weight:bold;padding:12px;letter-spacing:.05em}
 .btn-google:hover{border-color:#888;color:#fff}
@@ -766,6 +778,7 @@ header{background:#000}
 <div id="adminPanel" class="modal-overlay">
   <div class="modal-box">
     <h2>管理者パネル <button onclick="closeAdmin()">✕</button></h2>
+    <div class="admin-body">
     <div class="modal-tabs">
       <button class="modal-tab active" onclick="switchAdminTab('add')">カード追加</button>
       <button class="modal-tab" onclick="switchAdminTab('suggest')">提案</button>
@@ -777,6 +790,7 @@ header{background:#000}
       <button class="modal-tab" onclick="switchAdminTab('news')">ニュース</button>
       <button class="modal-tab" onclick="switchAdminTab('inquiries')">問い合わせ</button>
     </div>
+    <div class="admin-content-area">
     <div class="modal-content active" id="tab-add">
       <div class="form-col">
         <select id="add-subject" onchange="populateUnitSelect('add')"><option value="">教科 *</option><option>家庭科</option><option>技術</option><option>音楽</option></select>
@@ -938,9 +952,10 @@ header{background:#000}
       <div id="newsAdminList"></div>
     </div>
     <div class="modal-content" id="tab-inquiries"><div id="inquiryAdminList"></div></div>
+    </div><!-- /admin-content-area -->
+    </div><!-- /admin-body -->
   </div>
 </div>
-
 <!-- 問題編集モーダル -->
 <div id="editCardModal" class="modal-overlay edit-modal">
   <div class="modal-box">
