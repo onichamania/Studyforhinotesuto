@@ -2191,6 +2191,7 @@ window.deleteAllCards=async function(){
   _cards=[];buildFilters();renderCardList();startSession();
   alert('全問題を削除しました');
 };
+window.assignCardNumbers=async function(){
   const subjectCounters={};
   const updated=_cards.map(c=>{
     const s=c.subject||'不明';
