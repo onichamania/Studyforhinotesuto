@@ -1016,7 +1016,7 @@ header{background:#000}
 
 <script type="module">
 import{initializeApp}from"https://www.gstatic.com/firebasejs/11.8.1/firebase-app.js";
-import{getDatabase,ref,set,onValue,push,remove,get}from"https://www.gstatic.com/firebasejs/11.8.1/firebase-database.js";
+import{getDatabase,ref,set,onValue,push,remove}from"https://www.gstatic.com/firebasejs/11.8.1/firebase-database.js";
 import{getAuth,createUserWithEmailAndPassword,signInWithEmailAndPassword,onAuthStateChanged,signOut,updateProfile,GoogleAuthProvider,signInWithPopup}from"https://www.gstatic.com/firebasejs/11.8.1/firebase-auth.js";
 
 const firebaseConfig={apiKey:"AIzaSyAlWbXmtC-psia2Ne2WdlmQzYryuyIWdDA",authDomain:"learning-app-1dc31.firebaseapp.com",databaseURL:"https://learning-app-1dc31-default-rtdb.asia-southeast1.firebasedatabase.app",projectId:"learning-app-1dc31",storageBucket:"learning-app-1dc31.firebasestorage.app",messagingSenderId:"525693028877",appId:"1:525693028877:web:f88a02158f1364e383e344"};
@@ -2294,7 +2294,7 @@ document.getElementById('imageFilter').querySelectorAll('.filter-btn').forEach(b
   document.getElementById('imageFilter').querySelectorAll('.filter-btn').forEach(x=>x.classList.remove('active'));b.classList.add('active');
   const v=b.dataset.img;state.hasImage=v===''?null:v==='1';startSession();
 }));
-get(ref(db,'cards')).then(snap=>{_cards=snap.val()?Object.values(snap.val()):[];buildFilters();startSession()});
+onValue(ref(db,'cards'),snap=>{_cards=snap.val()?Object.values(snap.val()):[];buildFilters();startSession()});
 onValue(ref(db,'suggestions'),snap=>{_suggestions=snap.val()?Object.values(snap.val()):[];if(document.getElementById('adminPanel').classList.contains('open'))renderSuggestList()});
 onValue(ref(db,'materials'),snap=>{_materials=snap.val()?Object.values(snap.val()):[];if(state.mode==='info')renderMaterials()});
 onValue(ref(db,'matSuggestions'),snap=>{_matSuggs=snap.val()?Object.values(snap.val()):[];if(document.getElementById('adminPanel').classList.contains('open'))renderMatSuggList()});
