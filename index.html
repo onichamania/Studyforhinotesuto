@@ -273,6 +273,15 @@ header{background:#000}
 .sug-edit-form{background:#f8f8f8;border-radius:10px;padding:12px;margin-top:10px;display:none}
 .sug-edit-form.open{display:block}
 .extra-row{display:flex;gap:6px;align-items:center;margin-bottom:6px}
+/* ===== 英語記号問題 ===== */
+.symbol-row{display:flex;gap:8px;align-items:center;margin-bottom:8px}
+.symbol-label{width:28px;height:28px;background:#fff;color:#000;border-radius:2px;display:flex;align-items:center;justify-content:center;font-weight:bold;font-size:.9rem;flex-shrink:0}
+.symbol-answer-input{flex:1;border:1px solid #333;background:#0d0d0d;color:#fff;padding:8px 10px;border-radius:2px;font-size:.85rem;font-family:inherit}
+.symbol-answer-display{display:flex;flex-direction:column;gap:8px;margin-top:12px}
+.symbol-answer-row{display:flex;align-items:center;gap:10px;background:#111;border:1px solid #222;border-radius:2px;padding:10px 12px}
+.symbol-answer-label{width:26px;height:26px;background:#fff;color:#000;border-radius:2px;display:flex;align-items:center;justify-content:center;font-weight:bold;font-size:.85rem;flex-shrink:0}
+.symbol-answer-input-field{flex:1;background:transparent;border:none;border-bottom:1px solid #444;color:#fff;font-size:.95rem;padding:4px 2px;font-family:inherit;outline:none}
+.symbol-answer-input-field::placeholder{color:#555}
 
 /* ===== アドバイスページ ===== */
 #adviceArea{display:none}
@@ -486,8 +495,8 @@ header{background:#000}
         <div class="form-col">
           <select id="usg-subject">
             <option value="">教科を選択 *</option>
-            <option>家庭科</option><option>技術</option><option>音楽</option><option>美術</option>
-            <option>保健体育</option><option>体育実技</option><option>理科</option><option>社会</option><option>英語</option><option>国語</option>
+            <option>家庭科</option><option>技術</option><option>音楽</option>
+            
           </select>
           <input id="usg-name-input" placeholder="提案する単元名 *">
           <input id="usg-proposer" placeholder="提案者名（任意）">
@@ -770,7 +779,7 @@ header{background:#000}
     </div>
     <div class="modal-content active" id="tab-add">
       <div class="form-col">
-        <select id="add-subject" onchange="populateUnitSelect('add')"><option value="">教科 *</option><option>家庭科</option><option>技術</option><option>音楽</option><option>美術</option><option>保健体育</option><option>体育実技</option><option>理科</option><option>社会</option><option>英語</option><option>国語</option></select>
+        <select id="add-subject" onchange="populateUnitSelect('add')"><option value="">教科 *</option><option>家庭科</option><option>技術</option><option>音楽</option></select>
         <select id="add-unit"><option value="">先に教科を選んでください</option></select>
         <select id="add-grade"><option value="中1">中1</option><option value="中2">中2</option><option value="中3" selected>中3</option></select>
         <input id="add-question" placeholder="問題文 *">
@@ -782,8 +791,19 @@ header{background:#000}
           <div class="qtype-row">
             <label class="qtype-lbl" id="add-qt-word-lbl"><input type="radio" name="add-qt" value="word" onchange="setQType('add','word')"> 単語問題</label>
             <label class="qtype-lbl" id="add-qt-long-lbl"><input type="radio" name="add-qt" value="long" onchange="setQType('add','long')"> 長文問題</label>
+            <label class="qtype-lbl" id="add-qt-symbol-lbl"><input type="radio" name="add-qt" value="symbol" onchange="setQType('add','symbol')"> 英語記号</label>
           </div>
           <input type="hidden" id="add-qtype" value="">
+        </div>
+        <div id="add-symbol-section" style="display:none">
+          <div class="sec-label">記号と答え <span style="color:#e05">*必須</span></div>
+          <div style="font-size:.72rem;color:#888;margin-bottom:8px">A・B・Cなどの記号とその答えを入力。問題文中の記号と一致させてください。</div>
+          <div id="add-symbol-list">
+            <div class="symbol-row"><div class="symbol-label">A</div><input class="symbol-answer-input add-sym-ans" data-label="A" placeholder="Aの答え *"><button type="button" class="kw-del" onclick="removeSymbolRow(this)">✕</button></div>
+            <div class="symbol-row"><div class="symbol-label">B</div><input class="symbol-answer-input add-sym-ans" data-label="B" placeholder="Bの答え *"><button type="button" class="kw-del" onclick="removeSymbolRow(this)">✕</button></div>
+          </div>
+          <button type="button" class="add-more-btn" onclick="addSymbolRow('add')">＋ 記号を追加</button>
+        </div>
         </div>
         <input id="add-answer" placeholder="答え（メイン） *">
         <div>
@@ -836,6 +856,7 @@ header{background:#000}
       <button class="add-more-btn" style="margin-bottom:12px" onclick="switchAdminTab('materials')">＋ 資料を追加・管理 →</button>
       <button class="admin-tool-btn" onclick="removeDuplicateCards()">🗑 重複問題を削除（同じ問題文を1つに）</button>
       <button class="admin-tool-btn" onclick="assignCardNumbers()">🔢 教科ごとに区別番号を振り直す</button>
+      <button class="admin-tool-btn" style="border-color:#e05;color:#e05" onclick="deleteAllCards()">⚠️ 全問題を削除する</button>
       <div id="missingFieldsEl" style="margin-bottom:10px"></div>
       <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px">
         <select id="list-subject-filter" onchange="renderCardList()" style="flex:1;min-width:80px"><option value="">全教科</option></select>
@@ -858,7 +879,7 @@ header{background:#000}
       <div class="form-col" style="margin-bottom:20px">
         <div style="font-size:.85rem;font-weight:bold">資料を追加</div>
         <input id="mat-title" placeholder="題名 *">
-        <select id="mat-subject"><option value="">教科 *</option><option>家庭科</option><option>技術</option><option>音楽</option><option>美術</option><option>保健体育</option><option>理科</option><option>社会</option><option>英語</option><option>国語</option></select>
+        <select id="mat-subject"><option value="">教科 *</option><option>家庭科</option><option>技術</option><option>音楽</option></select>
         <input id="mat-unit" placeholder="単元名 *">
         <select id="mat-grade"><option value="中1">中1</option><option value="中2">中2</option><option value="中3" selected>中3</option></select>
         <select id="mat-type"><option value="">種類 *</option><option>授業ノート</option><option>範囲表</option><option>過去問</option><option>授業プリント</option><option>その他</option></select>
@@ -878,8 +899,8 @@ header{background:#000}
         <div class="form-col">
           <select id="mat-unit-subject-sel">
             <option value="">教科を選択 *</option>
-            <option>家庭科</option><option>技術</option><option>音楽</option><option>美術</option>
-            <option>保健体育</option><option>体育実技</option><option>理科</option><option>社会</option><option>英語</option><option>国語</option>
+            <option>家庭科</option><option>技術</option><option>音楽</option>
+            
           </select>
           <input id="mat-unit-name-input" placeholder="単元名 *">
           <button class="btn primary btn-full" onclick="addUnitFromMat()">単元を追加</button>
@@ -893,8 +914,8 @@ header{background:#000}
         <div style="font-size:.85rem;font-weight:bold">単元を追加</div>
         <select id="unit-subject-sel" onchange="renderUnitAdminList()">
           <option value="">教科を選択 *</option>
-          <option>家庭科</option><option>技術</option><option>音楽</option><option>美術</option>
-          <option>保健体育</option><option>体育実技</option><option>理科</option><option>社会</option><option>英語</option><option>国語</option>
+          <option>家庭科</option><option>技術</option><option>音楽</option>
+          
         </select>
         <input id="unit-name-input" placeholder="単元名 *（例：衣生活・食生活）">
         <button class="btn primary btn-full" onclick="addUnit()">単元を追加</button>
@@ -927,7 +948,7 @@ header{background:#000}
     <div class="modal-content active">
       <div class="form-col">
         <input type="hidden" id="edit-id">
-        <select id="edit-subject" onchange="populateUnitSelect('edit')"><option value="">教科 *</option><option>家庭科</option><option>技術</option><option>音楽</option><option>美術</option><option>保健体育</option><option>体育実技</option><option>理科</option><option>社会</option><option>英語</option><option>国語</option></select>
+        <select id="edit-subject" onchange="populateUnitSelect('edit')"><option value="">教科 *</option><option>家庭科</option><option>技術</option><option>音楽</option></select>
         <select id="edit-unit"><option value="">先に教科を選んでください</option></select>
         <select id="edit-grade"><option value="中1">中1</option><option value="中2">中2</option><option value="中3" selected>中3</option></select>
         <input id="edit-question" placeholder="問題文 *">
@@ -939,8 +960,14 @@ header{background:#000}
           <div class="qtype-row">
             <label class="qtype-lbl" id="edit-qt-word-lbl"><input type="radio" name="edit-qt" value="word" onchange="setQType('edit','word')"> 単語問題</label>
             <label class="qtype-lbl" id="edit-qt-long-lbl"><input type="radio" name="edit-qt" value="long" onchange="setQType('edit','long')"> 長文問題</label>
+            <label class="qtype-lbl" id="edit-qt-symbol-lbl"><input type="radio" name="edit-qt" value="symbol" onchange="setQType('edit','symbol')"> 英語記号</label>
           </div>
           <input type="hidden" id="edit-qtype" value="">
+        </div>
+        <div id="edit-symbol-section" style="display:none">
+          <div class="sec-label">記号と答え <span style="color:#e05">*必須</span></div>
+          <div id="edit-symbol-list"></div>
+          <button type="button" class="add-more-btn" onclick="addSymbolRow('edit')">＋ 記号を追加</button>
         </div>
         <input id="edit-answer" placeholder="答え（メイン） *">
         <button type="button" class="img-btn" onclick="document.getElementById('edit-a-file').click()"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" style="vertical-align:middle;margin-right:5px"><path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z" stroke="#888" stroke-width="2" stroke-linejoin="round"/><circle cx="12" cy="13" r="4" stroke="#888" stroke-width="2"/></svg>答えに画像（任意）</button>
@@ -989,7 +1016,7 @@ header{background:#000}
 
 <script type="module">
 import{initializeApp}from"https://www.gstatic.com/firebasejs/11.8.1/firebase-app.js";
-import{getDatabase,ref,set,onValue,push,remove}from"https://www.gstatic.com/firebasejs/11.8.1/firebase-database.js";
+import{getDatabase,ref,set,onValue,push,remove,get}from"https://www.gstatic.com/firebasejs/11.8.1/firebase-database.js";
 import{getAuth,createUserWithEmailAndPassword,signInWithEmailAndPassword,onAuthStateChanged,signOut,updateProfile,GoogleAuthProvider,signInWithPopup}from"https://www.gstatic.com/firebasejs/11.8.1/firebase-auth.js";
 
 const firebaseConfig={apiKey:"AIzaSyAlWbXmtC-psia2Ne2WdlmQzYryuyIWdDA",authDomain:"learning-app-1dc31.firebaseapp.com",databaseURL:"https://learning-app-1dc31-default-rtdb.asia-southeast1.firebasedatabase.app",projectId:"learning-app-1dc31",storageBucket:"learning-app-1dc31.firebasestorage.app",messagingSenderId:"525693028877",appId:"1:525693028877:web:f88a02158f1364e383e344"};
@@ -998,7 +1025,7 @@ const db=getDatabase(app);
 const auth=getAuth(app);
 
 const ADMIN_PW='admin1234';
-const SUBJECTS=['家庭科','技術','音楽','美術','保健体育','体育実技','理科','社会','英語','国語'];
+const SUBJECTS=['家庭科','技術','音楽'];
 let _cards=[],_suggestions=[],_materials=[],_matSuggs=[],_unitSuggs=[],_news=[],_inquiries=[],_units={};
 let currentUser=null,_userClears={},_studyHistory=[];
 
@@ -1008,11 +1035,11 @@ function loadMaterials(){return _materials}
 function loadMatSuggs(){return _matSuggs}
 async function saveCards(c){_cards=c;const o={};c.forEach(x=>o[x.id]=x);await set(ref(db,'cards'),Object.keys(o).length?o:null)}
 // 高速：1件だけ追加
-async function addCardToDb(card){_cards.push(card);await set(ref(db,`cards/${card.id}`),card)}
+async function addCardToDb(card){_cards.push(card);await set(ref(db,`cards/${card.id}`),card);buildFilters();}
 // 高速：1件だけ更新
 async function updateCardInDb(card){const idx=_cards.findIndex(c=>c.id===card.id);if(idx>=0)_cards[idx]=card;await set(ref(db,`cards/${card.id}`),card)}
 // 高速：1件だけ削除
-async function deleteCardFromDb(id){_cards=_cards.filter(c=>c.id!==id);await remove(ref(db,`cards/${id}`))}
+async function deleteCardFromDb(id){_cards=_cards.filter(c=>c.id!==id);await remove(ref(db,`cards/${id}`));buildFilters();}
 
 async function saveSuggestions(s){_suggestions=s;const o={};s.forEach(x=>o[x.id]=x);await set(ref(db,'suggestions'),Object.keys(o).length?o:null)}
 async function saveMaterials(m){_materials=m;const o={};m.forEach(x=>o[x.id]=x);await set(ref(db,'materials'),Object.keys(o).length?o:null)}
@@ -1077,7 +1104,10 @@ window.setQType=function(prefix,type){
   document.getElementById(`${prefix}-qtype`).value=type;
   document.getElementById(`${prefix}-qt-word-lbl`).classList.toggle('on',type==='word');
   document.getElementById(`${prefix}-qt-long-lbl`).classList.toggle('on',type==='long');
+  document.getElementById(`${prefix}-qt-symbol-lbl`)?.classList.toggle('on',type==='symbol');
   document.getElementById(`${prefix}-kw-section`).style.display=type==='long'?'block':'none';
+  const symSec=document.getElementById(`${prefix}-symbol-section`);
+  if(symSec)symSec.style.display=type==='symbol'?'block':'none';
 };
 window.addKw=function(prefix){
   const list=document.getElementById(`${prefix}-kw-list`);
@@ -1112,16 +1142,38 @@ function resetQTypeForm(prefix){
   document.getElementById(`${prefix}-qtype`).value='';
   document.getElementById(`${prefix}-qt-word-lbl`).classList.remove('on');
   document.getElementById(`${prefix}-qt-long-lbl`).classList.remove('on');
+  document.getElementById(`${prefix}-qt-symbol-lbl`)?.classList.remove('on');
   document.getElementById(`${prefix}-kw-section`).style.display='none';
-  document.querySelectorAll(`#${prefix}-qt-word-lbl input, #${prefix}-qt-long-lbl input`).forEach(r=>r.checked=false);
+  const symSec=document.getElementById(`${prefix}-symbol-section`);
+  if(symSec)symSec.style.display='none';
+  document.querySelectorAll(`#${prefix}-qt-word-lbl input, #${prefix}-qt-long-lbl input, #${prefix}-qt-symbol-lbl input`).forEach(r=>r.checked=false);
   const kwList=document.getElementById(`${prefix}-kw-list`);
   kwList.innerHTML=`<div class="kw-row"><input class="${prefix}-kw" placeholder="キーワード1 *"><button type="button" class="kw-del" onclick="removeKw(this)">✕</button></div>`;
   const fakeList=document.getElementById(`${prefix}-fake-list`);
   fakeList.innerHTML=['1','2','3'].map(n=>`<div class="fake-row"><input class="${prefix}-fake" placeholder="偽の選択肢${n} *"><button type="button" class="kw-del" onclick="removeFake(this)">✕</button></div>`).join('');
   const extraList=document.getElementById(`${prefix}-extra-list`);
   if(extraList)extraList.innerHTML='';
+  const symList=document.getElementById(`${prefix}-symbol-list`);
+  if(symList)symList.innerHTML=`<div class="symbol-row"><div class="symbol-label">A</div><input class="symbol-answer-input ${prefix}-sym-ans" data-label="A" placeholder="Aの答え *"><button type="button" class="kw-del" onclick="removeSymbolRow(this)">✕</button></div><div class="symbol-row"><div class="symbol-label">B</div><input class="symbol-answer-input ${prefix}-sym-ans" data-label="B" placeholder="Bの答え *"><button type="button" class="kw-del" onclick="removeSymbolRow(this)">✕</button></div>`;
 }
 
+// ===== 英語記号問題 =====
+const SYMBOL_LABELS=['A','B','C','D','E','F','G','H'];
+window.addSymbolRow=function(prefix){
+  const list=document.getElementById(`${prefix}-symbol-list`);
+  const n=list.querySelectorAll('.symbol-row').length;
+  const label=SYMBOL_LABELS[n]||String.fromCharCode(65+n);
+  const row=document.createElement('div');row.className='symbol-row';
+  row.innerHTML=`<div class="symbol-label">${label}</div><input class="symbol-answer-input ${prefix}-sym-ans" data-label="${label}" placeholder="${label}の答え *"><button type="button" class="kw-del" onclick="removeSymbolRow(this)">✕</button>`;
+  list.appendChild(row);
+};
+window.removeSymbolRow=function(btn){
+  const row=btn.closest('.symbol-row');
+  if(row.parentElement.querySelectorAll('.symbol-row').length>1)row.remove();
+};
+function getSymbolAnswers(prefix){
+  return [...document.querySelectorAll(`.${prefix}-sym-ans`)].map(i=>({label:i.dataset.label,answer:i.value.trim()})).filter(s=>s.answer);
+}
 // ===== 追加の答え =====
 window.addExtra=function(prefix){
   const list=document.getElementById(`${prefix}-extra-list`);
@@ -1494,10 +1546,14 @@ async function getImg(id){const input=document.getElementById(id);if(!input.file
 let state={mode:'study',subject:null,unit:null,grade:null,qtype:null,minImportance:null,hasImage:null,filtered:[],index:0,quizIndex:0,score:0,answered:false,mistakeSort:'count'};
 
 function buildFilters(){
-  const subjects=[...new Set(_cards.map(c=>c.subject))].filter(Boolean);
+  const subjectsWithCards=new Set(_cards.map(c=>c.subject).filter(Boolean));
   const sf=document.getElementById('subjectFilter');
-  sf.innerHTML='<button class="filter-btn active" data-val="">全教科</button>'+subjects.map(s=>`<button class="filter-btn" data-val="${s}">${s}</button>`).join('');
-  sf.querySelectorAll('.filter-btn').forEach(b=>b.addEventListener('click',()=>{
+  sf.innerHTML='<button class="filter-btn active" data-val="">全教科</button>'+
+    ['家庭科','技術','音楽'].map(s=>{
+      const hasCards=subjectsWithCards.has(s);
+      return `<button class="filter-btn" data-val="${s}" ${hasCards?'':'disabled style="opacity:.3;cursor:not-allowed"'}>${s}</button>`;
+    }).join('');
+  sf.querySelectorAll('.filter-btn:not([disabled])').forEach(b=>b.addEventListener('click',()=>{
     sf.querySelectorAll('.filter-btn').forEach(x=>x.classList.remove('active'));b.classList.add('active');
     state.subject=b.dataset.val||null;state.unit=null;buildUnitFilter();startSession();
   }));
@@ -1548,15 +1604,19 @@ function renderStudyArea(){
 function renderStudy(el){
   const cards=state.filtered,i=state.index,c=cards[i];
   const pct=((i+1)/cards.length*100).toFixed(0);
+  const symAnswers=c.questionType==='symbol'&&c.symbolAnswers?tryParseSymbol(c.symbolAnswers):null;
+  const answerHtml=symAnswers
+    ?symAnswers.map(s=>`<div style="display:flex;align-items:center;gap:8px;margin-bottom:4px"><div class="symbol-answer-label">${esc(s.label)}</div><span style="color:#fff;font-size:.95rem">${esc(s.answer)}</span></div>`).join('')
+    :`<div class="fc-a">${esc(c.answer)}</div>`;
   el.innerHTML=`<div class="prog-line"><span>${i+1} / ${cards.length}</span><span>${esc(c.subject)} · ${esc(c.unit)}</span></div>
     <div class="prog-wrap"><div class="prog-bar" style="width:${pct}%"></div></div>
     <div class="card"><div class="flashcard">
       <div class="fc-tag">${esc(c.grade)} · ${esc(c.subject)} · ${esc(c.unit)}</div>
-      ${c.questionType?`<div class="type-tag ${c.questionType}">${c.questionType==='word'?'単語問題':'長文問題'}</div>`:''}
+      ${c.questionType?`<div class="type-tag ${c.questionType}">${c.questionType==='word'?'単語問題':c.questionType==='symbol'?'英語記号':'長文問題'}</div>`:''}
       ${c.importance?`<div class="imp-stars">${'★'.repeat(Number(c.importance))}${'☆'.repeat(5-Number(c.importance))}</div>`:''}
       <div class="fc-q">${esc(c.question)}</div>
       ${c.questionImage?`<img src="${c.questionImage}" class="card-img">`:''}
-      <div class="fc-a">${esc(c.answer)}</div>
+      ${answerHtml}
       ${c.answerImage?`<img src="${c.answerImage}" class="card-img">`:''}
       ${c.explanation?`<div class="ex-box"><span class="ex-label">解説</span>${esc(c.explanation)}</div>`:''}
       ${c.source?`<div class="src-label">📖 ${esc(c.source)}</div>`:''}
@@ -1568,15 +1628,19 @@ function renderStudy(el){
     ${i===cards.length-1?'<div style="text-align:center;margin-top:14px"><button class="btn primary" onclick="startSession()">もう一度</button></div>':''}`;
 }
 window.studyNav=function(d){state.index=Math.max(0,Math.min(state.filtered.length-1,state.index+d));renderStudy(document.getElementById('studyArea'))};
+function tryParseSymbol(s){try{return JSON.parse(s)}catch{return null}}
 function renderChoice(el){
   const cards=state.filtered;if(state.quizIndex>=cards.length){renderScore(el);return}
-  const c=cards[state.quizIndex],choices=makeChoices(c,cards);
+  const c=cards[state.quizIndex];
   const pct=(state.quizIndex/cards.length*100).toFixed(0);
   const impNum=parseInt(c.importance)||0;
   const impHtml=impNum?`<div style="font-size:.85rem;letter-spacing:2px;margin-bottom:6px;text-align:center;color:#f5a623">${'★'.repeat(impNum)}<span style="color:#333">${'★'.repeat(5-impNum)}</span></div>`:'';
   const srcHtml=c.source?`<div class="src-label">📖 ${esc(c.source)}</div>`:'';
   const cardNoHtml=c.cardNo?`<span style="font-size:.65rem;color:#444;letter-spacing:.08em"> · No.${c.cardNo}</span>`:'';
   const unitHtml=c.unit?`<div style="font-size:.68rem;color:#555;letter-spacing:.1em;margin-bottom:8px;text-align:center">${esc(c.subject)} · ${esc(c.unit)}${cardNoHtml}</div>`:'';
+  // 記号問題は選択ではなくタイピング形式で表示
+  if(c.questionType==='symbol'){renderSymbolTyping(el);return;}
+  const choices=makeChoices(c,cards);
   el.innerHTML=`<div class="prog-line"><span>${state.quizIndex+1} / ${cards.length}</span><span>✓ ${state.score}</span></div>
     <div class="prog-wrap"><div class="prog-bar" style="width:${pct}%"></div></div>
     <div class="card">
@@ -1616,6 +1680,7 @@ window.nextQuiz=function(){state.quizIndex++;state.answered=false;renderChoice(d
 function renderTyping(el){
   const cards=state.filtered;if(state.quizIndex>=cards.length){renderScore(el);return}
   const c=cards[state.quizIndex];
+  if(c.questionType==='symbol'){renderSymbolTyping(el);return;}
   const pct=(state.quizIndex/cards.length*100).toFixed(0);
   const impNum=parseInt(c.importance)||0;
   const impHtml=impNum?`<div style="font-size:.85rem;letter-spacing:2px;margin-bottom:4px;color:#f5a623">${'★'.repeat(impNum)}<span style="color:#333">${'★'.repeat(5-impNum)}</span></div>`:'';
@@ -1643,7 +1708,11 @@ window.checkTyping=function(){
   const input=document.getElementById('typingInput');if(!input.value.trim())return;
   state.answered=true;input.disabled=true;
   const typed=input.value.trim();
-  const norm=s=>s.replace(/[\s　]/g,'').toLowerCase();
+  const norm=s=>s
+    .replace(/[\s　]/g,'')           // 半角・全角スペース除去
+    .toLowerCase()
+    .normalize('NFKC')               // 全角英数→半角、半角カナ→全角カナに統一
+    .replace(/[・。、，,．.]/g,'');   // 区切り記号除去
   let ok=false;
   if(c.keywords&&c.keywords.trim()){const kws=c.keywords.split(/[、,，]/).map(k=>k.trim()).filter(Boolean);ok=kws.every(kw=>norm(typed).includes(norm(kw)))}
   else{
@@ -1665,6 +1734,68 @@ window.skipTyping=function(){
   document.getElementById('nextBtnArea').style.display='flex';
 };
 window.nextQuizTyping=function(){state.quizIndex++;state.answered=false;renderTyping(document.getElementById('studyArea'))};
+
+// ===== 英語記号問題の解答 =====
+function renderSymbolTyping(el){
+  const cards=state.filtered;if(state.quizIndex>=cards.length){renderScore(el);return}
+  const c=cards[state.quizIndex];
+  const pct=(state.quizIndex/cards.length*100).toFixed(0);
+  const symAnswers=tryParseSymbol(c.symbolAnswers)||[{label:'A',answer:c.answer}];
+  const impNum=parseInt(c.importance)||0;
+  const impHtml=impNum?`<div style="font-size:.85rem;letter-spacing:2px;margin-bottom:4px;color:#f5a623">${'★'.repeat(impNum)}<span style="color:#333">${'★'.repeat(5-impNum)}</span></div>`:'';
+  const unitHtml=c.unit?`<div style="font-size:.68rem;color:#555;letter-spacing:.1em;margin-bottom:8px">${esc(c.subject)} · ${esc(c.unit)}${c.cardNo?` · No.${c.cardNo}`:''}</div>`:'';
+  const srcHtml=c.source?`<div class="src-label" style="margin-top:10px">📖 ${esc(c.source)}</div>`:'';
+  const inputsHtml=symAnswers.map(s=>`
+    <div class="symbol-answer-row">
+      <div class="symbol-answer-label">${esc(s.label)}</div>
+      <input class="symbol-answer-input-field" id="sym-input-${s.label}" data-label="${s.label}" placeholder="${s.label}を入力…" autocomplete="off" onkeydown="if(event.key==='Enter')checkSymbolTyping()">
+    </div>`).join('');
+  el.innerHTML=`<div class="prog-line"><span>${state.quizIndex+1} / ${cards.length}</span><span>✓ ${state.score}</span></div>
+    <div class="prog-wrap"><div class="prog-bar" style="width:${pct}%"></div></div>
+    <div class="card">
+      ${impHtml}${unitHtml}
+      <div class="quiz-q">${esc(c.question)}</div>
+      ${c.questionImage?`<img src="${c.questionImage}" class="card-img" style="display:block;margin:0 auto 12px">`:''}
+      <div class="symbol-answer-display">${inputsHtml}</div>
+      <div class="nav-btns" style="margin-top:12px"><button class="btn primary" onclick="checkSymbolTyping()">答え合わせ</button><button class="btn" onclick="skipSymbolTyping()">スキップ</button></div>
+      <div class="quiz-msg" id="quizMsg"></div>
+      ${srcHtml}
+    </div>
+    <div class="nav-btns" id="nextBtnArea" style="display:none"><button class="btn primary" onclick="nextQuizTyping()">次の問題 →</button></div>`;
+  setTimeout(()=>el.querySelector('.symbol-answer-input-field')?.focus(),100);
+}
+window.checkSymbolTyping=function(){
+  if(state.answered)return;
+  const c=state.filtered[state.quizIndex];
+  const symAnswers=tryParseSymbol(c.symbolAnswers)||[{label:'A',answer:c.answer}];
+  const norm=s=>s.replace(/[\s　]/g,'').toLowerCase().normalize('NFKC').replace(/[・。、，,．.]/g,'');
+  let allOk=true;
+  symAnswers.forEach(s=>{
+    const input=document.getElementById(`sym-input-${s.label}`);
+    if(!input)return;
+    input.disabled=true;
+    const ok=norm(input.value.trim())===norm(s.answer);
+    if(!ok){allOk=false;input.style.borderBottom='2px solid #e05';input.style.color='#e05';}
+    else{input.style.borderBottom='2px solid #4f8';input.style.color='#4f8';}
+  });
+  state.answered=true;
+  const msg=document.getElementById('quizMsg');
+  const correctHtml=symAnswers.map(s=>`<strong>${s.label}：${esc(s.answer)}</strong>`).join('　');
+  if(allOk){msg.innerHTML='✓ 全問正解！';msg.className='quiz-msg ok';state.score++;}
+  else{recordMistake(c.id);msg.innerHTML=`✗ 不正解　正解：${correctHtml}`;msg.className='quiz-msg ng';}
+  document.getElementById('nextBtnArea').style.display='flex';
+};
+window.skipSymbolTyping=function(){
+  if(state.answered)return;
+  const c=state.filtered[state.quizIndex];
+  const symAnswers=tryParseSymbol(c.symbolAnswers)||[{label:'A',answer:c.answer}];
+  symAnswers.forEach(s=>{const i=document.getElementById(`sym-input-${s.label}`);if(i)i.disabled=true;});
+  state.answered=true;
+  const correctHtml=symAnswers.map(s=>`<strong>${s.label}：${esc(s.answer)}</strong>`).join('　');
+  document.getElementById('quizMsg').innerHTML=`→ スキップ　正解：${correctHtml}`;
+  document.getElementById('quizMsg').className='quiz-msg ng';
+  document.getElementById('nextBtnArea').style.display='flex';
+};
 async function renderScore(el){
   const total=state.filtered.length;
   const pct=Math.round(state.score/total*100);
@@ -1927,12 +2058,14 @@ window.addCard=async function(){
   const subject=document.getElementById('add-subject').value;const unit=document.getElementById('add-unit').value;const grade=document.getElementById('add-grade').value;const question=document.getElementById('add-question').value.trim();const answer=document.getElementById('add-answer').value.trim();
   const questionType=document.getElementById('add-qtype').value;
   const msg=document.getElementById('add-msg');
-  if(!subject||!unit||!question||!answer){msg.style.color='#e05';msg.textContent='教科・単元・問題・答えは必須です';return}
+  if(!subject||!unit||!question||!answer&&questionType!=='symbol'){msg.style.color='#e05';msg.textContent='教科・単元・問題・答えは必須です';return}
   if(!questionType){msg.style.color='#e05';msg.textContent='問題種別を選択してください';return}
   const keywords=getKeywords('add');
   if(questionType==='long'&&!keywords){msg.style.color='#e05';msg.textContent='長文問題はキーワードを1つ以上入力してください';return}
+  const symbolAnswers=questionType==='symbol'?getSymbolAnswers('add'):[];
+  if(questionType==='symbol'&&symbolAnswers.length<1){msg.style.color='#e05';msg.textContent='記号と答えを1つ以上入力してください';return}
   const fakeArr=getFakeChoices('add');
-  if(fakeArr.length<3){msg.style.color='#e05';msg.textContent='偽の選択肢を3つ入力してください（必須）';return}
+  if(questionType!=='symbol'&&fakeArr.length<3){msg.style.color='#e05';msg.textContent='偽の選択肢を3つ入力してください（必須）';return}
   msg.style.color='#aaa';msg.textContent='保存中...';
   document.querySelector('[onclick="addCard()"]').disabled=true;
   try{
@@ -1940,7 +2073,8 @@ window.addCard=async function(){
     const importance=document.getElementById('add-importance').value||'';
     const fakeChoices=fakeArr.join('、');
     const extraAnswers=getExtraAnswers('add');
-    const newCard={id:uid(),subject,unit,grade,questionType,question,questionImage,answer,answerImage,extraAnswers,hint:document.getElementById('add-hint').value.trim(),keywords,explanation:document.getElementById('add-explanation').value.trim(),source:document.getElementById('add-source').value.trim(),importance,fakeChoices};
+    const symAnswer=questionType==='symbol'?symbolAnswers[0]?.answer||'':'';
+    const newCard={id:uid(),subject,unit,grade,questionType,question,questionImage,answer:questionType==='symbol'?symAnswer:answer,answerImage,extraAnswers,hint:document.getElementById('add-hint').value.trim(),keywords,explanation:document.getElementById('add-explanation').value.trim(),source:document.getElementById('add-source').value.trim(),importance,fakeChoices,symbolAnswers:questionType==='symbol'?JSON.stringify(symbolAnswers):''};
     await addCardToDb(newCard);
     msg.style.color='#4f8';msg.textContent='✓ カードを追加しました！';
     ['add-question','add-answer','add-hint','add-explanation','add-source','add-unit','add-importance'].forEach(id=>document.getElementById(id).value='');
@@ -2050,7 +2184,13 @@ window.removeDuplicateCards=async function(){
   await saveCards(deduped);buildFilters();renderCardList();startSession();
   alert(`${removed}件の重複問題を削除しました`);
 };
-window.assignCardNumbers=async function(){
+window.deleteAllCards=async function(){
+  if(!confirm('全問題を削除しますか？この操作は元に戻せません。'))return;
+  if(!confirm('本当に削除しますか？'))return;
+  await set(ref(db,'cards'),null);
+  _cards=[];buildFilters();renderCardList();startSession();
+  alert('全問題を削除しました');
+};
   const subjectCounters={};
   const updated=_cards.map(c=>{
     const s=c.subject||'不明';
@@ -2154,7 +2294,7 @@ document.getElementById('imageFilter').querySelectorAll('.filter-btn').forEach(b
   document.getElementById('imageFilter').querySelectorAll('.filter-btn').forEach(x=>x.classList.remove('active'));b.classList.add('active');
   const v=b.dataset.img;state.hasImage=v===''?null:v==='1';startSession();
 }));
-onValue(ref(db,'cards'),snap=>{_cards=snap.val()?Object.values(snap.val()):[];buildFilters();startSession()});
+get(ref(db,'cards')).then(snap=>{_cards=snap.val()?Object.values(snap.val()):[];buildFilters();startSession()});
 onValue(ref(db,'suggestions'),snap=>{_suggestions=snap.val()?Object.values(snap.val()):[];if(document.getElementById('adminPanel').classList.contains('open'))renderSuggestList()});
 onValue(ref(db,'materials'),snap=>{_materials=snap.val()?Object.values(snap.val()):[];if(state.mode==='info')renderMaterials()});
 onValue(ref(db,'matSuggestions'),snap=>{_matSuggs=snap.val()?Object.values(snap.val()):[];if(document.getElementById('adminPanel').classList.contains('open'))renderMatSuggList()});
