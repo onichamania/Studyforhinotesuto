@@ -83,6 +83,9 @@ main{max-width:600px;margin:0 auto;padding:14px 14px 120px}
 .quiz-msg.ok{color:#111}.quiz-msg.ng{color:#888}
 .choices{display:flex;flex-direction:column;gap:10px}
 .choice-btn{border:1px solid #333;background:#0a0a0a;color:var(--text);padding:15px 16px;border-radius:2px;font-size:.95rem;text-align:left;cursor:pointer;min-height:52px;line-height:1.4;font-family:inherit;width:100%;transition:all .15s;letter-spacing:.04em}
+.choice-btn.selected{border-color:#fff;background:#1a1a1a}
+.choice-btn.correct{border-color:#4f8;background:rgba(68,255,136,.12);color:#4f8}
+.choice-btn.wrong{border-color:#e05;background:rgba(238,0,85,.12);color:#e05}
 .choice-btn:hover:not(:disabled){border-color:#666;background:#141414}
 .choice-btn.ok2{border-color:#fff;background:#fff;color:#000;box-shadow:0 0 14px rgba(255,255,255,.2)}
 .choice-btn.ng2{border-color:#222;background:#080808;color:#444;text-decoration:line-through}
@@ -306,6 +309,11 @@ header{background:#000}
 .symbol-answer-label{width:26px;height:26px;background:#fff;color:#000;border-radius:2px;display:flex;align-items:center;justify-content:center;font-weight:bold;font-size:.85rem;flex-shrink:0}
 .symbol-answer-input-field{flex:1;background:transparent;border:none;border-bottom:1px solid #444;color:#fff;font-size:.95rem;padding:4px 2px;font-family:inherit;outline:none}
 .symbol-answer-input-field::placeholder{color:#555}
+.symbol-row-block{background:#0a0a0a;border:1px solid #222;border-radius:4px;padding:8px;margin-bottom:10px}
+.symbol-fake-row{display:flex;align-items:center;gap:8px;margin-top:6px;padding-left:36px}
+.symbol-fake-tag{width:24px;height:24px;background:#2a2a2a;color:#999;border-radius:2px;display:flex;align-items:center;justify-content:center;font-size:.72rem;flex-shrink:0}
+.symbol-fake-input{flex:1;border:1px dashed #444 !important;background:#0d0d0d;color:#fff;padding:7px 10px;border-radius:2px;font-size:.82rem;font-family:inherit;min-height:auto !important}
+.symbol-fake-input::placeholder{color:#555}
 
 /* ===== アドバイスページ ===== */
 #adviceArea{display:none}
@@ -823,14 +831,14 @@ header{background:#000}
         </div>
         <div id="add-symbol-section" style="display:none">
           <div class="sec-label">記号と答え <span style="color:#e05">*必須</span></div>
-          <div style="font-size:.72rem;color:#888;margin-bottom:8px">A・B・Cなどの記号とその答えを入力。問題文中の記号と一致させてください。</div>
+          <div style="font-size:.72rem;color:#888;margin-bottom:8px">A・B・Cなどの記号とその答えを入力。問題文中の記号と一致させてください。<br>「偽の選択肢」は選択問題のときに使われます。</div>
           <label style="display:flex;align-items:center;gap:8px;font-size:.78rem;color:#ccc;margin-bottom:10px;cursor:pointer">
             <input type="checkbox" id="add-symbol-unordered" style="width:auto !important;min-height:auto !important;flex:none">
             順不同で正解にする（A・Bどちらの欄に入れてもOK）
           </label>
           <div id="add-symbol-list">
-            <div class="symbol-row"><div class="symbol-label">A</div><input class="symbol-answer-input add-sym-ans" data-label="A" placeholder="Aの答え *"><button type="button" class="kw-del" onclick="removeSymbolRow(this)">✕</button></div>
-            <div class="symbol-row"><div class="symbol-label">B</div><input class="symbol-answer-input add-sym-ans" data-label="B" placeholder="Bの答え *"><button type="button" class="kw-del" onclick="removeSymbolRow(this)">✕</button></div>
+            <div class="symbol-row-block" data-label="A"><div class="symbol-row"><div class="symbol-label">A</div><input class="symbol-answer-input add-sym-ans" data-label="A" placeholder="Aの答え *"><button type="button" class="kw-del" onclick="removeSymbolRow(this)">✕</button></div><div class="symbol-fake-row"><span class="symbol-fake-tag">偽</span><input class="symbol-fake-input add-sym-fake" data-label="A" placeholder="Aの偽の選択肢（選択問題用）"></div></div>
+            <div class="symbol-row-block" data-label="B"><div class="symbol-row"><div class="symbol-label">B</div><input class="symbol-answer-input add-sym-ans" data-label="B" placeholder="Bの答え *"><button type="button" class="kw-del" onclick="removeSymbolRow(this)">✕</button></div><div class="symbol-fake-row"><span class="symbol-fake-tag">偽</span><input class="symbol-fake-input add-sym-fake" data-label="B" placeholder="Bの偽の選択肢（選択問題用）"></div></div>
           </div>
           <button type="button" class="add-more-btn" onclick="addSymbolRow('add')">＋ 記号を追加</button>
         </div>
@@ -1196,25 +1204,29 @@ function resetQTypeForm(prefix){
   const extraList=document.getElementById(`${prefix}-extra-list`);
   if(extraList)extraList.innerHTML='';
   const symList=document.getElementById(`${prefix}-symbol-list`);
-  if(symList)symList.innerHTML=`<div class="symbol-row"><div class="symbol-label">A</div><input class="symbol-answer-input ${prefix}-sym-ans" data-label="A" placeholder="Aの答え *"><button type="button" class="kw-del" onclick="removeSymbolRow(this)">✕</button></div><div class="symbol-row"><div class="symbol-label">B</div><input class="symbol-answer-input ${prefix}-sym-ans" data-label="B" placeholder="Bの答え *"><button type="button" class="kw-del" onclick="removeSymbolRow(this)">✕</button></div>`;
+  if(symList)symList.innerHTML=['A','B'].map(L=>`<div class="symbol-row-block" data-label="${L}"><div class="symbol-row"><div class="symbol-label">${L}</div><input class="symbol-answer-input ${prefix}-sym-ans" data-label="${L}" placeholder="${L}の答え *"><button type="button" class="kw-del" onclick="removeSymbolRow(this)">✕</button></div><div class="symbol-fake-row"><span class="symbol-fake-tag">偽</span><input class="symbol-fake-input ${prefix}-sym-fake" data-label="${L}" placeholder="${L}の偽の選択肢（選択問題用）"></div></div>`).join('');
+  const symUnord=document.getElementById(`${prefix}-symbol-unordered`);if(symUnord)symUnord.checked=false;
 }
 
 // ===== 英語記号問題 =====
 const SYMBOL_LABELS=['A','B','C','D','E','F','G','H'];
 window.addSymbolRow=function(prefix){
   const list=document.getElementById(`${prefix}-symbol-list`);
-  const n=list.querySelectorAll('.symbol-row').length;
+  const n=list.querySelectorAll('.symbol-row-block').length;
   const label=SYMBOL_LABELS[n]||String.fromCharCode(65+n);
-  const row=document.createElement('div');row.className='symbol-row';
-  row.innerHTML=`<div class="symbol-label">${label}</div><input class="symbol-answer-input ${prefix}-sym-ans" data-label="${label}" placeholder="${label}の答え *"><button type="button" class="kw-del" onclick="removeSymbolRow(this)">✕</button>`;
-  list.appendChild(row);
+  const block=document.createElement('div');block.className='symbol-row-block';block.dataset.label=label;
+  block.innerHTML=`<div class="symbol-row"><div class="symbol-label">${label}</div><input class="symbol-answer-input ${prefix}-sym-ans" data-label="${label}" placeholder="${label}の答え *"><button type="button" class="kw-del" onclick="removeSymbolRow(this)">✕</button></div><div class="symbol-fake-row"><span class="symbol-fake-tag">偽</span><input class="symbol-fake-input ${prefix}-sym-fake" data-label="${label}" placeholder="${label}の偽の選択肢（選択問題用）"></div>`;
+  list.appendChild(block);
 };
 window.removeSymbolRow=function(btn){
-  const row=btn.closest('.symbol-row');
-  if(row.parentElement.querySelectorAll('.symbol-row').length>1)row.remove();
+  const block=btn.closest('.symbol-row-block');
+  if(block.parentElement.querySelectorAll('.symbol-row-block').length>1)block.remove();
 };
 function getSymbolAnswers(prefix){
   return [...document.querySelectorAll(`.${prefix}-sym-ans`)].map(i=>({label:i.dataset.label,answer:i.value.trim()})).filter(s=>s.answer);
+}
+function getSymbolFakes(prefix){
+  return [...document.querySelectorAll(`.${prefix}-sym-fake`)].map(i=>({label:i.dataset.label,fake:i.value.trim()})).filter(s=>s.fake);
 }
 // ===== 追加の答え =====
 window.addExtra=function(prefix){
@@ -1680,8 +1692,12 @@ function renderChoice(el){
   const srcHtml=c.source?`<div class="src-label">📖 ${esc(c.source)}</div>`:'';
   const cardNoHtml=c.cardNo?`<span style="font-size:.65rem;color:#444;letter-spacing:.08em"> · No.${c.cardNo}</span>`:'';
   const unitHtml=c.unit?`<div style="font-size:.68rem;color:#555;letter-spacing:.1em;margin-bottom:8px;text-align:center">${esc(c.subject)} · ${esc(c.unit)}${cardNoHtml}</div>`:'';
-  // 記号問題は選択ではなくタイピング形式で表示
-  if(c.questionType==='symbol'){renderSymbolTyping(el);return;}
+  // 記号問題：偽の選択肢があれば選択方式、なければタイピング形式
+  if(c.questionType==='symbol'){
+    const fakes=c.symbolFakes?tryParseSymbol(c.symbolFakes):[];
+    if(fakes&&fakes.length>0){renderSymbolChoice(el);return;}
+    renderSymbolTyping(el);return;
+  }
   const choices=makeChoices(c,cards);
   el.innerHTML=`<div class="prog-line"><span>${state.quizIndex+1} / ${cards.length}</span><span>✓ ${state.score}</span></div>
     <div class="prog-wrap"><div class="prog-bar" style="width:${pct}%"></div></div>
@@ -1806,7 +1822,70 @@ function renderSymbolTyping(el){
     <div class="nav-btns" id="nextBtnArea" style="display:none"><button class="btn primary" onclick="nextQuizTyping()">次の問題 →</button></div>`;
   setTimeout(()=>el.querySelector('.symbol-answer-input-field')?.focus(),100);
 }
-window.checkSymbolTyping=function(){
+// 記号問題（選択方式）：各記号で正解 or 偽を選ぶ
+function renderSymbolChoice(el){
+  const cards=state.filtered;if(state.quizIndex>=cards.length){renderScore(el);return}
+  const c=cards[state.quizIndex];
+  const pct=(state.quizIndex/cards.length*100).toFixed(0);
+  const symAnswers=tryParseSymbol(c.symbolAnswers)||[];
+  const symFakes=tryParseSymbol(c.symbolFakes)||[];
+  const impNum=parseInt(c.importance)||0;
+  const impHtml=impNum?`<div style="font-size:.85rem;letter-spacing:2px;margin-bottom:4px;color:#f5a623">${'★'.repeat(impNum)}<span style="color:#333">${'★'.repeat(5-impNum)}</span></div>`:'';
+  const unitHtml=c.unit?`<div style="font-size:.68rem;color:#555;letter-spacing:.1em;margin-bottom:8px">${esc(c.subject)} · ${esc(c.unit)}${c.cardNo?` · No.${c.cardNo}`:''}</div>`:'';
+  const srcHtml=c.source?`<div class="src-label" style="margin-top:10px">📖 ${esc(c.source)}</div>`:'';
+  // 各記号ごとに正解＋偽をシャッフルした選択肢を作る
+  const blocks=symAnswers.map(s=>{
+    const fake=symFakes.find(f=>f.label===s.label);
+    const opts=[s.answer];
+    if(fake)opts.push(fake.fake);
+    // シャッフル
+    for(let i=opts.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[opts[i],opts[j]]=[opts[j],opts[i]]}
+    return `<div style="margin-bottom:14px">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px"><div class="symbol-answer-label">${esc(s.label)}</div><span style="color:#888;font-size:.8rem">どれが正しい？</span></div>
+      <div class="choices" data-label="${esc(s.label)}" data-correct="${esc(s.answer)}">${opts.map(o=>`<button class="choice-btn sym-choice" onclick="pickSymChoice(this,'${esc(s.label)}')">${esc(o)}</button>`).join('')}</div>
+    </div>`;
+  }).join('');
+  el.innerHTML=`<div class="prog-line"><span>${state.quizIndex+1} / ${cards.length}</span><span>✓ ${state.score}</span></div>
+    <div class="prog-wrap"><div class="prog-bar" style="width:${pct}%"></div></div>
+    <div class="card">
+      ${impHtml}${unitHtml}
+      <div class="quiz-q">${esc(c.question)}</div>
+      ${c.questionImage?`<img src="${c.questionImage}" class="card-img" style="display:block;margin:0 auto 12px">`:''}
+      ${blocks}
+      <div class="nav-btns" style="margin-top:8px"><button class="btn primary" onclick="checkSymbolChoice()">答え合わせ</button></div>
+      <div class="quiz-msg" id="quizMsg"></div>
+      ${srcHtml}
+    </div>
+    <div class="nav-btns" id="nextBtnArea" style="display:none"><button class="btn primary" onclick="nextQuizTyping()">次の問題 →</button></div>`;
+}
+window.pickSymChoice=function(btn,label){
+  if(state.answered)return;
+  const group=btn.closest('.choices');
+  group.querySelectorAll('.sym-choice').forEach(b=>b.classList.remove('selected'));
+  btn.classList.add('selected');
+};
+window.checkSymbolChoice=function(){
+  if(state.answered)return;
+  const c=state.filtered[state.quizIndex];
+  const norm=s=>s.replace(/[\s　]/g,'').toLowerCase().normalize('NFKC').replace(/[・。、，,．.]/g,'');
+  const groups=[...document.querySelectorAll('.choices[data-label]')];
+  let allOk=true;
+  groups.forEach(g=>{
+    const correct=g.dataset.correct;
+    const sel=g.querySelector('.sym-choice.selected');
+    g.querySelectorAll('.sym-choice').forEach(b=>{
+      b.disabled=true;
+      if(norm(b.textContent)===norm(correct))b.classList.add('correct');
+    });
+    if(!sel||norm(sel.textContent)!==norm(correct)){allOk=false;if(sel)sel.classList.add('wrong');}
+  });
+  state.answered=true;
+  const msg=document.getElementById('quizMsg');
+  const correctHtml=tryParseSymbol(c.symbolAnswers).map(s=>`<strong>${s.label}：${esc(s.answer)}</strong>`).join('　');
+  if(allOk){msg.innerHTML='✓ 全問正解！';msg.className='quiz-msg ok';state.score++;}
+  else{recordMistake(c.id);msg.innerHTML=`✗ 不正解　正解：${correctHtml}`;msg.className='quiz-msg ng';}
+  document.getElementById('nextBtnArea').style.display='flex';
+};
   if(state.answered)return;
   const c=state.filtered[state.quizIndex];
   const symAnswers=tryParseSymbol(c.symbolAnswers)||[{label:'A',answer:c.answer}];
@@ -2130,7 +2209,8 @@ window.addCard=async function(){
     const extraAnswers=getExtraAnswers('add');
     const symAnswer=questionType==='symbol'?symbolAnswers[0]?.answer||'':'';
     const symbolUnordered=questionType==='symbol'&&document.getElementById('add-symbol-unordered')?.checked?'1':'';
-    const newCard={id:uid(),subject,unit,grade,questionType,question,questionImage,answer:questionType==='symbol'?symAnswer:answer,answerImage,extraAnswers,hint:document.getElementById('add-hint').value.trim(),keywords,explanation:document.getElementById('add-explanation').value.trim(),source:document.getElementById('add-source').value.trim(),importance,fakeChoices,symbolAnswers:questionType==='symbol'?JSON.stringify(symbolAnswers):'',symbolUnordered};
+    const symbolFakes=questionType==='symbol'?getSymbolFakes('add'):[];
+    const newCard={id:uid(),subject,unit,grade,questionType,question,questionImage,answer:questionType==='symbol'?symAnswer:answer,answerImage,extraAnswers,hint:document.getElementById('add-hint').value.trim(),keywords,explanation:document.getElementById('add-explanation').value.trim(),source:document.getElementById('add-source').value.trim(),importance,fakeChoices,symbolAnswers:questionType==='symbol'?JSON.stringify(symbolAnswers):'',symbolUnordered,symbolFakes:questionType==='symbol'?JSON.stringify(symbolFakes):''};
     await addCardToDb(newCard);
     msg.style.color='#4f8';msg.textContent='✓ カードを追加しました！';
     ['add-question','add-answer','add-hint','add-explanation','add-source','add-unit','add-importance'].forEach(id=>document.getElementById(id).value='');
