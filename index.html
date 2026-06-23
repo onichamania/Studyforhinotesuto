@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+　<!DOCTYPE html>
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
@@ -221,6 +221,13 @@ header{background:#000}
 .form-col input,.form-col select,.form-col textarea{background:#0d0d0d;color:var(--text);border:1px solid #333;border-radius:2px}
 .form-col select option{background:#0d0d0d;color:var(--text)}
 .form-col input:focus,.form-col select:focus,.form-col textarea:focus{border-color:#fff;box-shadow:0 0 6px rgba(255,255,255,.08)}
+/* 管理パネル内の全入力欄を強制的にダークに */
+#adminPanel input,#adminPanel select,#adminPanel textarea,
+#adminPanel .modal-content input,#adminPanel .modal-content textarea,
+#adminPanel .admin-content-area input,#adminPanel .admin-content-area textarea{background:#0d0d0d !important;color:#fff !important;border:1px solid #333 !important;border-radius:2px !important;-webkit-appearance:none;appearance:none}
+#adminPanel input::placeholder,#adminPanel textarea::placeholder{color:#666 !important;opacity:1}
+#adminPanel input:focus,#adminPanel select:focus,#adminPanel textarea:focus{border-color:#fff !important}
+#adminPanel input:-webkit-autofill,#adminPanel textarea:-webkit-autofill{-webkit-box-shadow:0 0 0 1000px #0d0d0d inset !important;-webkit-text-fill-color:#fff !important}
 .kw-row input,.fake-row input{background:#0d0d0d;color:var(--text);border-color:#333;border-radius:2px}
 .kw-del{background:#0d0d0d;border:1px solid #333;border-radius:2px;color:#666}
 .add-more-btn{background:transparent;border:1px dashed #333;border-radius:2px;color:#555}
@@ -510,7 +517,7 @@ header{background:#000}
         <div class="form-col">
           <select id="usg-subject">
             <option value="">教科を選択 *</option>
-            <option>家庭科</option><option>技術</option><option>音楽</option><option>社会(公民)</option><option>社会(歴史)</option>
+            <option>家庭科</option><option>技術</option><option>音楽</option><option>社会(公民)</option><option>社会(歴史)</option><option>体育実技</option>
             
           </select>
           <input id="usg-name-input" placeholder="提案する単元名 *">
@@ -796,7 +803,7 @@ header{background:#000}
     <div class="admin-content-area">
     <div class="modal-content active" id="tab-add">
       <div class="form-col">
-        <select id="add-subject" onchange="populateUnitSelect('add')"><option value="">教科 *</option><option>家庭科</option><option>技術</option><option>音楽</option><option>社会(公民)</option><option>社会(歴史)</option></select>
+        <select id="add-subject" onchange="populateUnitSelect('add')"><option value="">教科 *</option><option>家庭科</option><option>技術</option><option>音楽</option><option>社会(公民)</option><option>社会(歴史)</option><option>体育実技</option></select>
         <select id="add-unit"><option value="">先に教科を選んでください</option></select>
         <select id="add-grade"><option value="中1">中1</option><option value="中2">中2</option><option value="中3" selected>中3</option></select>
         <input id="add-question" placeholder="問題文 *">
@@ -896,7 +903,7 @@ header{background:#000}
       <div class="form-col" style="margin-bottom:20px">
         <div style="font-size:.85rem;font-weight:bold">資料を追加</div>
         <input id="mat-title" placeholder="題名 *">
-        <select id="mat-subject"><option value="">教科 *</option><option>家庭科</option><option>技術</option><option>音楽</option><option>社会(公民)</option><option>社会(歴史)</option></select>
+        <select id="mat-subject"><option value="">教科 *</option><option>家庭科</option><option>技術</option><option>音楽</option><option>社会(公民)</option><option>社会(歴史)</option><option>体育実技</option></select>
         <input id="mat-unit" placeholder="単元名 *">
         <select id="mat-grade"><option value="中1">中1</option><option value="中2">中2</option><option value="中3" selected>中3</option></select>
         <select id="mat-type"><option value="">種類 *</option><option>授業ノート</option><option>範囲表</option><option>過去問</option><option>授業プリント</option><option>その他</option></select>
@@ -916,7 +923,7 @@ header{background:#000}
         <div class="form-col">
           <select id="mat-unit-subject-sel">
             <option value="">教科を選択 *</option>
-            <option>家庭科</option><option>技術</option><option>音楽</option><option>社会(公民)</option><option>社会(歴史)</option>
+            <option>家庭科</option><option>技術</option><option>音楽</option><option>社会(公民)</option><option>社会(歴史)</option><option>体育実技</option>
             
           </select>
           <input id="mat-unit-name-input" placeholder="単元名 *">
@@ -931,7 +938,7 @@ header{background:#000}
         <div style="font-size:.85rem;font-weight:bold">単元を追加</div>
         <select id="unit-subject-sel" onchange="renderUnitAdminList()">
           <option value="">教科を選択 *</option>
-          <option>家庭科</option><option>技術</option><option>音楽</option><option>社会(公民)</option><option>社会(歴史)</option>
+          <option>家庭科</option><option>技術</option><option>音楽</option><option>社会(公民)</option><option>社会(歴史)</option><option>体育実技</option>
           
         </select>
         <input id="unit-name-input" placeholder="単元名 *（例：衣生活・食生活）">
@@ -966,7 +973,7 @@ header{background:#000}
     <div class="modal-content active">
       <div class="form-col">
         <input type="hidden" id="edit-id">
-        <select id="edit-subject" onchange="populateUnitSelect('edit')"><option value="">教科 *</option><option>家庭科</option><option>技術</option><option>音楽</option><option>社会(公民)</option><option>社会(歴史)</option></select>
+        <select id="edit-subject" onchange="populateUnitSelect('edit')"><option value="">教科 *</option><option>家庭科</option><option>技術</option><option>音楽</option><option>社会(公民)</option><option>社会(歴史)</option><option>体育実技</option></select>
         <select id="edit-unit"><option value="">先に教科を選んでください</option></select>
         <select id="edit-grade"><option value="中1">中1</option><option value="中2">中2</option><option value="中3" selected>中3</option></select>
         <input id="edit-question" placeholder="問題文 *">
@@ -1043,7 +1050,7 @@ const db=getDatabase(app);
 const auth=getAuth(app);
 
 const ADMIN_PW='admin1234';
-const SUBJECTS=['家庭科','技術','音楽','社会(公民)','社会(歴史)'];
+const SUBJECTS=['家庭科','技術','音楽','社会(公民)','社会(歴史)','体育実技'];
 let _cards=[],_suggestions=[],_materials=[],_matSuggs=[],_unitSuggs=[],_news=[],_inquiries=[],_units={};
 let currentUser=null,_userClears={},_studyHistory=[];
 
