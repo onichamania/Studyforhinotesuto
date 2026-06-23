@@ -1,4 +1,4 @@
-　<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
@@ -224,7 +224,9 @@ header{background:#000}
 /* 管理パネル内の全入力欄を強制的にダークに */
 #adminPanel input,#adminPanel select,#adminPanel textarea,
 #adminPanel .modal-content input,#adminPanel .modal-content textarea,
-#adminPanel .admin-content-area input,#adminPanel .admin-content-area textarea{background:#0d0d0d !important;color:#fff !important;border:1px solid #333 !important;border-radius:2px !important;-webkit-appearance:none;appearance:none}
+#adminPanel .admin-content-area input,#adminPanel .admin-content-area textarea{background:#0d0d0d !important;color:#fff !important;border:1px solid #333 !important;border-radius:2px !important;-webkit-appearance:none;appearance:none;min-height:48px !important;width:100% !important;padding:12px 14px !important;font-size:.95rem !important;box-sizing:border-box !important}
+#adminPanel textarea{min-height:80px !important}
+#adminPanel .symbol-row input,#adminPanel .kw-row input,#adminPanel .fake-row input{width:auto !important;flex:1}
 #adminPanel input::placeholder,#adminPanel textarea::placeholder{color:#666 !important;opacity:1}
 #adminPanel input:focus,#adminPanel select:focus,#adminPanel textarea:focus{border-color:#fff !important}
 #adminPanel input:-webkit-autofill,#adminPanel textarea:-webkit-autofill{-webkit-box-shadow:0 0 0 1000px #0d0d0d inset !important;-webkit-text-fill-color:#fff !important}
@@ -822,14 +824,18 @@ header{background:#000}
         <div id="add-symbol-section" style="display:none">
           <div class="sec-label">記号と答え <span style="color:#e05">*必須</span></div>
           <div style="font-size:.72rem;color:#888;margin-bottom:8px">A・B・Cなどの記号とその答えを入力。問題文中の記号と一致させてください。</div>
+          <label style="display:flex;align-items:center;gap:8px;font-size:.78rem;color:#ccc;margin-bottom:10px;cursor:pointer">
+            <input type="checkbox" id="add-symbol-unordered" style="width:auto !important;min-height:auto !important;flex:none">
+            順不同で正解にする（A・Bどちらの欄に入れてもOK）
+          </label>
           <div id="add-symbol-list">
             <div class="symbol-row"><div class="symbol-label">A</div><input class="symbol-answer-input add-sym-ans" data-label="A" placeholder="Aの答え *"><button type="button" class="kw-del" onclick="removeSymbolRow(this)">✕</button></div>
             <div class="symbol-row"><div class="symbol-label">B</div><input class="symbol-answer-input add-sym-ans" data-label="B" placeholder="Bの答え *"><button type="button" class="kw-del" onclick="removeSymbolRow(this)">✕</button></div>
           </div>
           <button type="button" class="add-more-btn" onclick="addSymbolRow('add')">＋ 記号を追加</button>
         </div>
-        </div>
         <input id="add-answer" placeholder="答え（メイン） *">
+        <div id="add-answer-note" style="font-size:.7rem;color:#666;margin-top:-4px;margin-bottom:4px"></div>
         <div>
           <div class="sec-label">追加の答え（任意）</div>
           <div style="font-size:.72rem;color:#888;margin-bottom:6px">別の言い方など。タイピングテストで追加の正解になります。</div>
@@ -849,7 +855,7 @@ header{background:#000}
           <button type="button" class="add-more-btn" onclick="addKw('add')">＋ キーワードを追加</button>
         </div>
         <input id="add-explanation" placeholder="解説（任意）">
-        <div>
+        <div id="add-fake-section">
           <div class="sec-label">偽の選択肢 <span style="color:#e05">*必須（3つ）</span></div>
           <div style="font-size:.72rem;color:#888;margin-bottom:6px">選択クイズで表示される間違いの選択肢（3つ必須）</div>
           <div id="add-fake-list">
@@ -991,6 +997,10 @@ header{background:#000}
         </div>
         <div id="edit-symbol-section" style="display:none">
           <div class="sec-label">記号と答え <span style="color:#e05">*必須</span></div>
+          <label style="display:flex;align-items:center;gap:8px;font-size:.78rem;color:#ccc;margin-bottom:10px;cursor:pointer">
+            <input type="checkbox" id="edit-symbol-unordered" style="width:auto !important;min-height:auto !important;flex:none">
+            順不同で正解にする
+          </label>
           <div id="edit-symbol-list"></div>
           <button type="button" class="add-more-btn" onclick="addSymbolRow('edit')">＋ 記号を追加</button>
         </div>
@@ -1133,6 +1143,13 @@ window.setQType=function(prefix,type){
   document.getElementById(`${prefix}-kw-section`).style.display=type==='long'?'block':'none';
   const symSec=document.getElementById(`${prefix}-symbol-section`);
   if(symSec)symSec.style.display=type==='symbol'?'block':'none';
+  // 記号問題のときは「答えメイン」と「偽の選択肢」を隠す（記号ごとに答えを入れるため）
+  const ansInput=document.getElementById(`${prefix}-answer`);
+  if(ansInput)ansInput.style.display=type==='symbol'?'none':'';
+  const ansNote=document.getElementById(`${prefix}-answer-note`);
+  if(ansNote)ansNote.style.display=type==='symbol'?'none':'';
+  const fakeSec=document.getElementById(`${prefix}-fake-section`);
+  if(fakeSec)fakeSec.style.display=type==='symbol'?'none':'';
 };
 window.addKw=function(prefix){
   const list=document.getElementById(`${prefix}-kw-list`);
@@ -1795,17 +1812,30 @@ window.checkSymbolTyping=function(){
   const symAnswers=tryParseSymbol(c.symbolAnswers)||[{label:'A',answer:c.answer}];
   const norm=s=>s.replace(/[\s　]/g,'').toLowerCase().normalize('NFKC').replace(/[・。、，,．.]/g,'');
   let allOk=true;
-  symAnswers.forEach(s=>{
-    const input=document.getElementById(`sym-input-${s.label}`);
-    if(!input)return;
-    input.disabled=true;
-    const ok=norm(input.value.trim())===norm(s.answer);
-    if(!ok){allOk=false;input.style.borderBottom='2px solid #e05';input.style.color='#e05';}
-    else{input.style.borderBottom='2px solid #4f8';input.style.color='#4f8';}
-  });
+  if(c.symbolUnordered==='1'){
+    // 順不同：入力された答えの集合が正解の集合と一致すればOK
+    const correctSet=symAnswers.map(s=>norm(s.answer)).sort();
+    const typedSet=symAnswers.map(s=>{const i=document.getElementById(`sym-input-${s.label}`);return norm(i?i.value.trim():'')}).sort();
+    allOk=correctSet.length===typedSet.length&&correctSet.every((v,idx)=>v===typedSet[idx]);
+    symAnswers.forEach(s=>{
+      const input=document.getElementById(`sym-input-${s.label}`);if(!input)return;input.disabled=true;
+      const inThere=correctSet.includes(norm(input.value.trim()));
+      input.style.borderBottom=inThere?'2px solid #4f8':'2px solid #e05';
+      input.style.color=inThere?'#4f8':'#e05';
+    });
+  } else {
+    symAnswers.forEach(s=>{
+      const input=document.getElementById(`sym-input-${s.label}`);
+      if(!input)return;
+      input.disabled=true;
+      const ok=norm(input.value.trim())===norm(s.answer);
+      if(!ok){allOk=false;input.style.borderBottom='2px solid #e05';input.style.color='#e05';}
+      else{input.style.borderBottom='2px solid #4f8';input.style.color='#4f8';}
+    });
+  }
   state.answered=true;
   const msg=document.getElementById('quizMsg');
-  const correctHtml=symAnswers.map(s=>`<strong>${s.label}：${esc(s.answer)}</strong>`).join('　');
+  const correctHtml=symAnswers.map(s=>`<strong>${s.label}：${esc(s.answer)}</strong>`).join('　')+(c.symbolUnordered==='1'?'<span style="color:#666;font-size:.85em">（順不同）</span>':'');
   if(allOk){msg.innerHTML='✓ 全問正解！';msg.className='quiz-msg ok';state.score++;}
   else{recordMistake(c.id);msg.innerHTML=`✗ 不正解　正解：${correctHtml}`;msg.className='quiz-msg ng';}
   document.getElementById('nextBtnArea').style.display='flex';
@@ -2099,7 +2129,8 @@ window.addCard=async function(){
     const fakeChoices=fakeArr.join('、');
     const extraAnswers=getExtraAnswers('add');
     const symAnswer=questionType==='symbol'?symbolAnswers[0]?.answer||'':'';
-    const newCard={id:uid(),subject,unit,grade,questionType,question,questionImage,answer:questionType==='symbol'?symAnswer:answer,answerImage,extraAnswers,hint:document.getElementById('add-hint').value.trim(),keywords,explanation:document.getElementById('add-explanation').value.trim(),source:document.getElementById('add-source').value.trim(),importance,fakeChoices,symbolAnswers:questionType==='symbol'?JSON.stringify(symbolAnswers):''};
+    const symbolUnordered=questionType==='symbol'&&document.getElementById('add-symbol-unordered')?.checked?'1':'';
+    const newCard={id:uid(),subject,unit,grade,questionType,question,questionImage,answer:questionType==='symbol'?symAnswer:answer,answerImage,extraAnswers,hint:document.getElementById('add-hint').value.trim(),keywords,explanation:document.getElementById('add-explanation').value.trim(),source:document.getElementById('add-source').value.trim(),importance,fakeChoices,symbolAnswers:questionType==='symbol'?JSON.stringify(symbolAnswers):'',symbolUnordered};
     await addCardToDb(newCard);
     msg.style.color='#4f8';msg.textContent='✓ カードを追加しました！';
     ['add-question','add-answer','add-hint','add-explanation','add-source','add-unit','add-importance'].forEach(id=>document.getElementById(id).value='');
