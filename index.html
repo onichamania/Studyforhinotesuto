@@ -1611,10 +1611,6 @@ function buildFilters(){
       const hasCards=subjectsWithCards.has(s);
       return `<button class="filter-btn" data-val="${s}" ${hasCards?'':'disabled style="opacity:.3;cursor:not-allowed"'}>${s}</button>`;
     }).join('');
-  sf.querySelectorAll('.filter-btn:not([disabled])').forEach(b=>b.addEventListener('click',()=>{
-    sf.querySelectorAll('.filter-btn').forEach(x=>x.classList.remove('active'));b.classList.add('active');
-    state.subject=b.dataset.val||null;state.unit=null;buildUnitFilter();startSession();
-  }));
   buildUnitFilter();
 }
 function buildUnitFilter(){
@@ -1634,10 +1630,6 @@ function buildUnitFilter(){
     const cleared=isClear(subject,u,grade);
     return `<button class="filter-btn" data-val="${u}" data-subject="${subject}" data-grade="${grade}">${u}${cleared?'<span class="clear-badge">🏆</span>':''}</button>`;
   }).join('');
-  uf.querySelectorAll('.filter-btn').forEach(b=>b.addEventListener('click',()=>{
-    uf.querySelectorAll('.filter-btn').forEach(x=>x.classList.remove('active'));b.classList.add('active');
-    state.unit=b.dataset.val||null;state.grade=b.dataset.grade||null;startSession();
-  }));
 }
 function getFiltered(){return _cards.filter(c=>{
   if(state.subject&&c.subject!==state.subject)return false;
@@ -1890,39 +1882,6 @@ window.checkSymbolChoice=function(){
   else{recordMistake(c.id);msg.innerHTML=`✗ 不正解　正解：${correctHtml}`;msg.className='quiz-msg ng';}
   document.getElementById('nextBtnArea').style.display='flex';
 };
-  if(state.answered)return;
-  const c=state.filtered[state.quizIndex];
-  const symAnswers=tryParseSymbol(c.symbolAnswers)||[{label:'A',answer:c.answer}];
-  const norm=s=>s.replace(/[\s　]/g,'').toLowerCase().normalize('NFKC').replace(/[・。、，,．.]/g,'');
-  let allOk=true;
-  if(c.symbolUnordered==='1'){
-    // 順不同：入力された答えの集合が正解の集合と一致すればOK
-    const correctSet=symAnswers.map(s=>norm(s.answer)).sort();
-    const typedSet=symAnswers.map(s=>{const i=document.getElementById(`sym-input-${s.label}`);return norm(i?i.value.trim():'')}).sort();
-    allOk=correctSet.length===typedSet.length&&correctSet.every((v,idx)=>v===typedSet[idx]);
-    symAnswers.forEach(s=>{
-      const input=document.getElementById(`sym-input-${s.label}`);if(!input)return;input.disabled=true;
-      const inThere=correctSet.includes(norm(input.value.trim()));
-      input.style.borderBottom=inThere?'2px solid #4f8':'2px solid #e05';
-      input.style.color=inThere?'#4f8':'#e05';
-    });
-  } else {
-    symAnswers.forEach(s=>{
-      const input=document.getElementById(`sym-input-${s.label}`);
-      if(!input)return;
-      input.disabled=true;
-      const ok=norm(input.value.trim())===norm(s.answer);
-      if(!ok){allOk=false;input.style.borderBottom='2px solid #e05';input.style.color='#e05';}
-      else{input.style.borderBottom='2px solid #4f8';input.style.color='#4f8';}
-    });
-  }
-  state.answered=true;
-  const msg=document.getElementById('quizMsg');
-  const correctHtml=symAnswers.map(s=>`<strong>${s.label}：${esc(s.answer)}</strong>`).join('　')+(c.symbolUnordered==='1'?'<span style="color:#666;font-size:.85em">（順不同）</span>':'');
-  if(allOk){msg.innerHTML='✓ 全問正解！';msg.className='quiz-msg ok';state.score++;}
-  else{recordMistake(c.id);msg.innerHTML=`✗ 不正解　正解：${correctHtml}`;msg.className='quiz-msg ng';}
-  document.getElementById('nextBtnArea').style.display='flex';
-};
 window.skipSymbolTyping=function(){
   if(state.answered)return;
   const c=state.filtered[state.quizIndex];
@@ -2160,7 +2119,8 @@ window.submitMaterialSuggestion=async function(){
 
 // ===== 管理者 =====
 let adminLoggedIn=false;
-document.getElementById('adminBtn').addEventListener('click',()=>{if(adminLoggedIn)openAdmin();else document.getElementById('adminLoginModal').classList.add('open')});
+window.__adminBtnClick=function(){if(adminLoggedIn)openAdmin();else document.getElementById('adminLoginModal').classList.add('open')};
+document.getElementById('adminBtn').addEventListener('click',window.__adminBtnClick);
 window.checkLogin=function(){
   const pw=document.getElementById('pwInput').value;
   if(pw===ADMIN_PW){adminLoggedIn=true;document.getElementById('adminLoginModal').classList.remove('open');document.getElementById('pwInput').value='';document.getElementById('loginError').textContent='';openAdmin()}
@@ -2430,11 +2390,41 @@ function setAppMode(mode){
   if(mode==='mistakes')renderMistakes();
   if(mode==='info')renderMaterials();
 }
-document.querySelectorAll('.mode-btn').forEach(btn=>{
-  btn.addEventListener('click',()=>setAppMode(btn.dataset.mode));
-});
-document.querySelectorAll('.nav-item').forEach(btn=>{
-  btn.addEventListener('click',()=>setAppMode(btn.dataset.mode));
+// ===== イベント委譲：document レベルで全ボタンを捕捉（確実に動く方式） =====
+document.addEventListener('click',function(e){
+  // モード切替（上部ボタン＋下部ナビ）
+  const modeBtn=e.target.closest('.mode-btn,.nav-item');
+  if(modeBtn&&modeBtn.dataset.mode){setAppMode(modeBtn.dataset.mode);return;}
+  // 教科フィルター
+  const sfBtn=e.target.closest('#subjectFilter .filter-btn:not([disabled])');
+  if(sfBtn){
+    document.querySelectorAll('#subjectFilter .filter-btn').forEach(x=>x.classList.remove('active'));sfBtn.classList.add('active');
+    state.subject=sfBtn.dataset.val||null;state.unit=null;buildUnitFilter();startSession();return;
+  }
+  // 単元フィルター
+  const ufBtn=e.target.closest('#unitFilter .filter-btn');
+  if(ufBtn){
+    document.querySelectorAll('#unitFilter .filter-btn').forEach(x=>x.classList.remove('active'));ufBtn.classList.add('active');
+    state.unit=ufBtn.dataset.val||null;state.grade=ufBtn.dataset.grade||null;startSession();return;
+  }
+  // 問題種別フィルター
+  const qtBtn=e.target.closest('#qtypeFilter .filter-btn');
+  if(qtBtn){
+    document.querySelectorAll('#qtypeFilter .filter-btn').forEach(x=>x.classList.remove('active'));qtBtn.classList.add('active');
+    state.qtype=qtBtn.dataset.qt||null;startSession();return;
+  }
+  // 重要度フィルター
+  const impBtn=e.target.closest('#importanceFilter .filter-btn');
+  if(impBtn){
+    document.querySelectorAll('#importanceFilter .filter-btn').forEach(x=>x.classList.remove('active'));impBtn.classList.add('active');
+    state.minImportance=impBtn.dataset.imp?parseInt(impBtn.dataset.imp):null;startSession();return;
+  }
+  // 画像フィルター
+  const imgBtn=e.target.closest('#imageFilter .filter-btn');
+  if(imgBtn){
+    document.querySelectorAll('#imageFilter .filter-btn').forEach(x=>x.classList.remove('active'));imgBtn.classList.add('active');
+    const v=imgBtn.dataset.img;state.hasImage=v===''?null:v==='1';startSession();return;
+  }
 });
 
 // ===== モーダル =====
@@ -2456,18 +2446,6 @@ document.getElementById('infoArea').style.display='none';
 document.getElementById('studyArea').innerHTML='<div class="empty"><div class="empty-icon">⏳</div><div>読み込み中...</div></div>';
 
 onValue(ref(db,'units'),snap=>{_units=snap.val()||{};});
-document.getElementById('qtypeFilter').querySelectorAll('.filter-btn').forEach(b=>b.addEventListener('click',()=>{
-  document.getElementById('qtypeFilter').querySelectorAll('.filter-btn').forEach(x=>x.classList.remove('active'));b.classList.add('active');
-  state.qtype=b.dataset.qt||null;startSession();
-}));
-document.getElementById('importanceFilter').querySelectorAll('.filter-btn').forEach(b=>b.addEventListener('click',()=>{
-  document.getElementById('importanceFilter').querySelectorAll('.filter-btn').forEach(x=>x.classList.remove('active'));b.classList.add('active');
-  state.minImportance=b.dataset.imp?parseInt(b.dataset.imp):null;startSession();
-}));
-document.getElementById('imageFilter').querySelectorAll('.filter-btn').forEach(b=>b.addEventListener('click',()=>{
-  document.getElementById('imageFilter').querySelectorAll('.filter-btn').forEach(x=>x.classList.remove('active'));b.classList.add('active');
-  const v=b.dataset.img;state.hasImage=v===''?null:v==='1';startSession();
-}));
 onValue(ref(db,'cards'),snap=>{_cards=snap.val()?Object.values(snap.val()):[];buildFilters();startSession()});
 onValue(ref(db,'suggestions'),snap=>{_suggestions=snap.val()?Object.values(snap.val()):[];if(document.getElementById('adminPanel').classList.contains('open'))renderSuggestList()});
 onValue(ref(db,'materials'),snap=>{_materials=snap.val()?Object.values(snap.val()):[];if(state.mode==='info')renderMaterials()});
