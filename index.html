@@ -4,11 +4,15 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no">
 <meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="color-scheme" content="dark">
 <title>テスト対策問題サイト</title>
 <style>
+:root{color-scheme:dark}
+html{color-scheme:dark;background:#060606}
 @font-face{font-family:'Makinas';src:url('Makinas-4-Square.woff') format('woff'),url('Makinas-4-Square.otf') format('opentype');font-weight:normal;font-style:normal;font-display:swap}
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 *,button,input,select,textarea{font-family:'Makinas','Hiragino Kaku Gothic ProN','Meiryo',sans-serif}
+input,textarea,select{color-scheme:dark;-webkit-appearance:none;appearance:none}
 :root{--bg:#060606;--card:#0f0f0f;--text:#f0f0f0;--muted:#777;--border:#fff;--light:#252525;--accent:#fff;--at:#000;--r:3px;--sh:0 0 0 1px #222,0 4px 24px rgba(0,0,0,.9);--nh:0px}
 html,body{height:100%;font-family:'Makinas','Hiragino Kaku Gothic ProN','Meiryo',sans-serif;background:var(--bg);color:var(--text);-webkit-tap-highlight-color:transparent}
 header{background:#000;color:#fff;padding:10px 12px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;border-bottom:1px solid #fff}
@@ -52,9 +56,9 @@ main{max-width:600px;margin:0 auto;padding:14px 14px 120px}
 .fake-row input:focus{border-color:var(--border)}
 .add-more-btn{border:1px dashed #333;background:transparent;color:#555;border-radius:2px;padding:8px;font-size:.83rem;width:100%;cursor:pointer;font-family:inherit;min-height:40px;letter-spacing:.05em}
 .type-tag{display:inline-block;font-size:.68rem;border-radius:12px;padding:2px 8px;margin-bottom:4px}
-.type-tag.word{background:#f0f0f0;color:#555}
+.type-tag.word{background:#1a1a1a;color:#aaa}
 .type-tag.long{background:#111;color:#fff}
-#bottomNav{position:fixed;bottom:0;left:0;right:0;height:var(--nh);background:#fff;border-top:1px solid var(--light);display:flex;z-index:100;padding-bottom:env(safe-area-inset-bottom,0)}
+#bottomNav{position:fixed;bottom:0;left:0;right:0;height:var(--nh);background:#0a0a0a;border-top:1px solid var(--light);display:flex;z-index:100;padding-bottom:env(safe-area-inset-bottom,0)}
 .nav-item{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;cursor:pointer;border:none;background:transparent;color:#aaa;font-family:inherit;padding:6px 2px}
 .nav-item.active{color:var(--text)}
 .nav-item .ni{font-size:1.2rem}
@@ -80,7 +84,7 @@ main{max-width:600px;margin:0 auto;padding:14px 14px 120px}
 .btn-full{width:100%}
 .quiz-q{font-size:1.2rem;font-weight:bold;text-align:center;margin-bottom:18px;line-height:1.6}
 .quiz-msg{text-align:center;font-size:.95rem;margin-top:12px;font-weight:bold}
-.quiz-msg.ok{color:#111}.quiz-msg.ng{color:#888}
+.quiz-msg.ok{color:#4f8}.quiz-msg.ng{color:#888}
 .choices{display:flex;flex-direction:column;gap:10px}
 .choice-btn{border:1px solid #333;background:#0a0a0a;color:var(--text);padding:15px 16px;border-radius:2px;font-size:.95rem;text-align:left;cursor:pointer;min-height:52px;line-height:1.4;font-family:inherit;width:100%;transition:all .15s;letter-spacing:.04em}
 .choice-btn.selected{border-color:#fff;background:#1a1a1a}
@@ -102,9 +106,9 @@ main{max-width:600px;margin:0 auto;padding:14px 14px 120px}
 .empty{text-align:center;padding:48px 20px;color:var(--muted)}
 .empty-icon{font-size:2.8rem;margin-bottom:12px}
 .sort-row{display:flex;gap:6px;margin-bottom:14px;flex-wrap:wrap}
-.sort-btn{border:1.5px solid #bbb;background:#fff;color:var(--text);padding:6px 12px;border-radius:20px;font-size:.78rem;cursor:pointer}
+.sort-btn{border:1px solid #333;background:#0f0f0f;color:var(--text);padding:6px 12px;border-radius:20px;font-size:.78rem;cursor:pointer}
 .sort-btn.active{background:var(--accent);color:#fff;border-color:var(--accent)}
-.mistake-item{background:#fff;border:1.5px solid var(--light);border-radius:var(--r);padding:14px;margin-bottom:10px}
+.mistake-item{background:#0f0f0f;border:1.5px solid var(--light);border-radius:var(--r);padding:14px;margin-bottom:10px}
 .mis-q{font-weight:bold;font-size:.95rem;margin-bottom:4px}
 .mis-a{color:var(--muted);font-size:.85rem;margin-bottom:6px}
 .mis-meta{font-size:.72rem;color:#999}
@@ -116,7 +120,7 @@ main{max-width:600px;margin:0 auto;padding:14px 14px 120px}
 .mat-type-group{margin-bottom:20px}
 .mat-type-label{font-size:.72rem;letter-spacing:.1em;color:var(--muted);border-left:3px solid var(--accent);padding-left:8px;margin-bottom:10px}
 .mat-grade-label{font-size:.72rem;color:#999;margin-bottom:6px;margin-top:8px}
-.material-item{background:#fff;border:1.5px solid var(--light);border-radius:var(--r);padding:14px;margin-bottom:8px}
+.material-item{background:#0f0f0f;border:1.5px solid var(--light);border-radius:var(--r);padding:14px;margin-bottom:8px}
 .mat-title{font-weight:bold;font-size:.95rem;margin-bottom:4px}
 .mat-meta{font-size:.72rem;color:#999;margin-bottom:8px}
 .mat-content{font-size:.85rem;color:#444;line-height:1.6;margin-bottom:8px;white-space:pre-wrap}
@@ -166,7 +170,7 @@ input[type=file]{display:none}
 .sug-a{color:#444;margin-bottom:4px}
 .sug-src{font-size:.75rem;color:#777;margin-bottom:8px}
 .sug-status{display:inline-block;border-radius:12px;padding:2px 10px;font-size:.72rem;font-weight:bold}
-.sug-status.pending{background:#f5f5f5;color:#888}
+.sug-status.pending{background:#1a1a1a;color:#aaa}
 .sug-status.approved{background:#111;color:#fff}
 .sug-status.rejected{background:#ddd;color:#999}
 .sug-actions{display:flex;gap:8px}
@@ -197,10 +201,10 @@ input[type=file]{display:none}
 .inq-msg{color:#444;margin-bottom:8px;white-space:pre-wrap;line-height:1.5}
 .inq-meta{font-size:.72rem;color:#aaa;margin-bottom:8px}
 .inq-status{display:inline-block;border-radius:12px;padding:2px 10px;font-size:.72rem;font-weight:bold;margin-bottom:8px}
-.inq-status.open{background:#f5f5f5;color:#888}
+.inq-status.open{background:#1a1a1a;color:#aaa}
 .inq-status.replied{background:#111;color:#fff}
-.reply-box{background:#f8f8f8;border-radius:8px;padding:10px;margin-top:8px;font-size:.82rem;line-height:1.5}
-.reply-label{font-size:.7rem;color:#111;font-weight:bold;margin-bottom:4px}
+.reply-box{background:#111;border-radius:8px;padding:10px;margin-top:8px;font-size:.82rem;line-height:1.5}
+.reply-label{font-size:.7rem;color:#aaa;font-weight:bold;margin-bottom:4px}
 .reply-input{width:100%;border:1.5px solid var(--light);border-radius:8px;padding:10px;font-size:.85rem;font-family:inherit;resize:none;min-height:70px;outline:none}
 .reply-input:focus{border-color:var(--border)}
 .edit-modal .modal-box{max-height:92vh;overflow-y:auto}
@@ -297,7 +301,7 @@ header{background:#000}
 .fc-tag{color:#666;border-color:#2a2a2a;border-radius:2px}
 #bottomNav{display:none}
 .sec-label{color:#777}
-.sug-edit-form{background:#f8f8f8;border-radius:10px;padding:12px;margin-top:10px;display:none}
+.sug-edit-form{background:#111;border-radius:10px;padding:12px;margin-top:10px;display:none}
 .sug-edit-form.open{display:block}
 .extra-row{display:flex;gap:6px;align-items:center;margin-bottom:6px}
 /* ===== 英語記号問題 ===== */
@@ -1928,6 +1932,39 @@ window.skipSymbolTyping=function(){
   const correctHtml=symAnswers.map(s=>`<strong>${s.label}：${esc(s.answer)}</strong>`).join('　');
   document.getElementById('quizMsg').innerHTML=`→ スキップ　正解：${correctHtml}`;
   document.getElementById('quizMsg').className='quiz-msg ng';
+  document.getElementById('nextBtnArea').style.display='flex';
+};
+window.checkSymbolTyping=function(){
+  if(state.answered)return;
+  const c=state.filtered[state.quizIndex];
+  const symAnswers=tryParseSymbol(c.symbolAnswers)||[{label:'A',answer:c.answer}];
+  const norm=s=>s.replace(/[\s　]/g,'').toLowerCase().normalize('NFKC').replace(/[・。、，,．.]/g,'');
+  let allOk=true;
+  if(c.symbolUnordered==='1'){
+    const correctSet=symAnswers.map(s=>norm(s.answer)).sort();
+    const typedSet=symAnswers.map(s=>{const i=document.getElementById(`sym-input-${s.label}`);return norm(i?i.value.trim():'')}).sort();
+    allOk=correctSet.length===typedSet.length&&correctSet.every((v,idx)=>v===typedSet[idx]);
+    symAnswers.forEach(s=>{
+      const input=document.getElementById(`sym-input-${s.label}`);if(!input)return;input.disabled=true;
+      const inThere=correctSet.includes(norm(input.value.trim()));
+      input.style.borderBottom=inThere?'2px solid #4f8':'2px solid #e05';
+      input.style.color=inThere?'#4f8':'#e05';
+    });
+  } else {
+    symAnswers.forEach(s=>{
+      const input=document.getElementById(`sym-input-${s.label}`);
+      if(!input)return;
+      input.disabled=true;
+      const ok=norm(input.value.trim())===norm(s.answer);
+      if(!ok){allOk=false;input.style.borderBottom='2px solid #e05';input.style.color='#e05';}
+      else{input.style.borderBottom='2px solid #4f8';input.style.color='#4f8';}
+    });
+  }
+  state.answered=true;
+  const msg=document.getElementById('quizMsg');
+  const correctHtml=symAnswers.map(s=>`<strong>${s.label}：${esc(s.answer)}</strong>`).join('　')+(c.symbolUnordered==='1'?'<span style="color:#666;font-size:.85em">（順不同）</span>':'');
+  if(allOk){msg.innerHTML='✓ 全問正解！';msg.className='quiz-msg ok';state.score++;}
+  else{recordMistake(c.id);msg.innerHTML=`✗ 不正解　正解：${correctHtml}`;msg.className='quiz-msg ng';}
   document.getElementById('nextBtnArea').style.display='flex';
 };
 async function renderScore(el){
