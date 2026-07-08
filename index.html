@@ -531,7 +531,7 @@ header{background:#000}
         <div class="form-col">
           <select id="usg-subject">
             <option value="">教科を選択 *</option>
-            <option>家庭科</option><option>技術</option><option>音楽</option><option>社会(公民)</option><option>社会(歴史)</option><option>体育実技</option>
+            <option>家庭科</option><option>技術</option><option>音楽</option><option>社会(公民)</option><option>社会(歴史)</option><option>社会(地理)</option><option>体育実技</option>
             
           </select>
           <input id="usg-name-input" placeholder="提案する単元名 *">
@@ -817,7 +817,7 @@ header{background:#000}
     <div class="admin-content-area">
     <div class="modal-content active" id="tab-add">
       <div class="form-col">
-        <select id="add-subject" onchange="populateUnitSelect('add')"><option value="">教科 *</option><option>家庭科</option><option>技術</option><option>音楽</option><option>社会(公民)</option><option>社会(歴史)</option><option>体育実技</option></select>
+        <select id="add-subject" onchange="populateUnitSelect('add')"><option value="">教科 *</option><option>家庭科</option><option>技術</option><option>音楽</option><option>社会(公民)</option><option>社会(歴史)</option><option>社会(地理)</option><option>体育実技</option></select>
         <select id="add-unit"><option value="">先に教科を選んでください</option></select>
         <select id="add-grade"><option value="中1">中1</option><option value="中2">中2</option><option value="中3" selected>中3</option></select>
         <input id="add-question" placeholder="問題文 *">
@@ -921,7 +921,7 @@ header{background:#000}
       <div class="form-col" style="margin-bottom:20px">
         <div style="font-size:.85rem;font-weight:bold">資料を追加</div>
         <input id="mat-title" placeholder="題名 *">
-        <select id="mat-subject"><option value="">教科 *</option><option>家庭科</option><option>技術</option><option>音楽</option><option>社会(公民)</option><option>社会(歴史)</option><option>体育実技</option></select>
+        <select id="mat-subject"><option value="">教科 *</option><option>家庭科</option><option>技術</option><option>音楽</option><option>社会(公民)</option><option>社会(歴史)</option><option>社会(地理)</option><option>体育実技</option></select>
         <input id="mat-unit" placeholder="単元名 *">
         <select id="mat-grade"><option value="中1">中1</option><option value="中2">中2</option><option value="中3" selected>中3</option></select>
         <select id="mat-type"><option value="">種類 *</option><option>授業ノート</option><option>範囲表</option><option>過去問</option><option>授業プリント</option><option>その他</option></select>
@@ -941,7 +941,7 @@ header{background:#000}
         <div class="form-col">
           <select id="mat-unit-subject-sel">
             <option value="">教科を選択 *</option>
-            <option>家庭科</option><option>技術</option><option>音楽</option><option>社会(公民)</option><option>社会(歴史)</option><option>体育実技</option>
+            <option>家庭科</option><option>技術</option><option>音楽</option><option>社会(公民)</option><option>社会(歴史)</option><option>社会(地理)</option><option>体育実技</option>
             
           </select>
           <input id="mat-unit-name-input" placeholder="単元名 *">
@@ -956,7 +956,7 @@ header{background:#000}
         <div style="font-size:.85rem;font-weight:bold">単元を追加</div>
         <select id="unit-subject-sel" onchange="renderUnitAdminList()">
           <option value="">教科を選択 *</option>
-          <option>家庭科</option><option>技術</option><option>音楽</option><option>社会(公民)</option><option>社会(歴史)</option><option>体育実技</option>
+          <option>家庭科</option><option>技術</option><option>音楽</option><option>社会(公民)</option><option>社会(歴史)</option><option>社会(地理)</option><option>体育実技</option>
           
         </select>
         <input id="unit-name-input" placeholder="単元名 *（例：衣生活・食生活）">
@@ -991,7 +991,7 @@ header{background:#000}
     <div class="modal-content active">
       <div class="form-col">
         <input type="hidden" id="edit-id">
-        <select id="edit-subject" onchange="populateUnitSelect('edit')"><option value="">教科 *</option><option>家庭科</option><option>技術</option><option>音楽</option><option>社会(公民)</option><option>社会(歴史)</option><option>体育実技</option></select>
+        <select id="edit-subject" onchange="populateUnitSelect('edit')"><option value="">教科 *</option><option>家庭科</option><option>技術</option><option>音楽</option><option>社会(公民)</option><option>社会(歴史)</option><option>社会(地理)</option><option>体育実技</option></select>
         <select id="edit-unit"><option value="">先に教科を選んでください</option></select>
         <select id="edit-grade"><option value="中1">中1</option><option value="中2">中2</option><option value="中3" selected>中3</option></select>
         <input id="edit-question" placeholder="問題文 *">
@@ -1072,7 +1072,7 @@ const db=getDatabase(app);
 const auth=getAuth(app);
 
 const ADMIN_PW='admin1234';
-const SUBJECTS=['家庭科','技術','音楽','社会(公民)','社会(歴史)','体育実技'];
+const SUBJECTS=['家庭科','技術','音楽','社会(公民)','社会(歴史)','社会(地理)','体育実技'];
 let _cards=[],_suggestions=[],_materials=[],_matSuggs=[],_unitSuggs=[],_news=[],_inquiries=[],_units={};
 let currentUser=null,_userClears={},_studyHistory=[];
 
