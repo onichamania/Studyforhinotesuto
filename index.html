@@ -969,7 +969,7 @@ header{background:#000}
         </select>
         <input id="unit-name-input" placeholder="単元名 *（例：衣生活・食生活）">
         <button class="btn primary btn-full" onclick="addUnit()">単元を追加</button>
-        <div id="unit-msg" style="font-size:.85rem;color:#666;min-height:18px;text-align:center"></div>
+        <div id="unit-msg" style="font-size:.9rem;color:#666;min-height:22px;text-align:center;padding:6px;font-weight:bold"></div>
       </div>
       <div style="font-size:.85rem;font-weight:bold;margin-bottom:8px">登録済み単元</div>
       <div id="unitAdminList"></div>
@@ -1070,6 +1070,17 @@ header{background:#000}
 </div>
 
 <script type="module">
+// ===== デバッグ用：エラーを画面に表示 =====
+window.addEventListener('error',function(e){
+  let bar=document.getElementById('__errbar');
+  if(!bar){bar=document.createElement('div');bar.id='__errbar';bar.style.cssText='position:fixed;top:0;left:0;right:0;background:#e05;color:#fff;font-size:12px;padding:8px;z-index:999999;white-space:pre-wrap;word-break:break-all;max-height:40vh;overflow:auto';document.body.appendChild(bar)}
+  bar.textContent+='⚠ '+(e.message||e.error)+' 行:'+e.lineno+'\n';
+});
+window.addEventListener('unhandledrejection',function(e){
+  let bar=document.getElementById('__errbar');
+  if(!bar){bar=document.createElement('div');bar.id='__errbar';bar.style.cssText='position:fixed;top:0;left:0;right:0;background:#e05;color:#fff;font-size:12px;padding:8px;z-index:999999;white-space:pre-wrap;word-break:break-all;max-height:40vh;overflow:auto';document.body.appendChild(bar)}
+  bar.textContent+='⚠ Promise: '+(e.reason&&e.reason.message||e.reason)+'\n';
+});
 import{initializeApp}from"https://www.gstatic.com/firebasejs/11.8.1/firebase-app.js";
 import{getDatabase,ref,set,onValue,push,remove}from"https://www.gstatic.com/firebasejs/11.8.1/firebase-database.js";
 import{getAuth,createUserWithEmailAndPassword,signInWithEmailAndPassword,onAuthStateChanged,signOut,updateProfile,GoogleAuthProvider,signInWithPopup}from"https://www.gstatic.com/firebasejs/11.8.1/firebase-auth.js";
@@ -2164,24 +2175,35 @@ window.populateUnitSelect=function(prefix){
   const subject=document.getElementById(`${prefix}-subject`).value;
   const grade=document.getElementById(`${prefix}-grade`)?.value||'';
   const sel=document.getElementById(`${prefix}-unit`);
+  const prevValue=sel.value; // 現在の選択を保持
   if(!subject){sel.innerHTML='<option value="">先に教科を選んでください</option>';return}
   let units=getUnitsForSubject(subject);
   // 学年が選ばれていれば、その学年の単元のみ表示（学年未設定の単元も互換のため表示）
   if(grade)units=units.filter(u=>!u.grade||u.grade===grade);
   if(!units.length){sel.innerHTML=`<option value="">${grade?grade+'の':'この教科の'}単元がまだありません</option>`;return}
   sel.innerHTML='<option value="">単元を選択 *</option>'+units.map(u=>`<option value="${u.name}">${u.name}${u.grade?'':'（学年未設定）'}</option>`).join('');
+  // 以前の選択が残っていれば復元
+  if(prevValue&&units.find(u=>u.name===prevValue))sel.value=prevValue;
 };
 window.addUnit=async function(){
-  const subject=document.getElementById('unit-subject-sel').value;
-  const grade=document.getElementById('unit-grade-sel').value;
-  const name=document.getElementById('unit-name-input').value.trim();
   const msg=document.getElementById('unit-msg');
-  if(!subject||!grade||!name){msg.style.color='#e05';msg.textContent='教科・学年・単元名をすべて入力してください';return}
-  const existing=getUnitsForSubject(subject);
-  if(existing.find(u=>u.name===name&&u.grade===grade)){msg.style.color='#e05';msg.textContent='その学年に同じ単元がすでに登録されています';return}
-  await push(ref(db,`units/${subject}`),{name,grade,order:existing.length+1});
-  document.getElementById('unit-name-input').value='';
-  msg.style.color='#4f8';msg.textContent=`「${grade} ${name}」を追加しました！`;setTimeout(()=>{msg.textContent='';msg.style.color=''},2000);
+  try{
+    const subject=document.getElementById('unit-subject-sel').value;
+    const grade=document.getElementById('unit-grade-sel').value;
+    const name=document.getElementById('unit-name-input').value.trim();
+    if(!subject||!grade||!name){msg.style.color='#e05';msg.textContent='教科・学年・単元名をすべて入力してください';return}
+    const existing=getUnitsForSubject(subject);
+    if(existing.find(u=>u.name===name&&u.grade===grade)){msg.style.color='#e05';msg.textContent='その学年に同じ単元がすでに登録されています';return}
+    msg.style.color='#aaa';msg.textContent='保存中...';
+    await push(ref(db,`units/${subject}`),{name,grade,order:existing.length+1});
+    document.getElementById('unit-name-input').value='';
+    msg.style.color='#4f8';msg.textContent=`「${grade} ${name}」を追加しました！`;
+    renderUnitAdminList();
+    setTimeout(()=>{msg.textContent='';msg.style.color=''},2500);
+  }catch(err){
+    msg.style.color='#e05';msg.textContent='エラー: '+(err&&err.message||err);
+    console.error(err);
+  }
 };
 window.deleteUnit=async function(subject,key){
   if(!confirm('この単元を削除しますか？'))return;
@@ -2462,7 +2484,13 @@ document.getElementById('infoArea').style.display='none';
 ['sg-subject','smat-subject'].forEach(id=>{const el=document.getElementById(id);if(el)el.innerHTML='<option value="">教科を選択 *</option>'+SUBJECTS.map(s=>`<option>${s}</option>`).join('')});
 document.getElementById('studyArea').innerHTML='<div class="empty"><div class="empty-icon">⏳</div><div>読み込み中...</div></div>';
 
-onValue(ref(db,'units'),snap=>{_units=snap.val()||{};});
+onValue(ref(db,'units'),snap=>{
+  _units=snap.val()||{};
+  // 管理画面が開いていれば単元一覧を再描画
+  if(document.getElementById('adminPanel').classList.contains('open'))renderUnitAdminList();
+  // 問題追加・編集フォームの単元セレクトも更新
+  ['add','edit','sg'].forEach(p=>{if(document.getElementById(`${p}-unit`))populateUnitSelect(p)});
+});
 onValue(ref(db,'cards'),snap=>{_cards=snap.val()?Object.values(snap.val()):[];buildFilters();startSession()});
 onValue(ref(db,'suggestions'),snap=>{_suggestions=snap.val()?Object.values(snap.val()):[];if(document.getElementById('adminPanel').classList.contains('open'))renderSuggestList()});
 onValue(ref(db,'materials'),snap=>{_materials=snap.val()?Object.values(snap.val()):[];if(state.mode==='info')renderMaterials()});
