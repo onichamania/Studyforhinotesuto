@@ -458,7 +458,7 @@ header{background:#000}
         <div class="form-col">
           <select id="sg-subject" onchange="populateUnitSelect('sg')"><option value="">教科を選択 *</option></select>
           <select id="sg-unit"><option value="">先に教科を選んでください</option></select>
-          <select id="sg-grade"><option value="中1">中1</option><option value="中2">中2</option><option value="中3" selected>中3</option></select>
+          <select id="sg-grade" onchange="populateUnitSelect('sg')"><option value="中1">中1</option><option value="中2">中2</option><option value="中3" selected>中3</option></select>
           <input id="sg-name" placeholder="提案者名（任意）">
           <input id="sg-question" placeholder="問題文 *">
           <button class="img-btn" onclick="document.getElementById('sg-q-file').click()"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" style="vertical-align:middle;margin-right:5px"><path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z" stroke="#888" stroke-width="2" stroke-linejoin="round"/><circle cx="12" cy="13" r="4" stroke="#888" stroke-width="2"/></svg>問題に画像（任意）</button>
@@ -819,7 +819,7 @@ header{background:#000}
       <div class="form-col">
         <select id="add-subject" onchange="populateUnitSelect('add')"><option value="">教科 *</option><option>家庭科</option><option>技術</option><option>音楽</option><option>社会(公民)</option><option>社会(歴史)</option><option>社会(地理)</option><option>体育実技</option></select>
         <select id="add-unit"><option value="">先に教科を選んでください</option></select>
-        <select id="add-grade"><option value="中1">中1</option><option value="中2">中2</option><option value="中3" selected>中3</option></select>
+        <select id="add-grade" onchange="populateUnitSelect('add')"><option value="中1">中1</option><option value="中2">中2</option><option value="中3" selected>中3</option></select>
         <input id="add-question" placeholder="問題文 *">
         <button class="img-btn" onclick="document.getElementById('add-q-file').click()"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" style="vertical-align:middle;margin-right:5px"><path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z" stroke="#888" stroke-width="2" stroke-linejoin="round"/><circle cx="12" cy="13" r="4" stroke="#888" stroke-width="2"/></svg>問題に画像（任意）</button>
         <input type="file" id="add-q-file" accept="image/*" onchange="previewImg(this,'add-q-prev')">
@@ -945,6 +945,10 @@ header{background:#000}
             
           </select>
           <input id="mat-unit-name-input" placeholder="単元名 *">
+          <select id="mat-unit-grade-sel">
+            <option value="">学年を選択 *</option>
+            <option>中1</option><option>中2</option><option>中3</option>
+          </select>
           <button class="btn primary btn-full" onclick="addUnitFromMat()">単元を追加</button>
           <div id="mat-unit-msg" style="font-size:.85rem;color:#666;min-height:18px;text-align:center"></div>
         </div>
@@ -958,6 +962,10 @@ header{background:#000}
           <option value="">教科を選択 *</option>
           <option>家庭科</option><option>技術</option><option>音楽</option><option>社会(公民)</option><option>社会(歴史)</option><option>社会(地理)</option><option>体育実技</option>
           
+        </select>
+        <select id="unit-grade-sel" onchange="renderUnitAdminList()">
+          <option value="">学年を選択 *</option>
+          <option>中1</option><option>中2</option><option>中3</option>
         </select>
         <input id="unit-name-input" placeholder="単元名 *（例：衣生活・食生活）">
         <button class="btn primary btn-full" onclick="addUnit()">単元を追加</button>
@@ -993,7 +1001,7 @@ header{background:#000}
         <input type="hidden" id="edit-id">
         <select id="edit-subject" onchange="populateUnitSelect('edit')"><option value="">教科 *</option><option>家庭科</option><option>技術</option><option>音楽</option><option>社会(公民)</option><option>社会(歴史)</option><option>社会(地理)</option><option>体育実技</option></select>
         <select id="edit-unit"><option value="">先に教科を選んでください</option></select>
-        <select id="edit-grade"><option value="中1">中1</option><option value="中2">中2</option><option value="中3" selected>中3</option></select>
+        <select id="edit-grade" onchange="populateUnitSelect('edit')"><option value="中1">中1</option><option value="中2">中2</option><option value="中3" selected>中3</option></select>
         <input id="edit-question" placeholder="問題文 *">
         <button type="button" class="img-btn" onclick="document.getElementById('edit-q-file').click()"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" style="vertical-align:middle;margin-right:5px"><path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z" stroke="#888" stroke-width="2" stroke-linejoin="round"/><circle cx="12" cy="13" r="4" stroke="#888" stroke-width="2"/></svg>問題に画像（任意）</button>
         <input type="file" id="edit-q-file" accept="image/*" onchange="previewImg(this,'edit-q-prev')">
@@ -1246,14 +1254,15 @@ function getExtraAnswers(prefix){
 // ===== 資料タブから単元追加 =====
 window.addUnitFromMat=async function(){
   const subject=document.getElementById('mat-unit-subject-sel').value;
+  const grade=document.getElementById('mat-unit-grade-sel').value;
   const name=document.getElementById('mat-unit-name-input').value.trim();
   const msg=document.getElementById('mat-unit-msg');
-  if(!subject||!name){msg.textContent='教科と単元名を入力してください';return}
+  if(!subject||!grade||!name){msg.style.color='#e05';msg.textContent='教科・学年・単元名をすべて入力してください';return}
   const existing=getUnitsForSubject(subject);
-  if(existing.find(u=>u.name===name)){msg.textContent='その単元はすでに登録されています';return}
-  await push(ref(db,`units/${subject}`),{name,order:existing.length+1});
+  if(existing.find(u=>u.name===name&&u.grade===grade)){msg.style.color='#e05';msg.textContent='その学年に同じ単元がすでに登録されています';return}
+  await push(ref(db,`units/${subject}`),{name,grade,order:existing.length+1});
   document.getElementById('mat-unit-name-input').value='';
-  msg.textContent=`「${name}」を追加しました！`;setTimeout(()=>msg.textContent='',2000);
+  msg.style.color='#4f8';msg.textContent=`「${grade} ${name}」を追加しました！`;setTimeout(()=>{msg.textContent='';msg.style.color=''},2000);
 };
 
 // ===== 問題編集 =====
@@ -2086,7 +2095,9 @@ window.approveUnitSugg=async function(id){
   const s=_unitSuggs.find(x=>x.id===id);if(!s)return;
   const existing=getUnitsForSubject(s.subject);
   if(existing.find(u=>u.name===s.name)){alert('その単元はすでに登録されています');return}
-  await push(ref(db,`units/${s.subject}`),{name:s.name,order:existing.length+1});
+  const grade=prompt(`「${s.name}」の学年を入力してください（中1／中2／中3）`,'中3');
+  if(!grade||!['中1','中2','中3'].includes(grade.trim())){alert('中1・中2・中3のいずれかを入力してください');return}
+  await push(ref(db,`units/${s.subject}`),{name:s.name,grade:grade.trim(),order:existing.length+1});
   await saveUnitSuggs(_unitSuggs.filter(x=>x.id!==id));
   renderUnitSuggList();renderUnitAdminList();
 };
@@ -2151,22 +2162,26 @@ function getUnitsForSubject(subject){
 }
 window.populateUnitSelect=function(prefix){
   const subject=document.getElementById(`${prefix}-subject`).value;
+  const grade=document.getElementById(`${prefix}-grade`)?.value||'';
   const sel=document.getElementById(`${prefix}-unit`);
   if(!subject){sel.innerHTML='<option value="">先に教科を選んでください</option>';return}
-  const units=getUnitsForSubject(subject);
-  if(!units.length){sel.innerHTML='<option value="">この教科の単元がまだありません</option>';return}
-  sel.innerHTML='<option value="">単元を選択 *</option>'+units.map(u=>`<option value="${u.name}">${u.name}</option>`).join('');
+  let units=getUnitsForSubject(subject);
+  // 学年が選ばれていれば、その学年の単元のみ表示（学年未設定の単元も互換のため表示）
+  if(grade)units=units.filter(u=>!u.grade||u.grade===grade);
+  if(!units.length){sel.innerHTML=`<option value="">${grade?grade+'の':'この教科の'}単元がまだありません</option>`;return}
+  sel.innerHTML='<option value="">単元を選択 *</option>'+units.map(u=>`<option value="${u.name}">${u.name}${u.grade?'':'（学年未設定）'}</option>`).join('');
 };
 window.addUnit=async function(){
   const subject=document.getElementById('unit-subject-sel').value;
+  const grade=document.getElementById('unit-grade-sel').value;
   const name=document.getElementById('unit-name-input').value.trim();
   const msg=document.getElementById('unit-msg');
-  if(!subject||!name){msg.textContent='教科と単元名を入力してください';return}
+  if(!subject||!grade||!name){msg.style.color='#e05';msg.textContent='教科・学年・単元名をすべて入力してください';return}
   const existing=getUnitsForSubject(subject);
-  if(existing.find(u=>u.name===name)){msg.textContent='その単元はすでに登録されています';return}
-  await push(ref(db,`units/${subject}`),{name,order:existing.length+1});
+  if(existing.find(u=>u.name===name&&u.grade===grade)){msg.style.color='#e05';msg.textContent='その学年に同じ単元がすでに登録されています';return}
+  await push(ref(db,`units/${subject}`),{name,grade,order:existing.length+1});
   document.getElementById('unit-name-input').value='';
-  msg.textContent=`「${name}」を追加しました！`;setTimeout(()=>msg.textContent='',2000);
+  msg.style.color='#4f8';msg.textContent=`「${grade} ${name}」を追加しました！`;setTimeout(()=>{msg.textContent='';msg.style.color=''},2000);
 };
 window.deleteUnit=async function(subject,key){
   if(!confirm('この単元を削除しますか？'))return;
@@ -2175,14 +2190,16 @@ window.deleteUnit=async function(subject,key){
 function renderUnitAdminList(){
   const el=document.getElementById('unitAdminList');if(!el)return;
   const subject=document.getElementById('unit-subject-sel').value;
+  const gradeFilter=document.getElementById('unit-grade-sel')?.value||'';
   if(!subject){el.innerHTML='<div style="color:#aaa;font-size:.85rem;text-align:center;padding:12px">教科を選択してください</div>';return}
-  const units=getUnitsForSubject(subject);
-  if(!units.length){el.innerHTML='<div style="color:#aaa;font-size:.85rem;text-align:center;padding:12px">まだ単元がありません</div>';return}
+  let units=getUnitsForSubject(subject);
+  if(gradeFilter)units=units.filter(u=>u.grade===gradeFilter);
+  if(!units.length){el.innerHTML=`<div style="color:#aaa;font-size:.85rem;text-align:center;padding:12px">${gradeFilter?gradeFilter+'の':''}単元がまだありません</div>`;return}
   el.innerHTML='<div class="card-list">'+units.map(u=>`
     <div class="card-list-item">
       <button class="cl-del" onclick="deleteUnit('${subject}','${u._key}')">✕</button>
       <div class="cl-q">${esc(u.name)}</div>
-      <div class="cl-tag">${esc(subject)}</div>
+      <div class="cl-tag">${esc(subject)}${u.grade?' · '+esc(u.grade):' · <span style="color:#e05">学年未設定</span>'}</div>
     </div>`).join('')+'</div>';
 };
 window.addCard=async function(){
