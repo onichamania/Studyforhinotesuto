@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>英語 例文穴埋め｜Let's Read ①〜Let's Read ②（全80問）</title>
+<meta name="description" content="教科書の例文80問。単語・表現を打ち込んで自動採点できる穴埋め練習ページ。">
+<meta name="theme-color" content="#1c2333">
+<meta name="format-detection" content="telephone=no">
+<meta property="og:type" content="website">
+<meta property="og:title" content="英語 例文穴埋め（全80問）">
+<meta property="og:description" content="Let's Read ①〜Let's Read ② の単語・表現を穴埋めで練習。自動採点つき。">
+<style>
+  :root{
+    --ink:#1c2333;
+    --paper:#ffffff;
+    --rule:#c9d2e0;
+    --blank:#2f5d8c;
+    --sub:#6b7688;
+    --mark:#f0f4fa;
+    --ok:#1a7f5a;
+    --ng:#c23b41;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;padding:20px 16px 80px;background:#eef1f6;color:var(--ink);
+    font-family:"Hiragino Sans","Hiragino Kaku Gothic ProN","Yu Gothic",system-ui,sans-serif;
+    line-height:1.7;-webkit-text-size-adjust:100%;
+  }
+  .sheet{max-width:760px;margin:0 auto;background:var(--paper);padding:28px 22px 40px;border:1px solid var(--rule);}
+  header{border-bottom:3px double var(--ink);padding-bottom:14px;}
+  h1{font-size:1.35rem;margin:0 0 6px;letter-spacing:.02em;}
+  .lead{font-size:.85rem;color:var(--sub);margin:0;}
+  .tools{display:flex;gap:10px;flex-wrap:wrap;margin:18px 0 4px;}
+  button{
+    font:inherit;font-size:.85rem;padding:9px 16px;
+    background:var(--ink);color:#fff;border:none;border-radius:2px;cursor:pointer;
+  }
+  button.ghost{background:transparent;color:var(--ink);border:1px solid var(--ink);}
+  button.mini{font-size:.78rem;padding:5px 12px;background:transparent;color:var(--blank);border:1px solid var(--blank);}
+  button:focus-visible{outline:3px solid #f5b301;outline-offset:2px;}
+  .score{margin:14px 0 20px;padding:10px 14px;background:var(--mark);border-left:5px solid var(--ink);font-size:.95rem;}
+  .nav{
+    display:none;align-items:center;gap:12px;flex-wrap:wrap;
+    margin:16px 0 4px;padding:10px 14px;background:var(--mark);border-left:5px solid var(--blank);
+  }
+  body.single .nav{display:flex;}
+  .progress{font-size:.9rem;color:var(--sub);margin-left:auto;}
+  ol.quiz{margin:0;padding:0;list-style:none;}
+  li.q{display:grid;grid-template-columns:2.4rem 1fr;gap:0 6px;padding:12px 0;border-bottom:1px dotted var(--rule);}
+  body.single li.q{border-bottom:none;padding:20px 0 4px;}
+  .num{color:var(--sub);font-size:.9rem;padding-top:.35rem;}
+  .en{font-family:Georgia,"Times New Roman",serif;font-size:1.05rem;line-height:2.4;}
+  .ja{grid-column:2;font-size:.82rem;color:var(--sub);margin-top:3px;}
+  .qfoot{grid-column:2;margin-top:8px;}
+  input.bl{
+    font-family:Georgia,serif;font-size:1rem;
+    border:none;border-bottom:1.5px solid var(--blank);background:transparent;color:var(--ink);
+    padding:2px 4px;margin:0 3px;text-align:center;
+  }
+  input.bl:focus{outline:none;background:#fdf6dd;border-bottom-width:2.5px;}
+  input.bl.ok{color:var(--ok);border-bottom-color:var(--ok);}
+  input.bl.ng{color:var(--ng);border-bottom-color:var(--ng);text-decoration:line-through;}
+  .fix{font-family:Georgia,serif;color:var(--ok);font-size:.95rem;margin-left:4px;}
+  .mark{font-size:1.1rem;margin-left:6px;}
+  .mark.ok{color:var(--ok);}
+  .mark.ng{color:var(--ng);}
+  h2{font-size:1.05rem;margin:44px 0 12px;padding:6px 10px;background:var(--mark);border-left:5px solid var(--ink);}
+  .answers{
+    display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:4px 18px;
+    font-size:.9rem;padding:0;margin:0;list-style:none;
+  }
+  .answers li{border-bottom:1px dotted var(--rule);padding:4px 0;}
+  .answers .an{color:var(--sub);margin-right:6px;font-size:.85rem;}
+  .answers b{font-family:Georgia,serif;font-weight:600;}
+  .hidden{display:none;}
+  @media print{
+    body{background:#fff;padding:0;}
+    .sheet{border:none;padding:0;max-width:none;}
+    .tools,.score,.nav,.qfoot{display:none;}
+    li.q{break-inside:avoid;}
+    input.bl{border-bottom:1.5px solid #333;}
+  }
+</style>
+</head>
+<body>
+<div class="sheet">
+  <header>
+    <h1>例文穴埋めプリント</h1>
+    <p class="lead">Let's Read ① / You Can Do It! ① / Unit 4 / Let's Read ②　教科書に出てきた単語・表現（visa 〜 not all・全80問）</p>
+  </header>
+
+  <div class="tools">
+    <button id="mode">1問ずつ解く</button>
+    <button class="ghost" id="check">全部まとめて答え合わせ</button>
+    <button class="ghost" id="clear">入力を消す</button>
+    <button class="ghost" id="shuffle">問題を並べかえる</button>
+    <button class="ghost" id="toggle">答えをかくす</button>
+  </div>
+
+  <div class="nav">
+    <button class="ghost" id="prev">前へ</button>
+    <button id="next">次へ</button>
+    <span class="progress" id="progress"></span>
+  </div>
+
+  <div class="score hidden" id="score"></div>
+
+  <ol class="quiz" id="quiz"></ol>
+
+  <h2 id="ansHead">答え</h2>
+  <ol class="answers" id="answers"></ol>
+</div>
+
+<script>
+const DATA = [
+ ["Do I need to get a {} to go to Japan?","visa","日本に行くにはビザが必要ですか？"],
+ ["{} is a very beautiful country.","Lithuania","リトアニアはとても美しい国です。"],
+ ["Do it {}.","outside","外でやってね。"],
+ ["What is your {} like?","wife","奥さんってどんな人ですか？"],
+ ["Have you ever been to {}?","Poland","ポーランドって行ったことある？"],
+ ["I have a {} friend.","Jewish","ユダヤ人の友達がいるんだけど。"],
+ ["I want to {} to a country without pollen.","escape","花粉のない国に逃げたい。"],
+ ["Please have your passport {} over there.","issued","あちらでパスポートを発行してもらってください。"],
+ ["We need {} to sell goods in the park.","permission","公園で何かを売るには許可が必要なんだよ。"],
+ ["I {}.","refuse","だが断る。"],
+ ["I enjoy watching {} dramas.","foreign","私は海外ドラマを見るのが楽しいです。"],
+ ["Our teacher {} this. — Why?!","knew","先生はこのこと知ってたよ。— なんで？!"],
+ ["Take a {} or lose the chance. It's our choice.","risk","リスクを取るか、チャンスを逃すか。ぼくたち次第だ。"],
+ ["There was a long {} before she answered.","silence","彼女が答える前に長い沈黙があった。"],
+ ["If you {} this gate, you'll see the sea.","pass through","この門を通り抜けると海だよ。"],
+ ["I came to {} your advice. — From me?!","ask for","アドバイスをもらいに来たよ。— オレから？!"],
+ ["I {} a letter to you. Here it is.","wrote","きみに手紙を書いたよ。はい、これ。"],
+ ["Your bicycle's front {} is flat.","wheel","きみの自転車の前輪、パンクしてる。"],
+ ["Never give up! {} to the end!","Fight","あきらめないで！最後まで戦って！"],
+ ["How do I send a {}? — I don't know.","telegram","電報ってどうやって打つの？— わからない。"],
+ ["The Chuo Line will arrive at {} 3.","platform","中央線は3番ホームに到着します。"],
+ ["He {} makes spaghetti noodles. — Really?","even","彼はスパゲッティの麺も作るんだよ。— まじで？"],
+ ["It's okay, I {} you.","forgive","大丈夫、許す。"],
+ ["When do you {}?","pray","あなたはどんなときにお祈りをしますか？"],
+ ["The meeting will {} at 5 p.m.","end","会議は午後5時に終わります。"],
+ ["What kind of work does a {} do?","trader","貿易業者さんってどんな仕事をしてるの？"],
+ ["I like writing letters {}.","by hand","手書きで手紙を書くのが好きなの。"],
+ ["We need to {} to protect the environment.","join hands","環境を守るために私たちは協力する必要があります。"],
+ ["{} the bell rang, he kept writing.","Even as","ベルが鳴ったときでさえ、彼は書き続けていた。"],
+ ["{} the number 61 bus at that bus stop.","Get on","あのバス停で61番のバスに乗ってください。"],
+ ["Please {} these {} to everyone.","hand / out","これをみんなに配って。"],
+ ["He apologized {}.","with tears in his eyes","彼、目に涙をためて謝ってたよ。"],
+ ["My father is a {}.","diplomat","私の父は外交官です。"],
+ ["Have you {} our promise?","forgotten","私との約束、忘れたの？"],
+ ["What does \"{} cake\" mean?","a piece of","「a piece of cake」ってどういう意味？"],
+ ["I always feel excited when I put on my {}.","uniform","ユニフォームを着るときっていつもわくわくする。"],
+ ["Let's take a break when it's {}.","convenient","きりのいいところで休憩しよう。"],
+ ["You have an {} voice.","attractive","きみは魅力的な声を持ってるんだ。"],
+ ["I have to {} with you on that.","disagree","それにはちょっと賛成できないかなあ。"],
+ ["I want to go to night markets in {}.","Taiwan","台湾の夜市に行ってみたいです。"],
+ ["It looks good! But it looks bad for your {}!","health","おいしそう！でも体に悪そう！"],
+ ["I'm very much {} the idea.","against","私はその考えには大反対だ。"],
+ ["What is {} good at?","AI","AIは何が得意ですか。"],
+ ["How many {} can use one account?","devices","1つのアカウントでいくつの機器を使えますか？"],
+ ["How do you use science in your {} life?","daily","日常生活の中で、理科をどう活用していますか？"],
+ ["I've been going through a lot {}.","lately","最近いろいろあってさ。"],
+ ["Doesn't this page have a {} box?","search","このページ、検索ボックスないのかな？"],
+ ["The {} sounds great! — I know, right?","engine","エンジン、音いいなあ！— でしょ？"],
+ ["This computer is so slow to {}.","respond","このパソコン反応がめっちゃ遅い。"],
+ ["Oops, I made a mistake! — Press {}-Z!","command","わっ、まちがえた！— Command＋Z 押して！"],
+ ["My name is {} in Japan.","common","私の名前は日本では一般的です。"],
+ ["I {} smile when I see your message.","automatically","きみからのメッセージが届くと自動的に笑顔になるんだ。"],
+ ["{} is an art.","Translation","翻訳はアートです。"],
+ ["Please update your {} to the latest version.","software","ソフトを最新バージョンにアップデートしてください。"],
+ ["They're similar, but {} different actually.","quite","それらは似ているけれど、実際にはかなりちがうのです。"],
+ ["I get tired {} these days.","easily","最近疲れやすいんだよね。"],
+ ["This wasn't {} our plan.","a part of","これは想定外だったな。"],
+ ["I think I'll see you again {}.","in the near future","近い将来、きみとまた会う気がする。"],
+ ["This app is so {} for learning new languages.","handy","このアプリは新しい言語を学ぶのにとても便利です。"],
+ ["I enjoy having a {} with you.","discussion","みんなでいろいろ話し合うのは楽しいな。"],
+ ["How was the feedback from our {}?","customers","お客様の反応はどうだった？"],
+ ["I {} on you.","rely","あなたのこと、頼りにしてる。"],
+ ["{}, this is a good opportunity for you.","In my opinion","ぼくの意見では、これはきみにとってチャンスだよ。"],
+ ["Sometimes, you need to {} others.","rely on","時には人に頼らないと。"],
+ ["This station is very crowded on {}.","weekdays","この駅は平日はとても混雑します。"],
+ ["Are you in line? — No, go {}.","ahead","並んでますか？— いいえ、どうぞ。"],
+ ["Going abroad {} your horizons.","broadens","外国へ行くと世界が広がるよ。"],
+ ["Thank you for your {}.","understanding","ご理解いただきありがとうございます。"],
+ ["There is no {} formula for winning.","magic","勝つための魔法の公式なんてないんだよ。"],
+ ["Sorry, I spilled coffee on the {}.","carpet","ごめん、じゅうたんにコーヒーこぼしちゃった。"],
+ ["I'll wear a red {} for the costume party.","cape","仮装パーティーには、赤いケープを着ていくよ。"],
+ ["What {} from your room?","disappeared","部屋から何が消えたの？"],
+ ["It's {} in this room! — Are you sure?","somewhere","それ、この部屋のどこかにある！— ほんとに？"],
+ ["I'll go to the library {}. — OK.","directly","図書館に直接行くね。— わかった。"],
+ ["Shoot! I {} bugs!","hate","もう！虫きらい！"],
+ ["What is this {} for? — I have no idea.","tool","これは何のための道具？— 全然わからない。"],
+ ["How do I {} this feeling into words?","translate","この感じをどうしたらことばにできる？"],
+ ["It's {} awesome {} put into words!","too / to","すごすぎて、ことばにできないよ！"],
+ ["Go ahead. It might {}. — Yeah. Take care.","take time","先帰ってて。時間かかるかもしれない。— うん。じゃあね。"],
+ ["{} people like spicy food.","Not all","すべての人が辛い食べ物を好きなわけではないから。"]
+];
+
+const quiz = document.getElementById('quiz');
+const answers = document.getElementById('answers');
+const scoreBox = document.getElementById('score');
+const progress = document.getElementById('progress');
+const ansHead = document.getElementById('ansHead');
+const toggleBtn = document.getElementById('toggle');
+let current = [], single = false, idx = 0;
+
+function esc(s){
+  return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+function slotsOf(a){ return a.split(' / '); }
+function answerText(a){
+  const s = slotsOf(a);
+  return s.every(function(x){ return x === s[0]; }) ? s[0] : s.join(' / ');
+}
+function norm(s){
+  return s.toLowerCase().replace(/[.,!?"'’]/g,'').replace(/\s+/g,' ').trim();
+}
+function inputFor(word){
+  const w = Math.max(4, Math.min(11, word.length * 0.95));
+  return '<input class="bl" type="text" style="width:' + w + 'em" data-ans="' + esc(word)
+       + '" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false">';
+}
+function buildSentence(sentence, ans){
+  const parts = esc(sentence).split('{}');
+  let slots = slotsOf(ans);
+  if (slots.length !== parts.length - 1) slots = new Array(parts.length - 1).fill(ans);
+  let out = parts[0];
+  for (let i = 0; i < slots.length; i++){
+    out += slots[i].split(' ').map(inputFor).join(' ') + parts[i + 1];
+  }
+  return out;
+}
+function render(list){
+  current = list;
+  idx = 0;
+  scoreBox.classList.add('hidden');
+  quiz.innerHTML = list.map(function(item, i){
+    return '<li class="q"><span class="num">' + (i + 1) + '.</span>'
+         + '<div class="en">' + buildSentence(item[0], item[1]) + '</div>'
+         + '<div class="ja">' + esc(item[2]) + '</div>'
+         + '<div class="qfoot"><button class="mini one">この問題を確認</button></div></li>';
+  }).join('');
+  answers.innerHTML = list.map(function(item, i){
+    return '<li><span class="an">' + (i + 1) + '.</span><b>' + esc(answerText(item[1])) + '</b></li>';
+  }).join('');
+  quiz.querySelectorAll('button.one').forEach(function(b){
+    b.addEventListener('click', function(){ checkOne(b.closest('li.q')); });
+  });
+  bindKeys();
+  applyMode();
+}
+function bindKeys(){
+  quiz.querySelectorAll('li.q').forEach(function(li){
+    const fields = Array.prototype.slice.call(li.querySelectorAll('input.bl'));
+    fields.forEach(function(f, i){
+      f.addEventListener('keydown', function(e){
+        if (e.key !== 'Enter') return;
+        e.preventDefault();
+        if (fields[i + 1]) fields[i + 1].focus();
+        else checkOne(li);
+      });
+    });
+  });
+}
+function clearMarks(li){
+  li.querySelectorAll('.fix, .mark').forEach(function(el){ el.remove(); });
+  li.querySelectorAll('input.bl').forEach(function(f){ f.classList.remove('ok','ng'); });
+}
+function gradeOne(li){
+  clearMarks(li);
+  let allOk = true, allEmpty = true;
+  li.querySelectorAll('input.bl').forEach(function(f){
+    const ok = norm(f.value) === norm(f.dataset.ans);
+    if (f.value.trim() !== '') allEmpty = false;
+    f.classList.add(ok ? 'ok' : 'ng');
+    if (!ok){
+      allOk = false;
+      const fix = document.createElement('span');
+      fix.className = 'fix';
+      fix.textContent = f.dataset.ans;
+      f.insertAdjacentElement('afterend', fix);
+    }
+  });
+  const m = document.createElement('span');
+  m.className = 'mark ' + (allOk ? 'ok' : 'ng');
+  m.textContent = allOk ? '○' : '×';
+  li.querySelector('.en').appendChild(m);
+  return {ok: allOk, empty: allEmpty};
+}
+function checkOne(li){
+  gradeOne(li);
+}
+function checkAll(){
+  let right = 0, blank = 0;
+  quiz.querySelectorAll('li.q').forEach(function(li){
+    const r = gradeOne(li);
+    if (r.ok) right++;
+    if (r.empty) blank++;
+  });
+  const total = current.length;
+  scoreBox.classList.remove('hidden');
+  scoreBox.textContent = total + '問中 ' + right + '問正解（' + Math.round(right / total * 100) + '％）'
+    + (blank ? '　※未入力 ' + blank + '問' : '');
+  scoreBox.scrollIntoView({behavior:'smooth', block:'center'});
+}
+function applyMode(){
+  const items = quiz.querySelectorAll('li.q');
+  document.body.classList.toggle('single', single);
+  items.forEach(function(li, i){
+    li.classList.toggle('hidden', single && i !== idx);
+  });
+  if (single){
+    progress.textContent = (idx + 1) + ' / ' + current.length;
+    const first = items[idx] ? items[idx].querySelector('input.bl') : null;
+    if (first) first.focus({preventScroll:true});
+  }
+}
+function move(step){
+  idx = Math.min(current.length - 1, Math.max(0, idx + step));
+  applyMode();
+  window.scrollTo({top:0, behavior:'smooth'});
+}
+function shuffle(arr){
+  const a = arr.slice();
+  for (let i = a.length - 1; i > 0; i--){
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+function setAnswersHidden(hide){
+  answers.classList.toggle('hidden', hide);
+  ansHead.classList.toggle('hidden', hide);
+  toggleBtn.textContent = hide ? '答えを表示する' : '答えをかくす';
+}
+
+render(shuffle(DATA));
+
+document.getElementById('mode').addEventListener('click', function(){
+  single = !single;
+  this.textContent = single ? 'まとめて表示' : '1問ずつ解く';
+  if (single) setAnswersHidden(true);
+  scoreBox.classList.add('hidden');
+  applyMode();
+  window.scrollTo({top:0});
+});
+document.getElementById('next').addEventListener('click', function(){ move(1); });
+document.getElementById('prev').addEventListener('click', function(){ move(-1); });
+document.getElementById('check').addEventListener('click', checkAll);
+document.getElementById('clear').addEventListener('click', function(){
+  quiz.querySelectorAll('li.q').forEach(clearMarks);
+  quiz.querySelectorAll('input.bl').forEach(function(f){ f.value = ''; });
+  scoreBox.classList.add('hidden');
+});
+document.getElementById('shuffle').addEventListener('click', function(){
+  render(shuffle(DATA));
+  window.scrollTo({top:0});
+});
+toggleBtn.addEventListener('click', function(){
+  setAnswersHidden(!answers.classList.contains('hidden'));
+});
+</script>
+</body>
+</html>
