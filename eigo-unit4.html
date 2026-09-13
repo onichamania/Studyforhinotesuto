@@ -3,13 +3,13 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>英語 例文穴埋め｜Let's Read ①〜Let's Read ②（全80問）</title>
-<meta name="description" content="教科書の例文80問。単語・表現を打ち込んで自動採点できる穴埋め練習ページ。">
+<title>英語 例文穴埋め｜imagine〜article（全41問）</title>
+<meta name="description" content="imagine〜article の41問。単語・表現を打ち込んで自動採点できる穴埋め練習ページ。">
 <meta name="theme-color" content="#1c2333">
 <meta name="format-detection" content="telephone=no">
 <meta property="og:type" content="website">
-<meta property="og:title" content="英語 例文穴埋め（全80問）">
-<meta property="og:description" content="Let's Read ①〜Let's Read ② の単語・表現を穴埋めで練習。自動採点つき。">
+<meta property="og:title" content="英語 例文穴埋め（imagine〜article・41問）">
+<meta property="og:description" content="imagine〜article の単語・表現を穴埋めで練習。自動採点つき。">
 <style>
   :root{
     --ink:#1c2333;
@@ -67,9 +67,10 @@
   .mark.ng{color:var(--ng);}
   h2{font-size:1.05rem;margin:44px 0 12px;padding:6px 10px;background:var(--mark);border-left:5px solid var(--ink);}
   .answers{
-    display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:4px 18px;
+    display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:4px 18px;
     font-size:.9rem;padding:0;margin:0;list-style:none;
   }
+  .answers .aja{display:block;margin-left:1.6em;font-size:.8rem;color:var(--sub);}
   .answers li{border-bottom:1px dotted var(--rule);padding:4px 0;}
   .answers .an{color:var(--sub);margin-right:6px;font-size:.85rem;}
   .answers b{font-family:Georgia,serif;font-weight:600;}
@@ -87,7 +88,7 @@
 <div class="sheet">
   <header>
     <h1>例文穴埋めプリント</h1>
-    <p class="lead">Let's Read ① / You Can Do It! ① / Unit 4 / Let's Read ②　教科書に出てきた単語・表現（visa 〜 not all・全80問）</p>
+    <p class="lead">教科書に出てきた単語・表現（imagine 〜 article・全41問）</p>
   </header>
 
   <div class="tools">
@@ -114,86 +115,47 @@
 
 <script>
 const DATA = [
- ["Do I need to get a {} to go to Japan?","visa","日本に行くにはビザが必要ですか？"],
- ["{} is a very beautiful country.","Lithuania","リトアニアはとても美しい国です。"],
- ["Do it {}.","outside","外でやってね。"],
- ["What is your {} like?","wife","奥さんってどんな人ですか？"],
- ["Have you ever been to {}?","Poland","ポーランドって行ったことある？"],
- ["I have a {} friend.","Jewish","ユダヤ人の友達がいるんだけど。"],
- ["I want to {} to a country without pollen.","escape","花粉のない国に逃げたい。"],
- ["Please have your passport {} over there.","issued","あちらでパスポートを発行してもらってください。"],
- ["We need {} to sell goods in the park.","permission","公園で何かを売るには許可が必要なんだよ。"],
- ["I {}.","refuse","だが断る。"],
- ["I enjoy watching {} dramas.","foreign","私は海外ドラマを見るのが楽しいです。"],
- ["Our teacher {} this. — Why?!","knew","先生はこのこと知ってたよ。— なんで？!"],
- ["Take a {} or lose the chance. It's our choice.","risk","リスクを取るか、チャンスを逃すか。ぼくたち次第だ。"],
- ["There was a long {} before she answered.","silence","彼女が答える前に長い沈黙があった。"],
- ["If you {} this gate, you'll see the sea.","pass through","この門を通り抜けると海だよ。"],
- ["I came to {} your advice. — From me?!","ask for","アドバイスをもらいに来たよ。— オレから？!"],
- ["I {} a letter to you. Here it is.","wrote","きみに手紙を書いたよ。はい、これ。"],
- ["Your bicycle's front {} is flat.","wheel","きみの自転車の前輪、パンクしてる。"],
- ["Never give up! {} to the end!","Fight","あきらめないで！最後まで戦って！"],
- ["How do I send a {}? — I don't know.","telegram","電報ってどうやって打つの？— わからない。"],
- ["The Chuo Line will arrive at {} 3.","platform","中央線は3番ホームに到着します。"],
- ["He {} makes spaghetti noodles. — Really?","even","彼はスパゲッティの麺も作るんだよ。— まじで？"],
- ["It's okay, I {} you.","forgive","大丈夫、許す。"],
- ["When do you {}?","pray","あなたはどんなときにお祈りをしますか？"],
- ["The meeting will {} at 5 p.m.","end","会議は午後5時に終わります。"],
- ["What kind of work does a {} do?","trader","貿易業者さんってどんな仕事をしてるの？"],
- ["I like writing letters {}.","by hand","手書きで手紙を書くのが好きなの。"],
- ["We need to {} to protect the environment.","join hands","環境を守るために私たちは協力する必要があります。"],
- ["{} the bell rang, he kept writing.","Even as","ベルが鳴ったときでさえ、彼は書き続けていた。"],
- ["{} the number 61 bus at that bus stop.","Get on","あのバス停で61番のバスに乗ってください。"],
- ["Please {} these {} to everyone.","hand / out","これをみんなに配って。"],
- ["He apologized {}.","with tears in his eyes","彼、目に涙をためて謝ってたよ。"],
- ["My father is a {}.","diplomat","私の父は外交官です。"],
- ["Have you {} our promise?","forgotten","私との約束、忘れたの？"],
- ["What does \"{} cake\" mean?","a piece of","「a piece of cake」ってどういう意味？"],
- ["I always feel excited when I put on my {}.","uniform","ユニフォームを着るときっていつもわくわくする。"],
- ["Let's take a break when it's {}.","convenient","きりのいいところで休憩しよう。"],
- ["You have an {} voice.","attractive","きみは魅力的な声を持ってるんだ。"],
- ["I have to {} with you on that.","disagree","それにはちょっと賛成できないかなあ。"],
- ["I want to go to night markets in {}.","Taiwan","台湾の夜市に行ってみたいです。"],
- ["It looks good! But it looks bad for your {}!","health","おいしそう！でも体に悪そう！"],
- ["I'm very much {} the idea.","against","私はその考えには大反対だ。"],
- ["What is {} good at?","AI","AIは何が得意ですか。"],
- ["How many {} can use one account?","devices","1つのアカウントでいくつの機器を使えますか？"],
- ["How do you use science in your {} life?","daily","日常生活の中で、理科をどう活用していますか？"],
- ["I've been going through a lot {}.","lately","最近いろいろあってさ。"],
- ["Doesn't this page have a {} box?","search","このページ、検索ボックスないのかな？"],
- ["The {} sounds great! — I know, right?","engine","エンジン、音いいなあ！— でしょ？"],
- ["This computer is so slow to {}.","respond","このパソコン反応がめっちゃ遅い。"],
- ["Oops, I made a mistake! — Press {}-Z!","command","わっ、まちがえた！— Command＋Z 押して！"],
- ["My name is {} in Japan.","common","私の名前は日本では一般的です。"],
- ["I {} smile when I see your message.","automatically","きみからのメッセージが届くと自動的に笑顔になるんだ。"],
- ["{} is an art.","Translation","翻訳はアートです。"],
- ["Please update your {} to the latest version.","software","ソフトを最新バージョンにアップデートしてください。"],
- ["They're similar, but {} different actually.","quite","それらは似ているけれど、実際にはかなりちがうのです。"],
- ["I get tired {} these days.","easily","最近疲れやすいんだよね。"],
- ["This wasn't {} our plan.","a part of","これは想定外だったな。"],
- ["I think I'll see you again {}.","in the near future","近い将来、きみとまた会う気がする。"],
- ["This app is so {} for learning new languages.","handy","このアプリは新しい言語を学ぶのにとても便利です。"],
- ["I enjoy having a {} with you.","discussion","みんなでいろいろ話し合うのは楽しいな。"],
- ["How was the feedback from our {}?","customers","お客様の反応はどうだった？"],
- ["I {} on you.","rely","あなたのこと、頼りにしてる。"],
- ["{}, this is a good opportunity for you.","In my opinion","ぼくの意見では、これはきみにとってチャンスだよ。"],
- ["Sometimes, you need to {} others.","rely on","時には人に頼らないと。"],
- ["This station is very crowded on {}.","weekdays","この駅は平日はとても混雑します。"],
- ["Are you in line? — No, go {}.","ahead","並んでますか？— いいえ、どうぞ。"],
- ["Going abroad {} your horizons.","broadens","外国へ行くと世界が広がるよ。"],
- ["Thank you for your {}.","understanding","ご理解いただきありがとうございます。"],
- ["There is no {} formula for winning.","magic","勝つための魔法の公式なんてないんだよ。"],
- ["Sorry, I spilled coffee on the {}.","carpet","ごめん、じゅうたんにコーヒーこぼしちゃった。"],
- ["I'll wear a red {} for the costume party.","cape","仮装パーティーには、赤いケープを着ていくよ。"],
- ["What {} from your room?","disappeared","部屋から何が消えたの？"],
- ["It's {} in this room! — Are you sure?","somewhere","それ、この部屋のどこかにある！— ほんとに？"],
- ["I'll go to the library {}. — OK.","directly","図書館に直接行くね。— わかった。"],
- ["Shoot! I {} bugs!","hate","もう！虫きらい！"],
- ["What is this {} for? — I have no idea.","tool","これは何のための道具？— 全然わからない。"],
- ["How do I {} this feeling into words?","translate","この感じをどうしたらことばにできる？"],
- ["It's {} awesome {} put into words!","too / to","すごすぎて、ことばにできないよ！"],
- ["Go ahead. It might {}. — Yeah. Take care.","take time","先帰ってて。時間かかるかもしれない。— うん。じゃあね。"],
- ["{} people like spicy food.","Not all","すべての人が辛い食べ物を好きなわけではないから。"]
+ ["I just can't {} the world without you.", "imagine", "きみがいない世界なんて想像できないよ。"],
+ ["What should I study to become a NASA {}?", "scientist", "NASAの科学者になるには何を勉強すれば？"],
+ ["I hope we can keep a good and long {}.", "relationship", "これからもいい関係を続けられるといいね。"],
+ ["The story {} was okay but I liked the music.", "itself", "ストーリー自体はまぁまぁだったけど、音楽が気に入ったの。"],
+ ["I will not let myself be defeated by any {}.", "injury", "けがになんて負けないぜ。"],
+ ["This park offers campground {}.", "facilities", "この公園にはキャンプ場の設備があります。"],
+ ["{} people are using social media.", "More and more", "ソーシャルメディアを使う人がどんどん増えています。"],
+ ["Please {} the file to my email.", "transfer", "そのファイルを私のメールに転送してください。"],
+ ["I met a nice {} woman on the train.", "elderly", "電車でね、すてきなおばあちゃんに会ったの。"],
+ ["{} problems are a piece of cake!", "Addition", "足し算の問題は楽勝！"],
+ ["It's important to {} a healthy lifestyle.", "maintain", "健康的な生活習慣を維持することが大切です。"],
+ ["We've finally got hard {} evidence!", "physical", "ついに確たる物的証拠を手に入れたぜ！"],
+ ["A good design should have {}.", "function", "いいデザインは機能的です。"],
+ ["Reading books can {} your knowledge.", "widen", "本を読むことで知識を広げることができます。"],
+ ["I realized the {} of bread.", "possibilities", "パンの持つ可能性に気づいたの。"],
+ ["Is that really {}?", "real", "それってほんとに本物なの？"],
+ ["Let's gather more feedback from {}.", "users", "ユーザーの意見をもっと集めよう。"],
+ ["He missed school because of an {}.", "illness", "彼、病気で学校を休んだんだって。"],
+ ["I can't {} the weather!", "control", "ぼくにも天気は変えられないよ！"],
+ ["What does it take to start a {}?", "movement", "運動を起こすには何が必要なんだろう？"],
+ ["Watch your {}.", "fingers", "指に気をつけてください。"],
+ ["Who {} you here?", "sent", "だれがきみをここに送ってくれたの？"],
+ ["That {} is on. — Oh my god.", "microphone", "そのマイク入ってるよ。— うわ最悪。"],
+ ["{}, I like watching movies.", "In addition", "そのうえ、映画を見るのも好きです。"],
+ ["If you do it {}, it doesn't take much time.", "that way", "そんなふうにやれば、あまり時間かからないよ。"],
+ ["I like staying at home. I'm not that {}.", "sociable", "家にいるのが好き。あまり社交的じゃないんだ。"],
+ ["{} ate my pudding! — It wasn't me.", "Somebody", "だれかが私のプリン食べた！— ぼくじゃないよ。"],
+ ["I felt {} when I couldn't help my friend.", "useless", "友達を助けられなかったとき、自分が役立たずだと感じて。"],
+ ["We were {} against the sudden storm.", "helpless", "突然の嵐に対して、私たちはどうすることもできなかった。"],
+ ["Maybe ... nobody will {} it.", "notice", "もしかしたら…だれも気づかないかも。"],
+ ["They lived {} ever after.", "happily", "彼らはその後幸せに暮らしましたとさ。"],
+ ["I'm trying to {} my vocabulary. — Oh, yeah.", "develop", "今ね、語彙を増やそうとしてるの。— そうなんだ。"],
+ ["At first, I didn't {} my mistakes.", "recognize", "最初は、自分のまちがいに気づかなかったの。"],
+ ["Education has great {} in today's society.", "value", "教育は現代社会で大きな価値を持っています。"],
+ ["Thank you for your {}.", "cooperation", "ご協力に感謝いたします。"],
+ ["Don't {} too much.", "expect", "そんなに期待しないでね。"],
+ ["Nobody is perfect. We're all a little {}.", "imperfect", "だれだって完璧ではない。私たちはみんな少し不完全だ。"],
+ ["I learned the {} of never giving up.", "importance", "ぼくは、あきらめないことの大切さを学びました。"],
+ ["So let's meet at ten thirty at the station. — {}.", "Okay", "じゃ10時半に駅でね。— わかった。"],
+ ["I wish the weather would {} a bit better.", "cooperate", "もうちょっとお天気がよかったらいいのになー。"],
+ ["Who wrote this {}? It's wonderful.", "article", "この記事だれが書いたの？すてき。"]
 ];
 
 const quiz = document.getElementById('quiz');
@@ -241,7 +203,8 @@ function render(list){
          + '<div class="qfoot"><button class="mini one">この問題を確認</button></div></li>';
   }).join('');
   answers.innerHTML = list.map(function(item, i){
-    return '<li><span class="an">' + (i + 1) + '.</span><b>' + esc(answerText(item[1])) + '</b></li>';
+    return '<li><span class="an">' + (i + 1) + '.</span><b>' + esc(answerText(item[1])) + '</b>'
+         + '<span class="aja">' + esc(item[2]) + '</span></li>';
   }).join('');
   quiz.querySelectorAll('button.one').forEach(function(b){
     b.addEventListener('click', function(){ checkOne(b.closest('li.q')); });
