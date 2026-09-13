@@ -3,13 +3,13 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>英語 例文穴埋め｜imagine〜article（全41問）</title>
-<meta name="description" content="imagine〜article の41問。単語・表現を打ち込んで自動採点できる穴埋め練習ページ。">
+<title>英語 例文練習｜imagine〜article（41問）</title>
+<meta name="description" content="imagine〜articleの41問。実技テストと単語記憶モード。">
 <meta name="theme-color" content="#1c2333">
 <meta name="format-detection" content="telephone=no">
 <meta property="og:type" content="website">
-<meta property="og:title" content="英語 例文穴埋め（imagine〜article・41問）">
-<meta property="og:description" content="imagine〜article の単語・表現を穴埋めで練習。自動採点つき。">
+<meta property="og:title" content="英語 例文練習｜imagine〜article（41問）">
+<meta property="og:description" content="imagine〜articleの41問。実技テストと単語記憶モード。">
 <style>
   :root{
     --ink:#1c2333;
@@ -20,25 +20,37 @@
     --mark:#f0f4fa;
     --ok:#1a7f5a;
     --ng:#c23b41;
+    --red:#ff2b2b;
+    --en:"Comic Sans MS","Comic Sans","Chalkboard SE","Marker Felt","Comic Neue",cursive;
   }
   *{box-sizing:border-box;}
   body{
-    margin:0;padding:20px 16px 80px;background:#eef1f6;color:var(--ink);
+    margin:0;padding:20px 16px 90px;background:#eef1f6;color:var(--ink);
     font-family:"Hiragino Sans","Hiragino Kaku Gothic ProN","Yu Gothic",system-ui,sans-serif;
     line-height:1.7;-webkit-text-size-adjust:100%;
   }
-  .sheet{max-width:760px;margin:0 auto;background:var(--paper);padding:28px 22px 40px;border:1px solid var(--rule);}
+  .sheet{max-width:760px;margin:0 auto;background:var(--paper);padding:24px 20px 40px;border:1px solid var(--rule);}
   header{border-bottom:3px double var(--ink);padding-bottom:14px;}
-  h1{font-size:1.35rem;margin:0 0 6px;letter-spacing:.02em;}
+  h1{font-size:1.3rem;margin:0 0 6px;letter-spacing:.02em;}
   .lead{font-size:.85rem;color:var(--sub);margin:0;}
-  .tools{display:flex;gap:10px;flex-wrap:wrap;margin:18px 0 4px;}
   button{
     font:inherit;font-size:.85rem;padding:9px 16px;
     background:var(--ink);color:#fff;border:none;border-radius:2px;cursor:pointer;
   }
   button.ghost{background:transparent;color:var(--ink);border:1px solid var(--ink);}
-  button.mini{font-size:.78rem;padding:5px 12px;background:transparent;color:var(--blank);border:1px solid var(--blank);}
   button:focus-visible{outline:3px solid #f5b301;outline-offset:2px;}
+  .screen{display:none;}
+  .screen.on{display:block;}
+
+  /* スタート画面 */
+  .menu{display:grid;gap:14px;margin:34px 0 10px;}
+  .menu button{
+    padding:22px 18px;font-size:1.05rem;text-align:left;line-height:1.5;
+  }
+  .menu button small{display:block;font-size:.78rem;opacity:.75;margin-top:4px;font-weight:normal;}
+  .menu button.two{background:#2f5d8c;}
+
+  .tools{display:flex;gap:10px;flex-wrap:wrap;margin:18px 0 4px;}
   .score{margin:14px 0 20px;padding:10px 14px;background:var(--mark);border-left:5px solid var(--ink);font-size:.95rem;}
   .nav{
     display:none;align-items:center;gap:12px;flex-wrap:wrap;
@@ -50,35 +62,68 @@
   li.q{display:grid;grid-template-columns:2.4rem 1fr;gap:0 6px;padding:12px 0;border-bottom:1px dotted var(--rule);}
   body.single li.q{border-bottom:none;padding:20px 0 4px;}
   .num{color:var(--sub);font-size:.9rem;padding-top:.35rem;}
-  .en{font-family:Georgia,"Times New Roman",serif;font-size:1.05rem;line-height:2.4;}
+  .en{font-family:var(--en);font-size:1.05rem;line-height:2.4;}
   .ja{grid-column:2;font-size:.82rem;color:var(--sub);margin-top:3px;}
-  .qfoot{grid-column:2;margin-top:8px;}
   input.bl{
-    font-family:Georgia,serif;font-size:1rem;
+    font-family:var(--en);font-size:1rem;
     border:none;border-bottom:1.5px solid var(--blank);background:transparent;color:var(--ink);
     padding:2px 4px;margin:0 3px;text-align:center;
   }
   input.bl:focus{outline:none;background:#fdf6dd;border-bottom-width:2.5px;}
   input.bl.ok{color:var(--ok);border-bottom-color:var(--ok);}
   input.bl.ng{color:var(--ng);border-bottom-color:var(--ng);text-decoration:line-through;}
-  .fix{font-family:Georgia,serif;color:var(--ok);font-size:.95rem;margin-left:4px;}
+  .fix{font-family:var(--en);color:var(--ok);font-size:.95rem;margin-left:4px;}
   .mark{font-size:1.1rem;margin-left:6px;}
   .mark.ok{color:var(--ok);}
   .mark.ng{color:var(--ng);}
-  h2{font-size:1.05rem;margin:44px 0 12px;padding:6px 10px;background:var(--mark);border-left:5px solid var(--ink);}
+  h2{font-size:1.05rem;margin:40px 0 12px;padding:6px 10px;background:var(--mark);border-left:5px solid var(--ink);}
   .answers{
     display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:4px 18px;
     font-size:.9rem;padding:0;margin:0;list-style:none;
   }
-  .answers .aja{display:block;margin-left:1.6em;font-size:.8rem;color:var(--sub);}
   .answers li{border-bottom:1px dotted var(--rule);padding:4px 0;}
   .answers .an{color:var(--sub);margin-right:6px;font-size:.85rem;}
-  .answers b{font-family:Georgia,serif;font-weight:600;}
+  .answers b{font-family:var(--en);font-weight:600;}
+  .answers .aja{display:block;margin-left:1.6em;font-size:.8rem;color:var(--sub);}
+
+  /* 単語記憶モード */
+  .cards{margin:8px 0 0;padding:0;list-style:none;border-top:2px solid var(--ink);}
+  .cards li{padding:10px 4px 11px;border-bottom:1px solid var(--rule);}
+  .mja{font-size:.84rem;color:#333;margin-bottom:2px;}
+  .men{font-family:var(--en);font-size:1.06rem;line-height:1.6;}
+  .men .red{color:var(--red);font-weight:bold;}
+  .hint{font-size:.8rem;color:var(--sub);margin:10px 0 0;}
+
+  /* 赤シート：下の層で赤成分を消し、上の層で全体を薄くする */
+  #redfilter, #redsheet{
+    position:fixed;left:12px;top:200px;width:min(92vw,620px);height:190px;
+    border-radius:10px;display:none;
+  }
+  #redfilter{
+    background:#ff0000;mix-blend-mode:multiply;
+    pointer-events:none;z-index:59;
+  }
+  #redsheet{
+    background:rgba(255,255,255,.45);
+    border:1.5px solid rgba(200,60,60,.45);
+    box-shadow:0 6px 18px rgba(0,0,0,.18);
+    touch-action:none;z-index:60;
+  }
+  #redfilter.on, #redsheet.on{display:block;}
+  #redsheet .resize{
+    position:absolute;right:0;bottom:0;width:30px;height:30px;
+    background:linear-gradient(135deg,transparent 48%,rgba(150,30,30,.45) 48%,rgba(150,30,30,.45) 60%,transparent 60%,transparent 72%,rgba(150,30,30,.45) 72%,rgba(150,30,30,.45) 84%,transparent 84%);
+    border-bottom-right-radius:10px;touch-action:none;cursor:nwse-resize;
+  }
+  #redsheet .grip{
+    position:absolute;left:0;right:0;bottom:6px;text-align:center;
+    color:rgba(150,30,30,.55);font-size:.72rem;letter-spacing:.1em;
+  }
   .hidden{display:none;}
   @media print{
     body{background:#fff;padding:0;}
     .sheet{border:none;padding:0;max-width:none;}
-    .tools,.score,.nav,.qfoot{display:none;}
+    .tools,.score,.nav,#redsheet{display:none;}
     li.q{break-inside:avoid;}
     input.bl{border-bottom:1.5px solid #333;}
   }
@@ -87,31 +132,54 @@
 <body>
 <div class="sheet">
   <header>
-    <h1>例文穴埋めプリント</h1>
+    <h1>英語 例文練習</h1>
     <p class="lead">教科書に出てきた単語・表現（imagine 〜 article・全41問）</p>
   </header>
 
-  <div class="tools">
-    <button id="mode">1問ずつ解く</button>
-    <button class="ghost" id="check">全部まとめて答え合わせ</button>
-    <button class="ghost" id="clear">入力を消す</button>
-    <button class="ghost" id="shuffle">問題を並べかえる</button>
-    <button class="ghost" id="toggle">答えをかくす</button>
-  </div>
+  <!-- スタート画面 -->
+  <section class="screen on" id="start">
+    <div class="menu">
+      <button id="goTest">実技テスト<small>空所に単語を打ちこんで、最後にまとめて答え合わせ</small></button>
+      <button class="two" id="goMemo">単語記憶モード<small>赤シートで単語をかくして覚える</small></button>
+    </div>
+  </section>
 
-  <div class="nav">
-    <button class="ghost" id="prev">前へ</button>
-    <button id="next">次へ</button>
-    <span class="progress" id="progress"></span>
-  </div>
+  <!-- 実技テスト -->
+  <section class="screen" id="test">
+    <div class="tools">
+      <button id="check">答え合わせ</button>
+      <button class="ghost" id="mode">1問ずつ解く</button>
+      <button class="ghost" id="clear">入力を消す</button>
+      <button class="ghost" id="shuffle">並べかえ</button>
+      <button class="ghost" id="toggle">答えをかくす</button>
+      <button class="ghost home">最初の画面へ</button>
+    </div>
+    <div class="nav">
+      <button class="ghost" id="prev">前へ</button>
+      <button id="next">次へ</button>
+      <span class="progress" id="progress"></span>
+    </div>
+    <div class="score hidden" id="score"></div>
+    <ol class="quiz" id="quiz"></ol>
+    <h2 id="ansHead">答え</h2>
+    <ol class="answers" id="answers"></ol>
+  </section>
 
-  <div class="score hidden" id="score"></div>
-
-  <ol class="quiz" id="quiz"></ol>
-
-  <h2 id="ansHead">答え</h2>
-  <ol class="answers" id="answers"></ol>
+  <!-- 単語記憶モード -->
+  <section class="screen" id="memo">
+    <div class="tools">
+      <button id="sheetBtn">赤シートを出す</button>
+      <button class="ghost" id="memoShuffle">並べかえ</button>
+      <button class="ghost" id="memoOrder">もとの順に</button>
+      <button class="ghost home">最初の画面へ</button>
+    </div>
+    <p class="hint">赤シートは指でドラッグして動かせます。右下のつまみで大きさを変えられます。</p>
+    <ul class="cards" id="cards"></ul>
+  </section>
 </div>
+
+<div id="redfilter"></div>
+<div id="redsheet"><span class="grip">◀ ドラッグ ▶</span><div class="resize"></div></div>
 
 <script>
 const DATA = [
@@ -158,12 +226,10 @@ const DATA = [
  ["Who wrote this {}? It's wonderful.", "article", "この記事だれが書いたの？すてき。"]
 ];
 
-const quiz = document.getElementById('quiz');
-const answers = document.getElementById('answers');
-const scoreBox = document.getElementById('score');
-const progress = document.getElementById('progress');
-const ansHead = document.getElementById('ansHead');
-const toggleBtn = document.getElementById('toggle');
+const $ = function(id){ return document.getElementById(id); };
+const quiz = $('quiz'), answers = $('answers'), scoreBox = $('score');
+const progress = $('progress'), ansHead = $('ansHead'), toggleBtn = $('toggle');
+const cards = $('cards'), redsheet = $('redsheet'), redfilter = $('redfilter');
 let current = [], single = false, idx = 0;
 
 function esc(s){
@@ -175,53 +241,57 @@ function answerText(a){
   return s.every(function(x){ return x === s[0]; }) ? s[0] : s.join(' / ');
 }
 function norm(s){
-  return s.toLowerCase().replace(/[.,!?"'’]/g,'').replace(/\s+/g,' ').trim();
+  return s.toLowerCase().replace(/[.,!?"'\u2019]/g,'').replace(/\s+/g,' ').trim();
 }
+function shuffle(arr){
+  const a = arr.slice();
+  for (let i = a.length - 1; i > 0; i--){
+    const j = Math.floor(Math.random() * (i + 1));
+    const t = a[i]; a[i] = a[j]; a[j] = t;
+  }
+  return a;
+}
+function fillSlots(en, ans){
+  let slots = slotsOf(ans);
+  if (slots.length !== en.split('{}').length - 1) slots = new Array(en.split('{}').length - 1).fill(ans);
+  return slots;
+}
+
+/* ===== 実技テスト ===== */
 function inputFor(word){
   const w = Math.max(4, Math.min(11, word.length * 0.95));
   return '<input class="bl" type="text" style="width:' + w + 'em" data-ans="' + esc(word)
        + '" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false">';
 }
-function buildSentence(sentence, ans){
-  const parts = esc(sentence).split('{}');
-  let slots = slotsOf(ans);
-  if (slots.length !== parts.length - 1) slots = new Array(parts.length - 1).fill(ans);
+function buildSentence(en, ans){
+  const parts = esc(en).split('{}');
+  const slots = fillSlots(en, ans);
   let out = parts[0];
   for (let i = 0; i < slots.length; i++){
     out += slots[i].split(' ').map(inputFor).join(' ') + parts[i + 1];
   }
   return out;
 }
-function render(list){
-  current = list;
-  idx = 0;
+function renderTest(list){
+  current = list; idx = 0;
   scoreBox.classList.add('hidden');
   quiz.innerHTML = list.map(function(item, i){
     return '<li class="q"><span class="num">' + (i + 1) + '.</span>'
          + '<div class="en">' + buildSentence(item[0], item[1]) + '</div>'
-         + '<div class="ja">' + esc(item[2]) + '</div>'
-         + '<div class="qfoot"><button class="mini one">この問題を確認</button></div></li>';
+         + '<div class="ja">' + esc(item[2]) + '</div></li>';
   }).join('');
   answers.innerHTML = list.map(function(item, i){
     return '<li><span class="an">' + (i + 1) + '.</span><b>' + esc(answerText(item[1])) + '</b>'
          + '<span class="aja">' + esc(item[2]) + '</span></li>';
   }).join('');
-  quiz.querySelectorAll('button.one').forEach(function(b){
-    b.addEventListener('click', function(){ checkOne(b.closest('li.q')); });
-  });
   bindKeys();
   applyMode();
 }
 function bindKeys(){
-  quiz.querySelectorAll('li.q').forEach(function(li){
-    const fields = Array.prototype.slice.call(li.querySelectorAll('input.bl'));
-    fields.forEach(function(f, i){
-      f.addEventListener('keydown', function(e){
-        if (e.key !== 'Enter') return;
-        e.preventDefault();
-        if (fields[i + 1]) fields[i + 1].focus();
-        else checkOne(li);
-      });
+  const fields = Array.prototype.slice.call(quiz.querySelectorAll('input.bl'));
+  fields.forEach(function(f, i){
+    f.addEventListener('keydown', function(e){
+      if (e.key === 'Enter' && fields[i + 1]) { e.preventDefault(); fields[i + 1].focus(); }
     });
   });
 }
@@ -229,49 +299,41 @@ function clearMarks(li){
   li.querySelectorAll('.fix, .mark').forEach(function(el){ el.remove(); });
   li.querySelectorAll('input.bl').forEach(function(f){ f.classList.remove('ok','ng'); });
 }
-function gradeOne(li){
-  clearMarks(li);
-  let allOk = true, allEmpty = true;
-  li.querySelectorAll('input.bl').forEach(function(f){
-    const ok = norm(f.value) === norm(f.dataset.ans);
-    if (f.value.trim() !== '') allEmpty = false;
-    f.classList.add(ok ? 'ok' : 'ng');
-    if (!ok){
-      allOk = false;
-      const fix = document.createElement('span');
-      fix.className = 'fix';
-      fix.textContent = f.dataset.ans;
-      f.insertAdjacentElement('afterend', fix);
-    }
-  });
-  const m = document.createElement('span');
-  m.className = 'mark ' + (allOk ? 'ok' : 'ng');
-  m.textContent = allOk ? '○' : '×';
-  li.querySelector('.en').appendChild(m);
-  return {ok: allOk, empty: allEmpty};
-}
-function checkOne(li){
-  gradeOne(li);
-}
 function checkAll(){
   let right = 0, blank = 0;
   quiz.querySelectorAll('li.q').forEach(function(li){
-    const r = gradeOne(li);
-    if (r.ok) right++;
-    if (r.empty) blank++;
+    clearMarks(li);
+    let allOk = true, allEmpty = true;
+    li.querySelectorAll('input.bl').forEach(function(f){
+      const ok = norm(f.value) === norm(f.dataset.ans);
+      if (f.value.trim() !== '') allEmpty = false;
+      f.classList.add(ok ? 'ok' : 'ng');
+      if (!ok){
+        allOk = false;
+        const fix = document.createElement('span');
+        fix.className = 'fix';
+        fix.textContent = f.dataset.ans;
+        f.insertAdjacentElement('afterend', fix);
+      }
+    });
+    const m = document.createElement('span');
+    m.className = 'mark ' + (allOk ? 'ok' : 'ng');
+    m.textContent = allOk ? '\u25cb' : '\u00d7';
+    li.querySelector('.en').appendChild(m);
+    if (allOk) right++;
+    if (allEmpty) blank++;
   });
   const total = current.length;
+  if (single){ single = false; $('mode').textContent = '1問ずつ解く'; applyMode(); }
   scoreBox.classList.remove('hidden');
   scoreBox.textContent = total + '問中 ' + right + '問正解（' + Math.round(right / total * 100) + '％）'
     + (blank ? '　※未入力 ' + blank + '問' : '');
-  scoreBox.scrollIntoView({behavior:'smooth', block:'center'});
+  window.scrollTo({top:0, behavior:'smooth'});
 }
 function applyMode(){
   const items = quiz.querySelectorAll('li.q');
   document.body.classList.toggle('single', single);
-  items.forEach(function(li, i){
-    li.classList.toggle('hidden', single && i !== idx);
-  });
+  items.forEach(function(li, i){ li.classList.toggle('hidden', single && i !== idx); });
   if (single){
     progress.textContent = (idx + 1) + ' / ' + current.length;
     const first = items[idx] ? items[idx].querySelector('input.bl') : null;
@@ -283,45 +345,123 @@ function move(step){
   applyMode();
   window.scrollTo({top:0, behavior:'smooth'});
 }
-function shuffle(arr){
-  const a = arr.slice();
-  for (let i = a.length - 1; i > 0; i--){
-    const j = Math.floor(Math.random() * (i + 1));
-    [a[i], a[j]] = [a[j], a[i]];
-  }
-  return a;
-}
 function setAnswersHidden(hide){
   answers.classList.toggle('hidden', hide);
   ansHead.classList.toggle('hidden', hide);
   toggleBtn.textContent = hide ? '答えを表示する' : '答えをかくす';
 }
 
-render(shuffle(DATA));
+/* ===== 単語記憶モード ===== */
+function renderCards(list){
+  cards.innerHTML = list.map(function(item){
+    const parts = esc(item[0]).split('{}');
+    const slots = fillSlots(item[0], item[1]);
+    let en = parts[0];
+    for (let i = 0; i < slots.length; i++){
+      en += '<span class="red">' + esc(slots[i]) + '</span>' + parts[i + 1];
+    }
+    return '<li><div class="mja">' + esc(item[2]) + '</div><div class="men">' + en + '</div></li>';
+  }).join('');
+}
 
-document.getElementById('mode').addEventListener('click', function(){
-  single = !single;
-  this.textContent = single ? 'まとめて表示' : '1問ずつ解く';
-  if (single) setAnswersHidden(true);
-  scoreBox.classList.add('hidden');
-  applyMode();
+/* ===== 赤シート（ドラッグ） ===== */
+(function(){
+  let dx = 0, dy = 0, dragging = false;
+  function place(x, y){
+    [redsheet, redfilter].forEach(function(el){
+      el.style.left = x + 'px';
+      el.style.top  = y + 'px';
+    });
+  }
+  function size(w, h){
+    [redsheet, redfilter].forEach(function(el){
+      el.style.width  = Math.max(90, w) + 'px';
+      el.style.height = Math.max(44, h) + 'px';
+    });
+  }
+  redsheet.addEventListener('pointerdown', function(e){
+    dragging = true;
+    redsheet.setPointerCapture(e.pointerId);
+    const r = redsheet.getBoundingClientRect();
+    dx = e.clientX - r.left; dy = e.clientY - r.top;
+  });
+  redsheet.addEventListener('pointermove', function(e){
+    if (!dragging) return;
+    e.preventDefault();
+    place(e.clientX - dx, e.clientY - dy);
+  });
+  ['pointerup','pointercancel'].forEach(function(t){
+    redsheet.addEventListener(t, function(){ dragging = false; });
+  });
+
+  const handle = redsheet.querySelector('.resize');
+  let resizing = false;
+  handle.addEventListener('pointerdown', function(e){
+    e.stopPropagation();
+    resizing = true;
+    handle.setPointerCapture(e.pointerId);
+  });
+  handle.addEventListener('pointermove', function(e){
+    if (!resizing) return;
+    e.preventDefault();
+    const r = redsheet.getBoundingClientRect();
+    size(e.clientX - r.left, e.clientY - r.top);
+  });
+  ['pointerup','pointercancel'].forEach(function(t){
+    handle.addEventListener(t, function(){ resizing = false; });
+  });
+})();
+
+/* ===== 画面切り替え ===== */
+function show(id){
+  document.querySelectorAll('.screen').forEach(function(s){ s.classList.toggle('on', s.id === id); });
+  if (id !== 'memo'){
+    redsheet.classList.remove('on'); redfilter.classList.remove('on');
+    $('sheetBtn').textContent = '赤シートを出す';
+  }
   window.scrollTo({top:0});
+}
+$('goTest').addEventListener('click', function(){
+  renderTest(shuffle(DATA));
+  setAnswersHidden(false);
+  show('test');
 });
-document.getElementById('next').addEventListener('click', function(){ move(1); });
-document.getElementById('prev').addEventListener('click', function(){ move(-1); });
-document.getElementById('check').addEventListener('click', checkAll);
-document.getElementById('clear').addEventListener('click', function(){
+$('goMemo').addEventListener('click', function(){
+  renderCards(DATA);
+  show('memo');
+});
+document.querySelectorAll('.home').forEach(function(b){
+  b.addEventListener('click', function(){ show('start'); });
+});
+$('check').addEventListener('click', checkAll);
+$('clear').addEventListener('click', function(){
   quiz.querySelectorAll('li.q').forEach(clearMarks);
   quiz.querySelectorAll('input.bl').forEach(function(f){ f.value = ''; });
   scoreBox.classList.add('hidden');
 });
-document.getElementById('shuffle').addEventListener('click', function(){
-  render(shuffle(DATA));
+$('shuffle').addEventListener('click', function(){
+  renderTest(shuffle(DATA));
   window.scrollTo({top:0});
 });
+$('mode').addEventListener('click', function(){
+  single = !single;
+  this.textContent = single ? 'まとめて表示' : '1問ずつ解く';
+  if (single) setAnswersHidden(true);
+  applyMode();
+  window.scrollTo({top:0});
+});
+$('next').addEventListener('click', function(){ move(1); });
+$('prev').addEventListener('click', function(){ move(-1); });
 toggleBtn.addEventListener('click', function(){
   setAnswersHidden(!answers.classList.contains('hidden'));
 });
+$('sheetBtn').addEventListener('click', function(){
+  const on = redsheet.classList.toggle('on');
+  redfilter.classList.toggle('on', on);
+  this.textContent = on ? '赤シートをしまう' : '赤シートを出す';
+});
+$('memoShuffle').addEventListener('click', function(){ renderCards(shuffle(DATA)); window.scrollTo({top:0}); });
+$('memoOrder').addEventListener('click', function(){ renderCards(DATA); window.scrollTo({top:0}); });
 </script>
 </body>
 </html>
